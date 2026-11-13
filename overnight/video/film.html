@@ -1,0 +1,195 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Archivo';src:url(assets/archivo-latin-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:'Archivo';src:url(assets/archivo-latin-ext-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0100-024F}
+@font-face{font-family:'SS';src:url(assets/source-serif-4-latin-standard-normal.woff2);font-weight:200 900}
+@font-face{font-family:'SS';src:url(assets/source-serif-4-latin-standard-italic.woff2);font-weight:200 900;font-style:italic}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#0d1620;font-family:Archivo,sans-serif;color:#EEF2F5}
+.scene{position:absolute;inset:0;opacity:0;display:flex;flex-direction:column;justify-content:center;padding:0 160px;box-sizing:border-box}
+.dark{background:radial-gradient(ellipse at 50% 40%,#1a2a3b 0%,#0d1620 70%)}
+.berrybg{background:#B3324A}
+.serif{font-family:SS,Georgia,serif}
+.c{text-align:center;align-items:center}
+.big{font-size:84px;font-weight:700;line-height:1.1;max-width:1500px}
+.mid{font-size:56px;line-height:1.25}
+.small{font-size:30px;color:#9fb0c0}
+.src{position:absolute;left:160px;bottom:60px;font-size:24px;color:#7d90a3}
+.berry{color:#e2556c}.mint{color:#5FD3B0}.amber{color:#F0B43C}.soft{color:#a9b8c6}
+[data-in]{opacity:0}
+.lane{position:absolute;left:200px;height:14px;border-radius:7px}
+.lab{position:absolute;font-size:34px;font-weight:600}
+.day{position:absolute;right:200px;top:150px;font-size:120px;font-weight:800;font-stretch:80%;font-variant-numeric:tabular-nums}
+.steps{display:flex;gap:40px;margin-top:60px}
+.step{width:270px;border-top:12px solid #3b5268;padding-top:24px}
+.step b{display:block;font-size:110px;font-weight:800;font-stretch:80%;color:#e2556c;line-height:1}
+.step span{font-size:30px;color:#a9b8c6}
+.barrow{display:grid;grid-template-columns:520px 1fr 170px;gap:30px;align-items:center;font-size:36px;margin:18px 0}
+.track{height:44px;background:#1f3144;border-radius:6px;overflow:hidden}
+.fill{height:100%;border-radius:6px;width:0}
+.shot{position:absolute;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.band{position:absolute;left:0;right:0;bottom:0;height:480px;background:linear-gradient(rgba(13,22,32,0),rgba(13,22,32,.94) 55%)}
+.cap{position:absolute;left:160px;bottom:120px;max-width:1300px;font-size:52px;font-weight:700;line-height:1.15;text-shadow:0 4px 30px rgba(0,0,0,.8)}
+.cap small{display:block;font-size:30px;font-weight:400;color:#c8d4de;margin-top:14px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:40px}
+.trio div{border-top:6px solid #5FD3B0;padding-top:28px}
+.trio b{display:block;font-size:72px;font-weight:800;font-stretch:85%;line-height:1.05;margin-bottom:16px}
+.trio span{font-size:32px;color:#c8d4de;line-height:1.35;display:block}
+.trio i{display:block;font-size:24px;color:#7d90a3;margin-top:14px;font-style:normal}
+.word{font-size:300px;font-weight:800;letter-spacing:-6px;line-height:.9}
+</style></head><body>
+
+<!-- A -->
+<div class="scene dark c" id="A" data-s="0" data-e="8.6">
+  <p class="big serif" data-in="0.5" style="font-weight:400">Two people in Finland notice<br>the same lump in their neck.</p>
+</div>
+
+<!-- B: river -->
+<div class="scene dark" id="B" data-s="8.6" data-e="24.6">
+  <div class="day" id="daynum">day 0</div>
+  <div class="lab" style="left:200px;top:330px" data-in="0.3">One has <span class="soft">occupational health care.</span></div>
+  <div class="lane" id="laneO" style="top:410px;background:#a9b8c6;width:0"></div>
+  <div class="lab" id="doneO" style="top:445px;opacity:0;font-size:30px;color:#cfd8e0">Treatment · day 123</div>
+  <div class="lab" style="left:200px;top:600px" data-in="1.4">One goes to the <span class="berry">public health centre.</span></div>
+  <div class="lane" id="laneP" style="top:680px;background:#e2556c;width:0;height:20px"></div>
+  <div class="lab" id="doneP" style="top:720px;opacity:0;font-size:30px;color:#ffb3c0">Treatment · day 207</div>
+  <div class="src">Diffuse large B-cell lymphoma, North Ostrobothnia · Kuitunen et al., Cancer Medicine 2026</div>
+</div>
+
+<!-- C -->
+<div class="scene dark c" id="C" data-s="24.6" data-e="32.6">
+  <p class="berry" data-in="0" style="font-size:260px;font-weight:800;font-stretch:78%;margin:0;line-height:1">+84 days</p>
+  <p class="mid serif" data-in="1.2">Same lymphoma. Twelve weeks apart.</p>
+  <div class="src">Kuitunen et al., Cancer Medicine 2026 · values from the AstraZeneca keynote</div>
+</div>
+
+<!-- D -->
+<div class="scene dark" id="D" data-s="32.6" data-e="42.6">
+  <p class="big" data-in="0.2">The delay is born <span class="berry">before</span> the specialist.</p>
+  <div class="steps">
+    <div class="step" data-in="1.2"><b>+30</b><span>first contact</span></div>
+    <div class="step" data-in="1.9"><b>+51</b><span>doctor’s visit</span></div>
+    <div class="step" data-in="2.6"><b>+70</b><span>referral</span></div>
+    <div class="step" data-in="3.3" style="border-top-color:#e2556c"><b>+86</b><span>specialist</span></div>
+    <div class="step" data-in="4.6"><b style="color:#7d90a3">+84</b><span>treatment</span></div>
+  </div>
+  <p class="small" data-in="5.4" style="margin-top:50px">Extra days on the public route, at each step.</p>
+</div>
+
+<!-- E1 -->
+<div class="scene dark" id="E1" data-s="42.6" data-e="49.6">
+  <p class="big" data-in="0.2">It falls on those who can’t skip the queue.</p>
+  <div style="margin-top:60px">
+    <div class="barrow" data-in="0.9"><span>Basic education</span><div class="track"><div class="fill" id="b1" style="background:#e2556c"></div></div><b>64 %</b></div>
+    <div class="barrow" data-in="1.2"><span>Higher education</span><div class="track"><div class="fill" id="b2" style="background:#a9b8c6"></div></div><b>77 %</b></div>
+  </div>
+  <p class="small" data-in="2.2" style="margin-top:30px">Five-year cancer survival, Finnish men. Occupational care covers 92 % of wage earners — not the retired or unemployed.</p>
+  <div class="src">OECD/EC Country Cancer Profile Finland 2025 (Finnish Cancer Registry) · Kela 2026</div>
+</div>
+
+<!-- E2 -->
+<div class="scene dark" id="E2" data-s="49.6" data-e="55.6">
+  <p class="big" data-in="0.2">Finland has the Nordics’ lowest lung-cancer survival.</p>
+  <div style="margin-top:60px">
+    <div class="barrow" data-in="0.8"><span>Norway, men</span><div class="track"><div class="fill" id="b3" style="background:#a9b8c6"></div></div><b>26.6 %</b></div>
+    <div class="barrow" data-in="1.1"><span>Finland, men</span><div class="track"><div class="fill" id="b4" style="background:#e2556c"></div></div><b>16.4 %</b></div>
+  </div>
+  <p class="small" data-in="2.0" style="margin-top:30px">Denmark started below Finland twenty years ago. Today it is at 26 %. This is fixable.</p>
+  <div class="src">Tichanek et al., Clin Epidemiol 2023 · Khalife et al., Acta Oncol 2025</div>
+</div>
+
+<!-- F -->
+<div class="scene berrybg" id="F" data-s="55.6" data-e="63.2">
+  <p class="big" data-in="0.2" style="font-size:96px">Nobody measures the wait between a symptom and a cancer diagnosis.</p>
+  <p class="mid serif" data-in="2.0" style="color:#fde6ea;margin-top:40px">You cannot shorten a wait you do not see.</p>
+  <div class="src" style="color:#f7c9d1">National Cancer Strategy 2026–2035, sub-goal 2.5</div>
+</div>
+
+<!-- G -->
+<div class="scene dark c" id="G" data-s="63.2" data-e="70.2">
+  <p class="word" data-in="0.3">Ajoissa<span class="mint">.</span></p>
+  <p class="mid serif" data-in="1.3" style="margin-top:30px">Finnish for <i>in time</i>.</p>
+  <p class="small" data-in="2.3" style="font-size:36px">A safety-net agent for public primary care.</p>
+</div>
+
+<!-- H -->
+<div class="scene dark" id="H" data-s="70.2" data-e="79.6">
+  <img class="shot" id="hshot" src="assets/agent.jpg" style="width:1600px;left:160px;top:240px">
+  <img class="shot" id="hrun" src="assets/runbar.jpg" style="width:1600px;left:160px;top:110px">
+  <div class="band"></div>
+  <div class="cap" data-in="0.6">Every night, it reads the health centre’s own records.<small>Notes, lab results, visit history. Synthetic patients in this demo.</small></div>
+</div>
+
+<!-- I -->
+<div class="scene dark" id="I" data-s="79.6" data-e="91.6">
+  <img class="shot" id="inote" src="assets/notepanel.jpg" style="width:940px;left:160px;top:120px">
+  <img class="shot" id="ireason" src="assets/reason.jpg" style="width:700px;left:1080px;top:120px">
+  <div class="band"></div>
+  <div class="cap" data-in="0.5" id="icap1">Third visit for the same cough.<small>It reads the Finnish note — and understands “no blood”.</small></div>
+  <div class="cap" id="icap2" style="opacity:0">Risk 0.9 % → 21.5 %. Proposed: a direct CT.<small>A named nurse decides. Then a clock runs until diagnosis or all-clear.</small></div>
+</div>
+
+<!-- J -->
+<div class="scene dark" id="J" data-s="91.6" data-e="99.6">
+  <p class="mint" data-in="0.2" style="font-size:220px;font-weight:800;font-stretch:78%;margin:0;line-height:1">35 days</p>
+  <p class="big" data-in="0.9" style="font-size:72px">earlier — at his second visit.</p>
+  <p class="mid serif soft" data-in="2.0" style="margin-top:30px">Nobody did anything wrong. Nobody had the whole picture.</p>
+</div>
+
+<!-- K -->
+<div class="scene dark" id="K" data-s="99.6" data-e="108.6">
+  <p class="big" data-in="0.2">Proven pattern. Legal now. Done before.</p>
+  <div class="trio">
+    <div data-in="1.0"><b>200 → 104 days</b><span>to diagnostic work-up when a trigger meets a human reviewer.</span><i>Randomised trial · Murphy et al., JCO 2015</i></div>
+    <div data-in="1.8"><b>Legal since 2026</b><span>counties may use their own records to find health problems early.</span><i>HE 159/2025 · EV 38/2026</i></div>
+    <div data-in="2.6"><b>Already running</b><span>in Päijät-Häme for kidney disease — list, nurse, doctor.</span><i>Päijät-Häme AINO, 2026</i></div>
+  </div>
+</div>
+
+<!-- L -->
+<div class="scene dark c" id="L" data-s="108.6" data-e="117.8">
+  <p class="big" data-in="0.2" style="font-size:90px">One county. Three health centres.<br>Six months.</p>
+  <p class="mid serif" data-in="2.4" style="margin-top:50px">Same symptom, same speed — <span class="mint">whichever door you walk in.</span></p>
+  <p class="small" data-in="4.0" style="margin-top:60px;font-size:34px"><b style="color:#EEF2F5">Ajoissa</b> · Brainwave Bandits · Junction 2026 · AstraZeneca challenge</p>
+</div>
+
+<script>
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>1-Math.pow(1-clamp(x),3);
+const io=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const scenes=[...document.querySelectorAll('.scene')].map(el=>({el,s:+el.dataset.s,e:+el.dataset.e,items:[...el.querySelectorAll('[data-in]')]}));
+function draw(t){
+  for(const sc of scenes){
+    const lt=t-sc.s, dur=sc.e-sc.s;
+    if(t<sc.s-0.01||t>sc.e+0.01){sc.el.style.opacity=0;continue;}
+    const fin=sc.s===0?clamp(lt/0.8):clamp(lt/0.5), fout=clamp((sc.e-t)/0.5);
+    sc.el.style.opacity=Math.min(fin,fout);
+    for(const it of sc.items){const k=ease((lt-(+it.dataset.in))/0.7);it.style.opacity=k;it.style.transform=`translateY(${(1-k)*24}px)`;}
+    const f=window['s_'+sc.el.id]; if(f) f(lt,dur);
+  }
+}
+const X0=200,X1=1720,MAXD=210;
+window.s_B=(lt)=>{
+  const d=clamp((lt-2.2)/11,0,1)*207; // days run over 11 s
+  const dO=Math.min(d,123), dP=d;
+  document.getElementById('laneO').style.width=(dO/MAXD*(X1-X0))+'px';
+  document.getElementById('laneP').style.width=(dP/MAXD*(X1-X0))+'px';
+  document.getElementById('daynum').textContent='day '+Math.round(d);
+  const o=document.getElementById('doneO'); o.style.left=(X0+123/MAXD*(X1-X0)-10)+'px'; o.style.opacity=d>=123?clamp((d-123)/10):0;
+  const p=document.getElementById('doneP'); p.style.left=(X0+207/MAXD*(X1-X0)-330)+'px'; p.style.opacity=d>=206?clamp((lt-13.2)/0.5):0;
+  document.getElementById('daynum').style.color=d>123?'#e2556c':'#EEF2F5';
+};
+window.s_E1=(lt)=>{document.getElementById('b1').style.width=(ease((lt-1.1)/1.4)*64)+'%';document.getElementById('b2').style.width=(ease((lt-1.4)/1.4)*77)+'%';};
+window.s_E2=(lt)=>{document.getElementById('b3').style.width=(ease((lt-1.0)/1.2)*26.6/30*100)+'%';document.getElementById('b4').style.width=(ease((lt-1.3)/1.2)*16.4/30*100)+'%';};
+window.s_H=(lt,d)=>{const k=io(clamp(lt/d));const s=document.getElementById('hshot');s.style.transform=`translateY(${-k*260}px) scale(${1.02-k*0.02})`;s.style.transformOrigin='50% 0';};
+window.s_I=(lt,d)=>{
+  const n=document.getElementById('inote'), r=document.getElementById('ireason');
+  const k1=io(clamp(lt/6)); n.style.transform=`scale(${1.08-0.08*k1})`; n.style.transformOrigin='0 0';
+  const k2=io(clamp((lt-5.5)/5)); r.style.transform=`translateY(${-k2*520}px)`; r.style.opacity=0.35+0.65*clamp((lt-5)/1);
+  n.style.opacity=1-0.6*clamp((lt-5.5)/1);
+  document.getElementById('icap1').style.opacity=lt<5.6?ease(lt-0.5):clamp((6.2-lt)/0.6);
+  document.getElementById('icap2').style.opacity=clamp((lt-6.3)/0.6);
+};
+window.draw=draw; draw(0);
+</script>
+</body></html>

@@ -293,7 +293,7 @@
       <div class="panel outcome"><div class="v num">${Math.round(daysEach)} d</div><div class="lbl">earlier to diagnostic imaging, per flagged patient</div><div class="range">${Math.round(daysTotal).toLocaleString("en-US")} patient-days recovered a year <span class="model-tag">model</span></div></div>
       <div class="panel outcome"><div class="v num" style="color:var(--amber)">${Math.round(workups).toLocaleString("en-US")}</div><div class="lbl">extra work-ups (imaging/reviews) a year — the cost side</div><div class="range">≈ ${Math.round(workups / 52)} a week across the county <span class="model-tag">model</span></div></div>`;
     $("#assumptions").innerHTML = `<h3>What this model does and does not claim</h3><ul class="assume">
-      <li>Cases: county population × Finland's ≈ 3,000 lung cancers a year / 5.6 M people. Rounded national rate, not the county's own incidence.</li>
+      <li>Cases: county population × Finland's ≈ 3,000 lung cancers a year (14,926 in 2019–2023, Finnish Cancer Registry) / 5.6 M people. National rate, not the county's own incidence.</li>
       <li>Flag rate and work-up burden from a retrospective Dutch study ${cite("schut2025")}; speed-up from a US cluster RCT on colorectal and prostate red flags ${cite("murphy2015")}. Neither is Finnish.</li>
       <li><b>No stage shift or survival gain is claimed.</b> The UK trial designed to test that (ERICA) has not reported. The county pilot is how we find out — with the pathway clocks as the measuring instrument.</li>
       <li>Work-ups are the honest cost: many are chest imaging the patient would have received later anyway — the agent moves them earlier and makes sure results are acted on.</li>
