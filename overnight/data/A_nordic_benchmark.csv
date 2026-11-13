@@ -1,0 +1,33 @@
+cancer,sex,measure,country,value,unit,period,outcome_type,source,doi_or_url,evidence_grade,note
+lung,men,5yr_relative_survival,Finland,16.4,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023;15:503-510 (NORDCAN)",https://doi.org/10.2147/CLEP.S406606,strong,worst of DK/FI/NO/SE
+lung,men,5yr_relative_survival,Norway,26.6,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023",https://doi.org/10.2147/CLEP.S406606,strong,best
+lung,women,5yr_relative_survival,Finland,25.5,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023",https://doi.org/10.2147/CLEP.S406606,strong,worst
+lung,women,5yr_relative_survival,Norway,33.2,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023",https://doi.org/10.2147/CLEP.S406606,strong,best
+lung,men,1yr_relative_survival,Finland,43,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023",https://doi.org/10.2147/CLEP.S406606,strong,others >50%
+lung,women,1yr_relative_survival,Finland,52.4,%,2016-2020,survival,"Tichanek F et al. Clin Epidemiol 2023",https://doi.org/10.2147/CLEP.S406606,strong,others about 60%
+lung,men,5yr_relative_survival,Finland,16.7,%,2018-2022,survival,"Khalife G et al. Acta Oncol 2025;64:734-741 (NORDCAN)",https://doi.org/10.2340/1651-226X.2025.42778,strong,lowest
+lung,men,5yr_relative_survival,Denmark,26.2,%,2018-2022,survival,"Khalife G et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.42778,strong,
+lung,men,5yr_relative_survival,Iceland,28.4,%,2018-2022,survival,"Khalife G et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.42778,strong,
+lung,men,5yr_relative_survival,Sweden,26.8,%,2018-2022,survival,"Paappanen V et al. Acta Oncol 2025;64:909-916 (citing NORDCAN)",https://doi.org/10.2340/1651-226X.2025.43398,strong,
+lung,men,5yr_relative_survival,Norway,28.2,%,2018-2022,survival,"Paappanen V et al. Acta Oncol 2025 (citing NORDCAN)",https://doi.org/10.2340/1651-226X.2025.43398,strong,
+lung,men,5yr_relative_survival,Finland,9.7,%,1998-2002,survival,"Khalife G et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.42778,strong,Finland was mid-pack 20 years ago
+lung,men,5yr_relative_survival,Denmark,8.9,%,1998-2002,survival,"Khalife G et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.42778,strong,
+lung,both,share stage I-IIIA at diagnosis,Finland,39.5,%,2018 (5-hospital cohort),stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,Finnish figure from 5-hospital cohort; others national registries
+lung,both,share stage I-IIIA at diagnosis,Norway,48.7,%,national registry (period per paper),stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage I-IIIA at diagnosis,Sweden,50.4,%,national registry,stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage I-IIIA at diagnosis,Denmark,44.0,%,national registry,stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage I at diagnosis,Finland,19.7,%,2018 (5-hospital cohort),stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage I at diagnosis,Norway,30.6,%,national registry,stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage I at diagnosis,Sweden,25.8,%,national registry,stage,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share of all patients operated,Finland (FCR),11.8,%,2018,treatment,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,cohort figure 19.5%
+lung,both,share of all patients operated,Norway,26.6,%,per paper,treatment,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share of all patients operated,Denmark,26.0,%,per paper,treatment,"Paappanen V et al. Acta Oncol 2025",https://doi.org/10.2340/1651-226X.2025.43398,moderate,
+lung,both,share stage IV at diagnosis,Finland - Pirkanmaa (Tampere UH),59.5,%,2013-2019,stage,"Ahvonen J et al. Acta Oncol 2023;62:571-578",https://doi.org/10.1080/0284186X.2023.2213444,moderate,single centre; 57.8% in 2007-2012
+lung,both,wait for health-centre appointment (symptomatic),Finland,14,days (modal survey answer),2023-2024,waiting time,"Khalife G et al. Acta Oncol 2025 (expert survey)",https://doi.org/10.2340/1651-226X.2025.42778,weak-moderate (survey),DK/NO/SE 2-7 days
+lung,both,specialist consultation after GP visit,Finland,2-4,weeks (modal survey answer),2023-2024,waiting time,"Khalife G et al. Acta Oncol 2025 (expert survey)",https://doi.org/10.2340/1651-226X.2025.42778,weak-moderate (survey),DK/NO/SE 1-2 weeks
+lung,both,patients meeting a doctor at first contact,Finland,40-60,%,2023-2024,process,"Khalife G et al. Acta Oncol 2025 (expert survey)",https://doi.org/10.2340/1651-226X.2025.42778,weak-moderate (survey),DK/NO 100%; SE 80-100%
+all cancers,men,5yr_relative_survival rank,Finland,lowest in Nordics,rank,2016-2020,survival,"Hemminki K, Karihtala P, Hemminki A. Suom Lääkäril 2024;79:e40201",https://laakarilehti.fi/tieteessa/alkuperaistutkimukset/syopien-elossaoloennusteiden-kehitys-suomessa-ei-ole-pysynyt-muiden-pohjoismaiden-vauhdissa/en,strong,significantly lowest for lung NHL myeloma CLL (men); lung MPD CLL (women)
+NHL,men,5yr_relative_survival rank,Finland,significantly lowest in Nordics,rank,2016-2020,survival,"Hemminki K et al. Suom Lääkäril 2024;79:e40201",https://laakarilehti.fi/tieteessa/alkuperaistutkimukset/syopien-elossaoloennusteiden-kehitys-suomessa-ei-ole-pysynyt-muiden-pohjoismaiden-vauhdissa/en,strong,numeric values not retrieved (PDF not accessible)
+all cancers,men,5yr_relative_survival,Finland,69,%,2019-2023,survival,"IHE Cancer Dashboard Finland (Malmberg & Hofmarcher, Feb 2026) citing NORDCAN",https://ihe.se/app/uploads/2026/04/IHE-Cancer-Dashboard-Finland_.pdf,strong,lowest in Nordics; MSD-funded report
+all cancers,women,5yr_relative_survival,Finland,73,%,2019-2023,survival,"IHE Cancer Dashboard Finland citing NORDCAN",https://ihe.se/app/uploads/2026/04/IHE-Cancer-Dashboard-Finland_.pdf,strong,lowest in Nordics
+DLBCL/LBCL,both,5yr_overall_survival,Finland,50.0,%,2008-2019 dx,survival,"Anttalainen A et al. Acta Oncol 2025;64:303-311",https://doi.org/10.2340/1651-226X.2025.42539,strong,overall (not relative) survival; matched controls 82.6%; no Nordic comparator in paper

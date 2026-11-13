@@ -139,18 +139,21 @@
     return Math.exp(lo) / (1 + Math.exp(lo));
   }
 
-  function lungRisk(patient, findings) {
+  function lungRisk(patient, findings, history) {
     const pl = plcom2012(patient);
-    // Never-smokers: conservative illustrative prior (Okoli 2018 worked example, 61 y never-smoker = 0.124 %)
-    const prior = pl ?? 0.00124;
+    // PLCOm2012 is a 6-year risk; spread evenly to an approximate 1-year prior (constant-hazard simplification).
+    // Never-smokers: illustrative prior from Okoli 2018 worked example (5-year 0.124 % for a 61-y never-smoker) → per year.
+    const prior = pl != null ? pl / 6 : 0.00124 / 5;
     const priorSrc = pl != null ? "plcom2012" : "okoli2018";
-    const positives = findings.filter(f => !f.negated && LUNG_LR[f.concept]);
+    // A cough only counts if persistent (≥ 3 weeks) or the patient keeps coming back with it.
+    const persistent = f => f.concept !== "cough" || (f.weeks || 0) >= 3 || (history || []).some(h => h.daysAgo <= 90 && h.related);
+    const positives = findings.filter(f => !f.negated && LUNG_LR[f.concept] && persistent(f));
     // Independence is not guaranteed → use the two strongest LRs only (conservative, as RAT pairs do)
     const ranked = positives.map(f => ({ ...f, ...LUNG_LR[f.concept] })).sort((a, b) => b.lr - a.lr);
     const used = ranked.slice(0, 2);
     const ignored = ranked.slice(2);
     let odds = prior / (1 - prior);
-    const steps = [{ label: pl != null ? "Baseline risk (PLCOm2012, smoking history)" : "Baseline risk (never-smoker)", value: prior, src: priorSrc }];
+    const steps = [{ label: pl != null ? "Baseline 1-year risk (PLCOm2012 ÷ 6, smoking history)" : "Baseline 1-year risk (never-smoker)", value: prior, src: priorSrc }];
     for (const u of used) {
       odds *= u.lr;
       steps.push({ label: `× ${u.label} (LR ${u.lr})`, value: odds / (1 + odds), src: u.src });
@@ -217,7 +220,7 @@
   /* ---------- run the full pipeline ---------------------------------- */
   function assess(c) {
     const ex = extract(c.note);
-    const risk = lungRisk(c.patient, ex.findings);
+    const risk = lungRisk(c.patient, ex.findings, c.history);
     const hits = rules(c.patient, ex.findings, c.labs, c.history);
     const action = decide(risk, hits, ex.findings);
     const trace = [
