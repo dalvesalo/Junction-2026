@@ -1,0 +1,67 @@
+:root { --night: #13202E; --night2: #1C2D3F; --snow: #EEF2F5; --paper: #F4F2EE; --ink: #13202E; --soft-dark: #4A5A6A; --soft-light: #B9C6D2; --berry: #D0435A; --berryd: #B3324A; --mint: #5FD3B0; --teal: #1F7F66; --amber: #F0B43C; --blue: #2F6DAF; }
+section { font-family: 'Archivo', Arial, sans-serif; padding: 128px; box-sizing: border-box; display: flex; flex-direction: column; gap: 36px; }
+section.dark { background: #13202E; color: #EEF2F5; }
+section.light { background: #F4F2EE; color: #13202E; }
+section.berry { background: #B3324A; color: #FBF4F5; justify-content: center; }
+section.mint { background: #5FD3B0; color: #13202E; justify-content: center; }
+section.cover { justify-content: center; }
+.cover-wrap { display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { margin: 0; }
+h2 { font-size: 72px; font-weight: 700; line-height: 1.08; max-width: 1500px; }
+h3 { font-size: 44px; font-weight: 700; }
+p { margin: 0; }
+.wordmark { font-size: 260px; font-weight: 800; line-height: .95; letter-spacing: -4px; }
+.lead { font-size: 52px; line-height: 1.25; max-width: 1400px; }
+.meta { font-size: 28px; color: #B9C6D2; }
+.serif { font-family: 'Source Serif 4', Georgia, serif; }
+.eyebrow { font-size: 28px; font-weight: 600; }
+.eyebrow.mint, .mint { color: #5FD3B0; }
+.eyebrow.berry { color: #F07A8C; }
+.berryd { color: #B3324A; }
+.amber { color: #F0B43C; }
+.soft { color: #B9C6D2; }
+section.light .soft { color: #4A5A6A; }
+.body { font-size: 34px; line-height: 1.4; }
+.fill { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 48px; }
+.light-soft { color: #FBE9EC; max-width: 1400px; }
+.source { position: absolute; left: 128px; bottom: 64px; width: 1664px; font-size: 24px; color: #7D90A3; }
+section.light .source { color: #5C6B79; }
+.shot { border-radius: 12px; }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; }
+.cols2.wide { grid-template-columns: 1fr 820px; }
+.huge { font-size: 150px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+.facts { font-size: 34px; line-height: 1.4; padding-left: 36px; margin: 0; }
+.kpi { display: flex; flex-direction: column; gap: 16px; }
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.step { border-top: 10px solid #C9D2DA; padding-top: 24px; display: flex; flex-direction: column; gap: 8px; }
+.step.hot { border-top-color: #B3324A; }
+.step.calm { border-top-color: #8A97A3; }
+.num { font-size: 96px; font-weight: 800; color: #B3324A; line-height: 1; }
+.step.calm .num { color: #4A5A6A; }
+.lbl { font-size: 28px; color: #4A5A6A; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.card { background: #FFFFFF; border-radius: 16px; padding: 36px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 2px 0 #E2DED6; }
+.num2 { font-size: 54px; font-weight: 800; color: #B3324A; line-height: 1.05; }
+.num3 { font-size: 72px; font-weight: 800; line-height: 1; }
+.tag { font-size: 24px; color: #5C6B79; }
+.statement { font-size: 96px; line-height: 1.05; max-width: 1600px; }
+.dark-text { color: #13202E; }
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+.fstep { background: #1C2D3F; border-radius: 16px; padding: 32px 28px; display: flex; flex-direction: column; gap: 14px; border-top: 6px solid #7FB2E5; }
+.fstep.mintb { border-top-color: #5FD3B0; }
+.fh { font-size: 44px; font-weight: 800; }
+.fb { font-size: 28px; line-height: 1.35; color: #B9C6D2; }
+table.recs { font-size: 32px; color: #13202E; width: 100%; }
+.tealtxt { color: #1F7F66; }
+.bluetxt { color: #2F6DAF; }
+.ambertxt { color: #9A6A00; }
+.refs { display: flex; flex-direction: column; gap: 18px; font-size: 26px; line-height: 1.35; color: #2A3A4A; }
+.refs p { font-size: 26px; }
+.fstep, .card, .kpi, .step { animation: rise .5s ease both; }
+.flow .fstep:nth-child(2), .grid3 .card:nth-child(2), .steps .step:nth-child(2) { animation-delay: .12s; }
+.flow .fstep:nth-child(3), .grid3 .card:nth-child(3), .steps .step:nth-child(3) { animation-delay: .24s; }
+.flow .fstep:nth-child(4), .steps .step:nth-child(4) { animation-delay: .36s; }
+.flow .fstep:nth-child(5), .steps .step:nth-child(5) { animation-delay: .48s; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.huge2 { font-size: 112px; font-weight: 800; line-height: 1; letter-spacing: -1px; }

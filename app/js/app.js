@@ -14,6 +14,7 @@
     if (location.hash !== "#" + view) history.replaceState(null, "", "#" + view);
     window.scrollTo({ top: 0 });
     if (view === "gap") drawRiver(true);
+    if (view === "agent") renderRunbar();
   }
   document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
 
@@ -112,9 +113,16 @@
   let current = null;
   const started = {};
 
+  function renderRunbar() {
+    const flagged = assessed.filter(x => x.r.action.key !== "none").length;
+    const urgent = assessed.filter(x => rank(x.r) >= 4).length;
+    const stats = [["contacts read", 1284, ""], ["free-text notes parsed", 911, ""], ["lab results checked", 2307, ""], ["signals for review", flagged, "hot"], ["urgent", urgent, "hot"]];
+    $("#runbar").innerHTML = stats.map(([l, v, c]) => `<div class="${c}"><b data-to="${v}">0</b><span>${l}</span></div>`).join("") + `<div><span class="synthetic-tag">synthetic night run · Health centres A–C</span></div>`;
+    document.querySelectorAll("#runbar b").forEach(b => { const to = +b.dataset.to; let t0 = null; const step = ts => { t0 = t0 || ts; const k = Math.min(1, (ts - t0) / 1200); b.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString("en-US"); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); });
+  }
   function renderQueue() {
     const flagged = assessed.filter(x => x.r.action.key !== "none").length;
-    $("#queue").innerHTML = `<div class="qhead"><span>${assessed.length} records reviewed overnight</span><span>${flagged} flagged</span></div>` +
+    $("#queue").innerHTML = `<div class="qhead"><span>Worklist · ${assessed.length} shown</span><span>${flagged} need a decision</span></div>` +
       assessed.map(({ c, r }) => `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
         <span class="who">${c.name}, ${c.patient.age}</span><span class="flag ${r.action.key === "none" ? "" : tone(r)}" title="${r.action.key}"></span>
         <span class="what">${c.headline}</span></button>`).join("") +
@@ -239,14 +247,18 @@
     const centres = ["Health centre A (rural)", "Health centre B (urban)", "Health centre C (suburban)", "Health centre D (rural)", "Health centre E (urban)", "Health centre F (rural)"];
     const steps = [{ s: "Symptom flag → imaging", t: 7 }, { s: "Imaging → result acted on", t: 3 }, { s: "Referral → specialist", t: 14 }, { s: "Specialist → diagnosis", t: 14 }];
     const data = centres.map((c, i) => ({ c, v: steps.map(st => Math.round(st.t * (0.6 + r() * (i === 0 || i === 3 ? 2.6 : 1.2)))) }));
-    const sel = data[0];
     const maxv = Math.max(...data.flatMap(d => d.v));
+    const drawCentre = idx => { const sel = data[idx];
     $("#centre-steps").innerHTML = `<h3><span>${sel.c}: median days per step</span><span class="synthetic-tag">synthetic</span></h3>
       <div class="stepbars">${steps.map((st, i) => `<div class="stepbar"><span>${st.s}</span><span class="t"><span class="${sel.v[i] > st.t ? "slow" : ""}" style="width:${sel.v[i] / maxv * 100}%"></span><i style="left:${st.t / maxv * 100}%" title="target ${st.t} d"></i></span><b class="num">${sel.v[i]} d</b></div>`).join("")}</div>
       <p class="scale-note"><b style="color:var(--snow)">Why per health centre?</b> Two-thirds of the variation in Finnish cancer survival between municipalities lies <i>inside</i> hospital districts — at the local level a county can act on. ${cite("seppa2020")}</p>
       <p class="scale-note">Green tick = target used in the demo. National cancer-specific waiting-time targets are being defined in roadmap 3.1.2 (2026–2028). ${cite("roadmap2026")}</p>
       <table class="tbl" style="margin-top:.8rem"><thead><tr><th>Health centre</th>${steps.map(s => `<th class="r">${s.s.split(" → ")[1]}</th>`).join("")}</tr></thead>
-      <tbody>${data.map(d => `<tr class="${d === sel ? "sel" : ""}"><td>${d.c}</td>${d.v.map((v, i) => `<td class="r num" style="color:${v > steps[i].t ? "#ff9aaa" : "var(--snow)"}">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      <tbody>${data.map((d, di) => `<tr class="clickable ${d === sel ? "sel" : ""}" data-centre="${di}" tabindex="0"><td>${d.c}</td>${d.v.map((v, i) => `<td class="r num" style="color:${v > steps[i].t ? "#ff9aaa" : "var(--snow)"}">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <p class="scale-note">Click a health centre to see its steps.</p>`;
+    document.querySelectorAll("[data-centre]").forEach(tr => { const go = () => drawCentre(+tr.dataset.centre); tr.addEventListener("click", go); tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); }); });
+    };
+    drawCentre(0);
     const flagged = assessed.filter(x => x.r.action.target);
     $("#clocks").innerHTML = `<h3><span>Open pathway clocks</span><span class="synthetic-tag">synthetic</span></h3>
       <table class="tbl"><thead><tr><th>Patient</th><th>Next step</th><th class="r">Day</th><th class="r">Target</th><th>Status</th></tr></thead><tbody>
@@ -284,6 +296,7 @@
       <li>Cases: county population × Finland's ≈ 3,000 lung cancers a year / 5.6 M people. Rounded national rate, not the county's own incidence.</li>
       <li>Flag rate and work-up burden from a retrospective Dutch study ${cite("schut2025")}; speed-up from a US cluster RCT on colorectal and prostate red flags ${cite("murphy2015")}. Neither is Finnish.</li>
       <li><b>No stage shift or survival gain is claimed.</b> The UK trial designed to test that (ERICA) has not reported. The county pilot is how we find out — with the pathway clocks as the measuring instrument.</li>
+      <li>Work-ups are the honest cost: many are chest imaging the patient would have received later anyway — the agent moves them earlier and makes sure results are acted on.</li>
       <li>Ranges shown are ±30–40 % of the point estimate to signal uncertainty; they are not statistical confidence intervals.</li></ul>`;
   }
 

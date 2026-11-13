@@ -34,3 +34,7 @@ NOTE: Junction rules say team size 1–4; team-plan lists 5 roles → check team
 - DECISION: Concept = "Ajoissa" safety-net agent for public primary care (detect stalled cancer signals → named nurse worklist → pathway clock → per-health-centre step times). Pathway Gap Finder becomes the county view (kept, not dropped). Why switch emphasis: judges weight Actionability 30% – a county can switch this on under the new law; and the data shows the gap is the public front door, which the agent targets directly.
 - MISTAKE fixed: PLCOm2012 6-yr risk was used as a point prior → every heavy smoker crossed 3 % (flu cough flagged for CT). Now ÷6 to annual + cough LR only if persistent. Matti would now be flagged 35 d earlier (2nd visit), not 70 d (flu visit).
 - App v1 built: 6 views (gap, agent worklist, county, impact, briefing w/ speech, sources). No console errors.
+- 01:43 App published as artifact: https://claude.ai/artifact/WBcU1hw4dpagfNVUQ2Ec3x (added overnight-run banner, clickable health centres).
+- 01:43 Pitch deck (Slides type, 19 slides, speaker notes = 3-min stage script, STAGE vs APPENDIX marked): https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i . Local PDF render: overnight/Ajoissa_pitch_deck.pdf (fallback for the required PDF; prefer the Slides PDF export). Sources in overnight/deck/.
+- Mistakes fixed: sticky header overlapped element screenshots → re-shot with static header; big numbers wrapped (150px) → 112px; screenshots overlapped footer source lines → smaller.
+- Launched background agent for Docs report + Sheets data.

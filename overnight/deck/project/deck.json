@@ -1,0 +1,70 @@
+{
+ "v": 5,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-13T23:42:49Z"
+ },
+ "lists": "css",
+ "format": {
+  "v": 1,
+  "shared": [
+   "project/deck.css"
+  ]
+ },
+ "title": "Ajoissa — pitch deck (Brainwave Bandits, Junction 2026)",
+ "order": [
+  "cover",
+  "hook",
+  "born",
+  "who",
+  "stakes",
+  "mechanism",
+  "invisible",
+  "local",
+  "solution",
+  "demo",
+  "earlier",
+  "county",
+  "evidence",
+  "impact",
+  "recs",
+  "ask",
+  "honest",
+  "close",
+  "refs"
+ ],
+ "cover": "cover",
+ "sections": {
+  "s1": {
+   "description": "The gap: where and for whom the delay emerges",
+   "start": "hook"
+  },
+  "s2": {
+   "description": "The solution: Ajoissa safety-net agent and demo",
+   "start": "solution"
+  },
+  "s3": {
+   "description": "Evidence, impact, recommendations and the ask",
+   "start": "evidence"
+  },
+  "s0": {
+   "description": "Title",
+   "start": "cover"
+  },
+  "s4": {
+   "description": "Transparency and sources",
+   "start": "honest"
+  }
+ },
+ "faces": {
+  "archivo": {
+   "family": "Archivo",
+   "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400..800&display=swap"
+  },
+  "source-serif-4": {
+   "family": "Source Serif 4",
+   "href": "https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400..700;1,400..700&display=swap"
+  }
+ },
+ "designSystems": []
+}
