@@ -232,3 +232,4 @@ table.tbl tr.clickable:hover td { background: var(--night-3); }
 
 .live-only { display: none; }
 body.live-ai .live-only { display: block; }
+.patient-meta input, .patient-meta select { background: var(--night); color: var(--snow); border: 1px solid var(--line); border-radius: 4px; padding: .15rem .3rem; font: inherit; }

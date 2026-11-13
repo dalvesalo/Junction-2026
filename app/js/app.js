@@ -126,8 +126,10 @@
       assessed.map(({ c, r }) => `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
         <span class="who">${c.name}, ${c.patient.age}</span><span class="flag ${r.action.key === "none" ? "" : tone(r)}" title="${r.action.key}"></span>
         <span class="what">${c.headline}</span></button>`).join("") +
+      `<button class="qcard" aria-pressed="${current === "custom"}" id="trynote" style="border-style:dashed"><span class="who">Try your own note</span><span class="flag"></span><span class="what">Type a visit note in Finnish or English and watch the agent read it</span></button>` +
       `<p style="font-size:.78rem;color:var(--mute);margin-top:.4rem"><span class="synthetic-tag">synthetic</span> patients — no real records.</p>`;
-    document.querySelectorAll(".qcard").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
+    document.querySelectorAll(".qcard[data-case]").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
+    $("#trynote").addEventListener("click", openEditor);
   }
 
   function highlight(note, mentions) {
@@ -212,6 +214,41 @@
     if (dr) dr.addEventListener("click", () => draftReferral(c, r, $("#draft-out"), dr));
     const dm = $("#dismiss");
     if (dm) dm.addEventListener("click", () => { dm.textContent = "Dismissed — reason logged for audit"; dm.disabled = true; });
+  }
+
+  const custom = { id: "custom", name: "Your patient", centre: "Your health centre", synthetic: true, history: [], labs: {},
+    patient: { age: 58, sex: "F", smoking: { ever: true, current: false, cigsPerDay: 15, years: 30, quitYears: 5 } },
+    note: "58-v nainen. Yskä 5 viikkoa, hengenahdistusta rasituksessa. Ei veriyskää. Ei kuumetta.", noteEn: "", headline: "" };
+  function openEditor() {
+    current = "custom"; renderQueue();
+    const p = custom.patient, sm = p.smoking.ever ? (p.smoking.current ? "current" : "ex") : "never";
+    $("#note-col").innerHTML = `<div class="panel"><h3><span>Try your own note</span><span class="synthetic-tag">your input stays in this browser</span></h3>
+      <div class="patient-meta" style="gap:.8rem">
+        <label>Age <input id="e-age" type="number" min="18" max="100" value="${p.age}" style="width:4.5rem"></label>
+        <label>Sex <select id="e-sex"><option value="F" ${p.sex === "F" ? "selected" : ""}>F</option><option value="M" ${p.sex === "M" ? "selected" : ""}>M</option></select></label>
+        <label>Smoking <select id="e-smk"><option value="never" ${sm === "never" ? "selected" : ""}>never</option><option value="current" ${sm === "current" ? "selected" : ""}>current</option><option value="ex" ${sm === "ex" ? "selected" : ""}>former</option></select></label>
+        <label>/day <input id="e-cig" type="number" min="1" max="80" value="${p.smoking.cigsPerDay || 15}" style="width:4rem"></label>
+        <label>years <input id="e-yrs" type="number" min="1" max="70" value="${p.smoking.years || 30}" style="width:4rem"></label>
+        <label>Platelets <input id="e-plt" type="number" min="50" max="1500" placeholder="–" value="${custom.labs.plt || ""}" style="width:5rem"></label>
+        <label>Earlier visits for this (90 d) <input id="e-rep" type="number" min="0" max="6" value="${custom.history.length}" style="width:3.5rem"></label>
+      </div>
+      <textarea id="e-note" rows="6" style="width:100%;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:6px;padding:.8rem;font-family:var(--serif);font-size:1.05rem;line-height:1.6">${esc(custom.note)}</textarea>
+      <div class="note" id="e-hl" style="margin-top:.8rem"></div>
+      <p class="scale-note">Examples: “Yskinyt verta”, “laihtunut 6 kg”, “ei laihtumista”, “neck lump for 4 weeks, night sweats”, “kiistää veriyskän”.</p></div>`;
+    const sync = () => {
+      const smk = $("#e-smk").value;
+      custom.patient = { age: +$("#e-age").value || 50, sex: $("#e-sex").value, smoking: smk === "never" ? { ever: false } : { ever: true, current: smk === "current", cigsPerDay: +$("#e-cig").value || 10, years: +$("#e-yrs").value || 20, quitYears: smk === "ex" ? 5 : 0 } };
+      custom.labs = $("#e-plt").value ? { plt: +$("#e-plt").value } : {};
+      const n = +$("#e-rep").value || 0; custom.history = Array.from({ length: n }, (_, i) => ({ daysAgo: 20 + i * 25, related: true, text: "(earlier visit for the same complaint)" }));
+      custom.note = $("#e-note").value;
+      const am = custom.note.match(/(\d{2})\s*-?\s*(v\b|v\.|vuotias|year|y\/o|yo\b)/i);
+      if (am && document.activeElement && document.activeElement.id === "e-note") { $("#e-age").value = am[1]; custom.patient.age = +am[1]; }
+      const r = A.assess(custom);
+      $("#e-hl").innerHTML = highlight(custom.note, r.extraction.mentions);
+      renderReasoning(custom, r);
+    };
+    $("#note-col").querySelectorAll("input,select,textarea").forEach(x => x.addEventListener("input", sync));
+    sync();
   }
 
   function runClock() {
