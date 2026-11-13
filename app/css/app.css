@@ -229,3 +229,6 @@ footer.foot { max-width: 1320px; margin: 0 auto; padding: 1rem 2rem 2rem; color:
 table.tbl tr.clickable { cursor: pointer; }
 table.tbl tr.clickable:hover td { background: var(--night-3); }
 @media (max-width: 1100px) { .runbar { grid-template-columns: repeat(2, 1fr); } }
+
+.live-only { display: none; }
+body.live-ai .live-only { display: block; }

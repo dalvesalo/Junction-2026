@@ -200,13 +200,16 @@
         <p>${r.action.why}</p>
         ${r.action.target ? `<div class="btnrow"><button class="btn" id="approve" ${isStarted ? "disabled" : ""}>${isStarted ? "Approved — clock running" : "Approve and start the clock"}</button><button class="btn ghost" id="dismiss">Dismiss with reason</button></div>
         <div class="clock" id="clock">${r.action.clock.map((s, i) => `<div class="${isStarted ? (i === 0 ? "now" : "") : ""}">${s}</div>`).join("")}</div>
-        <p class="scale-note">Target for the first step: ${r.action.target} days. If it passes, the case returns to the top of the list.</p>` : ""}
+        <p class="scale-note">Target for the first step: ${r.action.target} days. If it passes, the case returns to the top of the list.</p>
+        <div class="live-only" style="margin-top:.8rem"><button class="btn ghost" id="draft">Draft the referral (AI, Finnish)</button><div id="draft-out" style="margin-top:.6rem;font-family:var(--serif);font-size:.98rem;white-space:pre-wrap"></div></div>` : ""}
       </div>
 `;
     // animate trace
     document.querySelectorAll(".trace li").forEach((li, i) => setTimeout(() => li.classList.add("on"), 120 + i * 260));
     const ap = $("#approve");
     if (ap) ap.addEventListener("click", () => { started[c.id] = true; runClock(); ap.disabled = true; ap.textContent = "Approved — clock running"; });
+    const dr = $("#draft");
+    if (dr) dr.addEventListener("click", () => draftReferral(c, r, $("#draft-out"), dr));
     const dm = $("#dismiss");
     if (dm) dm.addEventListener("click", () => { dm.textContent = "Dismissed — reason logged for audit"; dm.disabled = true; });
   }
@@ -338,6 +341,49 @@
       ${Object.entries(S).map(([k, s]) => `<tr><td><button class="cite" data-src="${k}">${s.short}</button></td><td>${s.title}<br><span style="color:var(--mute);font-size:.82rem">${s.where}</span></td><td><span class="grade ${s.grade}">${s.grade}</span></td><td>${s.measure}</td></tr>`).join("")}
       </tbody></table>`;
   }
+
+  /* ================= LIVE AI (optional, only where the host provides it) ================= */
+  let samplePromise = null;
+  function getSample() {
+    if (!samplePromise) samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
+    return samplePromise;
+  }
+  const GUARD = "Rules: use ONLY the facts and numbers in the DATA block. Never invent a number, study or name. After each factual sentence put the source key in square brackets, e.g. [murphy2015]. If the data does not answer the question, say so plainly. Plain language for a non-technical decision-maker. No markdown headings.";
+  function dataBlock() {
+    const src = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, `${v.short}: ${v.title}. ${v.note || ""} (evidence ${v.grade}; shows ${v.measure})`]));
+    const cases = assessed.map(({ c, r }) => ({ name: c.name, synthetic: true, age: c.patient.age, headline: c.headline, risk_prior_pct: +(r.risk.prior * 100).toFixed(2), risk_post_pct: +(r.risk.posterior * 100).toFixed(1), rules: r.hits.map(h => h.text), action: r.action.title }));
+    return JSON.stringify({ sources: src, dlbcl: D.dlbcl, impact_defaults: P, synthetic_cases: cases, briefing: BRIEF.map(b => b.t + ": " + b.s) });
+  }
+  async function askAnalyst(q, out, btn) {
+    const sample = await getSample(); if (!sample) return;
+    btn.disabled = true; out.textContent = "Thinking…";
+    try {
+      const prompt = `You are the Ajoissa analyst for a Finnish wellbeing services county. ${GUARD}\n\nDATA:\n${dataBlock()}\n\nQUESTION: ${q}\n\nAnswer in at most 120 words.`;
+      const r = await sample(prompt, { modelTier: "default", cache: false, onText: ({ text }) => { out.textContent = text; } });
+      out.innerHTML = esc(r.text).replace(/\[([a-z0-9_]+)\]/gi, (m, k) => S[k] ? `<button class="cite" data-src="${k}">${S[k].short}</button>` : m);
+    } catch (e) { out.textContent = e && e.code === "rate_limited" ? "The analyst is busy — try again in a minute." : "The live analyst is not available here. The briefing on the left is generated from the same data."; }
+    btn.disabled = false;
+  }
+  async function draftReferral(c, r, out, btn) {
+    const sample = await getSample(); if (!sample) return;
+    btn.disabled = true; out.textContent = "Drafting…";
+    const facts = { patient: c.name + " (SYNTHETIC)", age: c.patient.age, sex: c.patient.sex, note_fi: c.note, history: c.history, labs: c.labs, findings: r.extraction.findings.map(f => (f.negated ? "NEGATED: " : "") + f.label + (f.weeks ? ` (${f.weeks} wk)` : "")), risk_estimate_pct: +(r.risk.posterior * 100).toFixed(1), rules_met: r.hits.map(h => h.text), proposed_action: r.action.title };
+    const prompt = `Draft a short Finnish-language referral (lähete) from a health-centre GP for the proposed action below. Use ONLY these facts; do not add findings, diagnoses or numbers. Mark it clearly as a DRAFT for the clinician to check. Max 110 words, plain text, start with "LUONNOS –".\n\nFACTS:\n${JSON.stringify(facts)}`;
+    try { const res = await sample(prompt, { modelTier: "default", cache: false, onText: ({ text }) => { out.textContent = text; } }); out.textContent = res.text; }
+    catch (e) { out.textContent = "Drafting is not available in this view."; }
+    btn.disabled = false;
+  }
+  getSample().then(sample => {
+    if (!sample) return;
+    document.body.classList.add("live-ai");
+    const box = el("div", { class: "panel", id: "analyst" }, `<h3><span>Ask the analyst</span><span class="model-tag">live AI</span></h3>
+      <p style="color:var(--frost);font-size:.88rem;margin:0 0 .6rem">Answers only from the data in this app, with sources. Try: “Why lung cancer?”, “What would we measure in the pilot?”, “Is this legal?”</p>
+      <textarea id="aq" rows="3" style="width:100%;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:6px;padding:.6rem;font:inherit" placeholder="Ask a question about the gap or the proposal"></textarea>
+      <div class="btnrow" style="margin-top:.5rem"><button class="btn" id="ask">Ask</button></div>
+      <div id="aout" style="margin-top:.8rem;font-family:var(--serif);font-size:1.02rem;line-height:1.55;white-space:pre-wrap"></div>`);
+    $("#brief-controls").after(box);
+    $("#ask").addEventListener("click", () => { const q = $("#aq").value.trim(); if (q) askAnalyst(q, $("#aout"), $("#ask")); });
+  });
 
   /* ---------------- boot ---------------- */
   renderEvidence(); renderQueue(); selectCase(assessed[0].c.id); renderCounty(); renderImpact(); renderBrief(); renderSources();
