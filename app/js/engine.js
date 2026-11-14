@@ -589,14 +589,25 @@
     if (n(f => f.pattern)) readBits.push("phrase pattern used");
     if (n(f => f.via === "ai")) readBits.push(`${n(f => f.via === "ai")} AI-read — please confirm`);
     if (sev.length) readBits.push(`severity: ${sev.join(", ")}`);
+    // Which cancer is this signal about? (drives the worklist tag and whether the lung estimate is shown)
+    const LUNGSX = ["haemoptysis", "cough", "dyspnoea", "chestpain", "hoarseness"];
+    const resHit = hits.find(h => h.cancer && ["UNFOLLOWED", "PENDING"].includes(h.id)) || st.signals.find(h => h.cancer && h.id === "NOT_FLAGGED");
+    const cancer = action.key.startsWith("lung") || action.key === "emergency" ? "lung"
+      : action.key === "lymphoma_urgent" ? "lymphoma"
+      : action.key === "colorectal_test" ? "colorectal"
+      : action.key === "any_urgent" ? "several"
+      : resHit ? resHit.cancer
+      : findings.some(f => !f.negated && LUNGSX.includes(f.concept)) ? "lung"
+      : findings.some(f => !f.negated && f.concept === "lymph") ? "lymphoma" : null;
+    const lungRelevant = cancer === "lung" || cancer === "several";
     const trace = [
       { step: "Read", text: readBits.join(" · ") },
       { step: "Data", text: st.signals.length ? st.signals.map(s => s.text).join(" · ") : "No structured signals (codes, weights, results)" },
-      { step: "Weigh", text: `Lung-cancer probability ${(risk.prior * 100).toFixed(2)} % → ${(risk.posterior * 100).toFixed(1)} %` },
+      { step: "Weigh", text: !cancer ? "No cancer signal, so no risk estimate" : lungRelevant ? `Lung-cancer probability ${(risk.prior * 100).toFixed(2)} % → ${(risk.posterior * 100).toFixed(1)} %` : `No risk percentage: this is a ${({ colorectal: "bowel", prostate: "prostate", lymphoma: "lymphoma", other: "" })[cancer] || ""} signal, decided by an explicit rule. A risk score is only used for lung cancer, where a published model exists.`.replace("a  signal", "a signal") },
       { step: "Match", text: hits.length ? `${hits.length} referral rule(s) met` : "No referral rule met" },
       { step: "Act", text: action.title }
     ];
-    return { extraction: { ...ex, findings }, signals: st.signals, rejected: ex.rejected || [], risk, hits, action, trace };
+    return { extraction: { ...ex, findings }, signals: st.signals, rejected: ex.rejected || [], risk, hits, action, trace, cancer, lungRelevant };
   }
 
   global.Ajoissa = { VERSION: "3.0", TRIGGERS, PSA_REF, LEVEL, parseSmoking, resultTriggers, rankWorklist, CONCEPTS, LUNG_LR, THRESHOLDS, ACTIONS, extract, correctTypos, aiPrompt, parseAi, reconcile, structured, plcom2012, lungRisk, rules, decide, assess, damerau };

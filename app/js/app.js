@@ -112,6 +112,8 @@
   const tone = r => rank(r) >= 4 ? "urgent" : rank(r) >= 2 ? "watch" : "calm";
   let current = null;
   const started = {};
+  const CANCER = { lung: "Lung", colorectal: "Bowel", prostate: "Prostate", lymphoma: "Lymphoma", several: "Several cancers", other: "Other" };
+  let cancerFilter = "all";
 
   function renderRunbar() {
     const flagged = assessed.filter(x => x.r.action.key !== "none").length;
@@ -123,13 +125,15 @@
   function renderQueue() {
     const flagged = assessed.filter(x => x.r.action.key !== "none").length;
     $("#queue").innerHTML = `<div class="qhead"><span>Worklist · ${assessed.length} shown</span><span>${flagged} need a decision</span></div>
+      <div class="cfilter" role="group" aria-label="Filter by cancer">${["all", "lung", "colorectal", "prostate", "lymphoma"].map(k => { const n = k === "all" ? assessed.length : assessed.filter(x => x.r.cancer === k).length; return `<button class="chip" data-cf="${k}" aria-pressed="${cancerFilter === k}">${k === "all" ? "All" : CANCER[k]} <b>${n}</b></button>`; }).join("")}</div>
       <label class="slots">CT slots free this week <input type="number" id="ct-slots" min="0" max="9" value="${ctSlots}"><small>Follow-ups already due go first, then the strongest signals. The agent never asks for more slots than this.</small></label>` +
-      assessed.map(x => { const { c, r } = x; return `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
-        <span class="who">${c.name}, ${c.patient.age}</span><span class="flag ${r.action.key === "none" ? "" : tone(r)}" title="${r.action.key}"></span>
+      assessed.filter(x => cancerFilter === "all" || x.r.cancer === cancerFilter).map(x => { const { c, r } = x; return `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
+        <span class="who">${c.name}, ${c.patient.age}${r.cancer ? ` <span class="ctag">${CANCER[r.cancer]}</span>` : ""}</span><span class="flag ${r.action.key === "none" ? "" : tone(r)}" title="${r.action.key}"></span>
         <span class="what">${c.headline}</span>${levelText(x) ? `<span class="lvl${x.queued ? " wait" : ""}">${levelText(x)}</span>` : ""}</button>`; }).join("") +
       `<button class="qcard" aria-pressed="${current === "custom"}" id="trynote" style="border-style:dashed"><span class="who">Try your own note</span><span class="flag"></span><span class="what">Type a visit note in Finnish or English and watch the agent read it</span></button>` +
       `<p style="font-size:.78rem;color:var(--mute);margin-top:.4rem"><span class="synthetic-tag">synthetic</span> patients — no real records.</p>`;
     document.querySelectorAll(".qcard[data-case]").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
+    document.querySelectorAll(".cfilter .chip").forEach(b => b.addEventListener("click", () => { cancerFilter = b.dataset.cf; renderQueue(); }));
     $("#trynote").addEventListener("click", openEditor);
     $("#ct-slots").addEventListener("change", e => { ctSlots = Math.max(0, +e.target.value || 0); assessed = A.rankWorklist(assessed, { ctSlots }); renderQueue(); if (current && current !== "custom") selectCase(current); });
   }
@@ -219,7 +223,7 @@
       ${findingsPanel(r)}
       ${(r.risk.used.length || r.action.key.startsWith("lung")) ? `<div class="panel"><h3>Lung-cancer risk estimate</h3>
         <div class="waterfall">${wf}</div>
-        <p class="scale-note">Amber line = 3 % referral threshold ${cite("nice_ng12")}. Estimate uses published UK likelihood ratios; needs recalibration on Finnish data before clinical use.</p>${ignored}</div>` : `<div class="panel"><h3>Lung-cancer risk estimate</h3><p style="margin:0;color:var(--frost);font-size:.9rem">No lung-cancer symptom in this record — the decision rests on the explicit rules below.</p></div>`}
+        <p class="scale-note">Amber line = 3 % referral threshold ${cite("nice_ng12")}. Estimate uses published UK likelihood ratios; needs recalibration on Finnish data before clinical use.</p>${ignored}</div>` : (r.cancer && r.cancer !== "lung" ? `<div class="panel"><h3>Why there is no risk percentage</h3><p style="margin:0;color:var(--frost);font-size:.9rem">This is a ${(CANCER[r.cancer] || "").toLowerCase()} signal. It is decided by an explicit, published rule (the threshold and the follow-up window are shown below), not by a risk score: no risk model for ${(CANCER[r.cancer] || "").toLowerCase()} cancer has been validated for Finnish primary care, so the agent does not invent one.</p></div>` : `<div class="panel"><h3>Lung-cancer risk estimate</h3><p style="margin:0;color:var(--frost);font-size:.9rem">No lung-cancer symptom in this record — the decision rests on the explicit rules below.</p></div>`)}
       <div class="panel"><h3>Rules met</h3>${rules}</div>
       <div class="action ${t === "urgent" ? "" : t}">
         <h4>${(assessed.find(y => y.c.id === c.id) || {}).queued ? "Chest X-ray and review now — first in line for the next CT slot" : r.action.title}</h4>
@@ -241,7 +245,7 @@
     const ar = $("#ai-read");
     if (ar) ar.addEventListener("click", () => aiRead(c, ar));
     const dm = $("#dismiss");
-    if (dm) dm.addEventListener("click", () => { dm.textContent = "Dismissed — reason logged for audit"; dm.disabled = true; });
+    if (dm) dm.addEventListener("click", () => { dm.textContent = "Archived with reason — comes back if there is a new visit or result"; dm.disabled = true; });
   }
 
   const custom = { id: "custom", name: "Your patient", centre: "Your health centre", synthetic: true, history: [], labs: {},
@@ -385,9 +389,9 @@
   }
 
   /* ================= IMPACT ================= */
-  const P = { pop: 420000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
+  const P = { pop: 161000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
   const SL = [
-    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default ≈ North Ostrobothnia (Pohde) size." },
+    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default = Pohjois-Karjala, the proposed pilot region (161,441 residents, Aug 2025)." },
     { k: "coverage", label: "Health centres using Ajoissa", min: 10, max: 100, step: 5, fmt: v => v + " %", note: "Start with 3 pilot centres, then scale." },
     { k: "sens", label: "Share of lung cancers the agent flags", min: 30, max: 80, step: 5, fmt: v => v + " %", note: "Schut 2025: ≈ 62 % flagged at 3 % PPV (moderate evidence)." },
     { k: "cut", label: "Primary-care interval cut for flagged patients", min: 20, max: 60, step: 5, fmt: v => v + " %", note: "Murphy 2015 RCT: trigger + review roughly halved time to work-up (colorectal)." },

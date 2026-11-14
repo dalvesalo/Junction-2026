@@ -152,7 +152,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": 7,
    "unmet": 32.1,
    "fees": 44.5,
-   "highlight": false
+   "highlight": true
   },
   {
    "name": "Pohjois-Pohjanmaa",
@@ -160,7 +160,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": null,
    "unmet": 27.5,
    "fees": 38.1,
-   "highlight": true
+   "highlight": false
   },
   {
    "name": "Pohjois-Savo",

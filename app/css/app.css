@@ -254,3 +254,10 @@ body.live-ai .live-only { display: block; }
 
 /* experimental survival estimator */
 .panel.experimental { border: 1px dashed var(--alert, #c8344a); }
+
+/* cancer filter + tag */
+.cfilter { display: flex; flex-wrap: wrap; gap: .35rem; margin: .2rem 0 .7rem; }
+.cfilter .chip { font: inherit; font-size: .8rem; padding: .2rem .55rem; border: 1px solid var(--line); border-radius: 3px; background: transparent; color: var(--frost); cursor: pointer; }
+.cfilter .chip[aria-pressed="true"] { border-color: var(--frost); color: var(--snow); }
+.cfilter .chip b { font-weight: 600; margin-left: .2rem; }
+.qcard .ctag { font-size: .7rem; font-weight: 500; padding: 0 .35rem; border: 1px solid var(--line); border-radius: 3px; color: var(--frost); margin-left: .3rem; vertical-align: 1px; }
