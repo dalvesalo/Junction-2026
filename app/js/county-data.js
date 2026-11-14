@@ -152,7 +152,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": 7,
    "unmet": 32.1,
    "fees": 44.5,
-   "highlight": true
+   "highlight": false
   },
   {
    "name": "Pohjois-Pohjanmaa",
@@ -176,7 +176,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": 20,
    "unmet": 26.0,
    "fees": 41.0,
-   "highlight": false
+   "highlight": true
   },
   {
    "name": "Satakunta",

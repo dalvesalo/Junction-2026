@@ -339,9 +339,9 @@
   }
 
   /* ================= IMPACT ================= */
-  const P = { pop: 161000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
+  const P = { pop: 205000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
   const SL = [
-    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default = Pohjois-Karjala, the proposed pilot region (161,441 residents, Aug 2025)." },
+    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default = Päijät-Häme, the proposed pilot county (204,676 residents in 2024)." },
     { k: "coverage", label: "Health centres using Ajoissa", min: 10, max: 100, step: 5, fmt: v => v + " %", note: "Start with 3 pilot centres, then scale." },
     { k: "sens", label: "Share of lung cancers the agent flags", min: 30, max: 80, step: 5, fmt: v => v + " %", note: "Schut 2025: ≈ 62 % flagged at 3 % PPV (moderate evidence)." },
     { k: "cut", label: "Primary-care interval cut for flagged patients", min: 20, max: 60, step: 5, fmt: v => v + " %", note: "Murphy 2015 RCT: trigger + review roughly halved time to work-up (colorectal)." },
@@ -416,7 +416,7 @@
     { t: "The mechanism", s: `A Finnish GP appointment takes about two weeks, adults are only guaranteed one within three months, and according to a Nordic expert survey few health centres can order a CT directly. Patients come back again and again: service use rises three to four months before a colorectal diagnosis.`, c: ["ihe2026", "careguarantee2025", "hermio2023"] },
     { t: "What we propose", s: `Ajoissa: a safety-net agent that reads the county's own records overnight, puts patients with stalled cancer signals on a named nurse's list with the reason, and runs a clock until they are diagnosed or cleared. A professional decides every action.`, c: ["he159"] },
     { t: "Why we believe it works", s: `In a randomised trial the same pattern — automatic trigger plus human review of abnormal results — cut time to colorectal work-up from 200 to 104 days. And in April 2026 Parliament approved letting counties use their own records to find health problems early.`, c: ["murphy2015", "he159"] },
-    { t: "What we ask", s: `One county, three health centres, six months. Track flags acted on within 7 days, days from flag to imaging, and the share of cancers diagnosed from a tracked route. The clocks also produce the step-by-step waiting data the strategy says is missing.`, c: ["strategy2026", "aino2026"] }
+    { t: "What we ask", s: `Päijät-Häme, where the same list-to-nurse-to-doctor model already runs for kidney disease: three health centres, six months, about 28,000 euros. Track flags acted on within 7 days, days from flag to imaging, and the share of cancers diagnosed from a tracked route. The clocks also produce the step-by-step waiting data the strategy says is missing.`, c: ["strategy2026", "aino2026"] }
   ];
   let speaking = false;
   function renderBrief() {
