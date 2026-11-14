@@ -61,7 +61,7 @@ Human decides every action. Nothing goes to patients automatically. Same input �
 | 5 | National: standardised referral criteria (roadmap 2.5.2) + publish cancer pathway times by county | STM/FICAN/THL | — | — | Nordic SVF/pakkeforløp (moderate) | No — national |
 
 ## Pilot ask
-One county (e.g. Pohde), three health centres, six months. KPIs: share of flags acted on within 7 days; median days flag → imaging; share of cancers diagnosed via a tracked route; first published per-health-centre step-time report.
+**Pohjois-Karjala (Siun sote)**, three health centres, six months, about €27,000–28,000 (one nurse per centre, ~45 min a day; costs and sources in IMPLEMENTATION-PLAN.md §7). Why there: best 14-day physician access in Finland (93 %, March 2024) but the worst self-reported unmet need (32.1 %, 2024) and the highest illness index; a cheap pilot fits a tight budget (asked €28.4 M extra for 2025, got €2.6 M). Risk: Siun sote switches to Lifecare by end-2027, so Ajoissa reads the data warehouse, not the record system. KPIs: flags decided within 7 days (≥ 80 %); days from abnormal result to follow-up vs last 12 months; share of real missed follow-ups (≥ 50 %, trial ≈ 60 %); nurse minutes per day (≤ 45); flags per 1,000 by centre and age group. Dismissed flags are archived and come back on a new visit or result.
 
 ## Honest limitations
 - Synthetic demo patients/health centres/timestamps (always tagged). County access data March 2024 (pre-2025 law change). DLBCL values read from slide. LRs are UK-derived; PLCOm2012 not calibrated for Finland. 41-day lung primary-care interval is unpublished (Yle, weak). Impact model is a model: no stage/survival claim. Workload cost is real (≈ 33 work-ups per earlier diagnosis).

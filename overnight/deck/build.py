@@ -126,15 +126,15 @@ slide("evidence","light",'''<p class="eyebrow berryd">Why we believe it works �
 </div>''',
 "STAGE (20 s). Does it work? In a randomised trial, the same pattern — automatic trigger on un-followed results, human review — halved the time to colorectal work-up. Is it allowed? Parliament approved it this April: counties may use their own records to find problems early. Has it been done? Päijät-Häme already runs this model for kidney disease — with AstraZeneca’s support.")
 
-slide("impact","dark",'''<p class="eyebrow mint">One county, year one — a model, every assumption adjustable in the demo</p>
+slide("impact","dark",'''<p class="eyebrow mint">Pohjois-Karjala, year one — a model, every assumption adjustable in the demo</p>
 <h2>What it buys, and what it costs</h2>
 <div class="grid3">
-<div class="kpi"><p class="huge mint">≈ 135</p><p class="body">lung-cancer patients a year on a faster route (of ≈ 225), if every flag gets a slot</p></div>
+<div class="kpi"><p class="huge mint">≈ 52</p><p class="body">lung-cancer patients a year on a faster route (of ≈ 86), if every flag gets a slot</p></div>
 <div class="kpi"><p class="huge mint">≈ 21 d</p><p class="body">earlier to diagnostic imaging per flagged patient</p></div>
-<div class="kpi"><p class="huge amber">0–86</p><p class="body">imaging slots a week: 0 for follow-ups already due; the county sets the rest</p></div>
+<div class="kpi"><p class="huge amber">0–33</p><p class="body">imaging slots a week: 0 for follow-ups already due; the region sets the rest</p></div>
 </div>
 <p class="body soft">We do <b>not</b> claim a stage or survival effect: the UK trial built to test that has not reported. The pilot measures it.</p>''',
-"APPENDIX / Q&A. Model for a 420,000-person county: national incidence rate; 60 % flagged (Schut 2025); 50 % cut of a 41-day interval (Murphy 2015; 41 d is an unpublished Finnish figure). Ranges in the app.",
+"APPENDIX / Q&A. Model for Pohjois-Karjala (161,000 people): national incidence rate; 60 % flagged (Schut 2025); 50 % cut of a 41-day interval (Murphy 2015; 41 d is an unpublished Finnish figure). Ranges in the app.",
 src="Model · Schut et al., BJGP 2025 (moderate) · Murphy et al. 2015 (colorectal) · Yle MOT 12.10.2026 (unpublished study, weak)")
 
 slide("recs","light",'''<p class="eyebrow berryd">Recommendations</p>
@@ -149,13 +149,14 @@ slide("recs","light",'''<p class="eyebrow berryd">Recommendations</p>
 </table>''',
 "APPENDIX / Q&A. Tracker-only phase 1 likely not a medical device (our reading of MDCG 2019-11, not legal advice); risk scoring = class IIa.")
 
-slide("ask","mint",'''<h2 class="statement dark-text">One county. Three health centres. Six months.</h2>
+slide("ask","mint",'''<h2 class="statement dark-text">Pohjois-Karjala. Three health centres. Six months.</h2>
 <div class="grid3 dark-text">
 <div><p class="num3">≤ 7 days</p><p class="body">from flag to a decision, for every flag</p></div>
 <div><p class="num3">Days</p><p class="body">from flag to imaging, per health centre</p></div>
 <div><p class="num3">Share</p><p class="body">of cancers diagnosed via a tracked route</p></div>
-</div>''',
-"STAGE (15 s). Our ask: one county — Pohde would be perfect — three health centres, six months. We measure three things. And at the end, Finland has its first real numbers for the wait between a symptom and a diagnosis.")
+</div>
+<p class="body dark-text" style="margin-top:1.2em">About €28,000 for the pilot · one nurse, 45 minutes a day, per health centre · no new scanners</p>''',
+"STAGE (15 s). Our ask: Pohjois-Karjala — the fastest appointments in Finland, yet the most people who say they could not see a doctor — three health centres, six months, about 28,000 euros: one nurse, 45 minutes a day. We measure three things. And at the end, Finland has its first real numbers for the wait between a symptom and a diagnosis.")
 
 slide("honest","light",'''<p class="eyebrow berryd">Data quality and transparency</p>
 <h2>What is real, what is modelled, what is invented</h2>
