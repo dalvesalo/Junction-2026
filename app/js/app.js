@@ -100,7 +100,7 @@
           <div class="bar"><span>Higher education · men</span><span class="track"><span class="fill" style="width:${D.ses.men[1]}%"></span></span><span class="num">${D.ses.men[1]}%</span></div>
           <div class="bar hl"><span>Basic · women</span><span class="track"><span class="fill" style="width:${D.ses.women[0]}%"></span></span><span class="num">${D.ses.women[0]}%</span></div>
           <div class="bar"><span>Higher · women</span><span class="track"><span class="fill" style="width:${D.ses.women[1]}%"></span></span><span class="num">${D.ses.women[1]}%</span></div></div>
-        <p>Five-year survival, all cancers. Less-educated patients are diagnosed later (stage IV odds +10–15 %), operated on less, and die more often <b>even after adjusting for stage, treatment and region</b>. Occupational care covers 92 % of wage earners — not the retired or unemployed.</p>
+        <p>Five-year survival, all cancers. Less-educated patients are diagnosed later (stage IV odds +10–15 %), operated on less, and have higher cancer mortality in a national register study. Occupational care covers 92 % of wage earners — not the retired or unemployed.</p>
         <footer>${cite("oecd2025")} ${cite("zai2025")} ${cite("kela2026")} <span class="real-tag">real</span></footer></article>`;
   }
 
@@ -266,6 +266,56 @@
       <text x="${(X(daysEarlier) + X(0)) / 2}" y="72" fill="var(--snow)" font-size="13" text-anchor="middle" font-weight="700">${daysEarlier} days recovered</text></svg>`;
   }
 
+  /* ================= EHR (what the doctor sees) ================= */
+  function renderEhr() {
+    const { c, r } = assessed.find(x => x.c.id === "c1");
+    const reasons = r.hits.map(h => `<li>${h.text}</li>`).join("");
+    const hist = c.history.slice().sort((a, b) => b.daysAgo - a.daysAgo);
+    $("#ehr").innerHTML = `<div class="ehr" role="img" aria-label="Illustration of a patient record with the Ajoissa card">
+      <div class="ehr-bar"><b>Patient record system</b><span>Health centre A · Reception 3 · Dr. A. Virtanen</span><span style="margin-left:auto">Generic illustration — not a real product · synthetic patient</span></div>
+      <div class="ehr-pt"><div class="nm">${c.name}</div><div class="meta">${c.patient.age} y · male · personal ID hidden · Smoker 20/day · COPD</div><span class="synthetic-tag">synthetic</span></div>
+      <div class="ehr-body">
+        <div class="ehr-nav"><div>Summary</div><div class="on">Visits</div><div>Lab results</div><div>Imaging</div><div>Orders</div><div>Referrals</div><div>Medications</div></div>
+        <div class="ehr-main">
+          <h4>Today — physician visit (draft)</h4>
+          <div class="ehr-field" id="ehr-note">${esc(c.note)}</div>
+          <h4>Recent results</h4>
+          <div class="ehr-row"><span>Platelets</span><span><b style="color:var(--alert)">468 ×10⁹/L ↑</b> (ref. 150–360)</span></div>
+          <div class="ehr-row"><span>Haemoglobin</span><span>139 g/L</span></div>
+          <h4 style="margin-top:.9rem">Earlier visits</h4>
+          ${hist.map(h => `<div class="ehr-row"><span>${h.daysAgo} days ago</span><span>${esc(h.text)}</span></div>`).join("")}
+          <div class="ehr-toast" id="ehr-toast"></div>
+        </div>
+        <div class="ehr-side">
+          <div class="cds">
+            <div class="src"><span>Ajoissa · cancer safety net</span><span>for review</span></div>
+            <h5>Consider urgent thorax CT</h5>
+            <div>Lung-cancer risk estimate <b>${pct(r.risk.posterior)}</b> (referral threshold 3 %)</div>
+            <ul>${reasons}</ul>
+            <div class="acts">
+              <button class="btn" id="ehr-order">Order thorax CT (pre-filled)</button>
+              <button class="btn ghost" id="ehr-review">Book review in 2 weeks instead</button>
+              <button class="btn ghost" id="ehr-dismiss">Not now — record reason</button>
+            </div>
+            <div class="why">Why am I seeing this? Rules after ${cite("nice_ng12")}, risk after ${cite("plcom2012")} and ${cite("hamilton2005")}. The suggestion is advisory; the decision and the order stay with you.</div>
+          </div>
+          <div class="inbox"><h5>Safety-net list · nurse M. Korhonen</h5>
+            ${assessed.filter(x => x.r.action.target && x.c.id !== "c1").map(x => `<div><span>${x.c.name}</span><span style="color:var(--frost)">${x.r.action.clock[0]}</span></div>`).join("")}
+          </div>
+        </div>
+      </div></div>`;
+    const toast = (t) => { const el2 = $("#ehr-toast"); el2.textContent = t; el2.classList.add("on"); };
+    $("#ehr-order").addEventListener("click", () => toast("Draft order created: Thorax CT, urgent (cancer suspicion). Clinical details pre-filled from the note and results — check and sign to send. Pathway clock starts when signed."));
+    $("#ehr-review").addEventListener("click", () => toast("Review booked in 14 days. If it is missed, Matti returns to the top of the safety-net list."));
+    $("#ehr-dismiss").addEventListener("click", () => toast("Dismissed. Your reason is logged and used to tune the rules — the card will not reappear for these findings."));
+    $("#ehr-flow").innerHTML = [
+      ["1 · Data the county already has", "Most counties already copy their records nightly into a data warehouse or data lake. Ajoissa reads from there, so there is no new data collection and no change to the doctor's workflow."],
+      ["2 · Engine on county servers", "The rules and risk model run inside the county's own environment, as the new law requires: the county's own data, for its own patients, with every access logged."],
+      ["3 · Shown inside the record", "Where the record system supports open plug-in standards (HL7 FHIR, SMART on FHIR, CDS Hooks), the card appears in the chart. Where it doesn't, the nurse uses a separate worklist page with single sign-on and a direct link to the patient."],
+      ["4 · Decision goes back", "The doctor's choice comes back as a draft order or a note the doctor signs. Signing starts the pathway clock; the timestamps feed the county view."]
+    ].map(([h, t]) => `<div><b>${h}</b><p>${t}</p></div>`).join("");
+  }
+
   /* ================= COUNTY ================= */
   // Seeded RNG so the synthetic numbers are identical on every run
   function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
@@ -429,7 +479,7 @@
   }
 
   /* ---------------- boot ---------------- */
-  renderEvidence(); renderQueue(); selectCase(assessed[0].c.id); renderCounty(); renderImpact(); renderBrief(); renderSources();
+  renderEvidence(); renderQueue(); selectCase(assessed[0].c.id); renderEhr(); renderCounty(); renderImpact(); renderBrief(); renderSources();
   const start = (location.hash || "#gap").slice(1);
-  show(["gap", "agent", "county", "impact", "brief", "sources"].includes(start) ? start : "gap");
+  show(["gap", "agent", "ehr", "county", "impact", "brief", "sources"].includes(start) ? start : "gap");
 })();
