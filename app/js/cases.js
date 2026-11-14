@@ -9,6 +9,8 @@
       id: "c1", name: "Matti K.", synthetic: true, centre: "Health centre A (rural)",
       patient: { age: 64, sex: "M", bmi: 24, education: 2, copd: true, smoking: { ever: true, current: true, cigsPerDay: 20, years: 44 } },
       labs: { plt: 468, hb: 139 },
+      codes: [{ code: "R05", daysAgo: 70 }, { code: "R05", daysAgo: 35 }],
+      weights: [{ daysAgo: 70, kg: 79.5 }, { daysAgo: 0, kg: 75.5 }],
       history: [
         { daysAgo: 70, related: true, text: "Yskä 1 vk, flunssa. Kotihoito-ohjeet." },
         { daysAgo: 35, related: true, text: "Yskä jatkuu. Antibioottikuuri (amoksisilliini)." }
@@ -61,6 +63,28 @@
       note: "52-v mies. Selkäkipu nostamisen jälkeen eilen. Ei säteilyä, ei puutumista. Yleisvointi hyvä.",
       noteEn: "52-year-old man. Back pain after lifting yesterday. No radiating pain, no numbness. Feels well otherwise.",
       headline: "Back pain after lifting"
+    },
+    {
+      id: "c7", name: "Pentti R.", synthetic: true, centre: "Health centre A (rural)",
+      patient: { age: 68, sex: "M", bmi: 26, education: 2, smoking: { ever: true, current: false, cigsPerDay: 20, years: 38, quitYears: 6 } },
+      labs: {},
+      codes: [{ code: "R05", daysAgo: 62 }, { code: "R05", daysAgo: 0 }],
+      weights: [{ daysAgo: 150, kg: 88 }, { daysAgo: 62, kg: 85.5 }, { daysAgo: 0, kg: 82.5 }],
+      results: [{ test: "Chest X-ray", daysAgo: 60, abnormal: false, finding: "no focal findings" }],
+      history: [{ daysAgo: 62, related: true, text: "Yskä 3 vk. Keuhkokuva otettu, normaali." }],
+      note: "Kontrollikäynti. Yskä edelleen. Keuhkokuva oli normaali. Jatketaan seurantaa.",
+      noteEn: "Follow-up visit. Still coughing. Chest X-ray was normal. Continue to monitor.",
+      headline: "The note says little — the record says more"
+    },
+    {
+      id: "c8", name: "Aino M.", synthetic: true, centre: "Health centre B (urban)",
+      patient: { age: 58, sex: "F", smoking: { ever: false } },
+      labs: {},
+      results: [{ test: "Chest X-ray", daysAgo: 29, abnormal: true, followedUp: false, finding: "round shadow in the right upper zone, CT recommended" }],
+      history: [],
+      note: "Verenpaineen kontrolli. Ei uusia oireita. Lääkitys jatkuu ennallaan.",
+      noteEn: "Blood-pressure check. No new symptoms. Medication unchanged.",
+      headline: "A result nobody acted on"
     }
   ];
 })(typeof window !== "undefined" ? window : globalThis);

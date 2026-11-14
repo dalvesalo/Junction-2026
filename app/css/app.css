@@ -233,3 +233,13 @@ table.tbl tr.clickable:hover td { background: var(--night-3); }
 .live-only { display: none; }
 body.live-ai .live-only { display: block; }
 .patient-meta input, .patient-meta select { background: var(--night); color: var(--snow); border: 1px solid var(--line); border-radius: 4px; padding: .15rem .3rem; font: inherit; }
+
+/* v2 reader: findings list + badges */
+.note mark.ai { border-bottom-style: dashed; }
+.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.findings li { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; font-size: .92rem; }
+.findings li.neg .fl { color: var(--mute); }
+.findings .fl { font-weight: 600; margin-right: .2rem; }
+.fbadge { font-size: .74rem; padding: .05rem .4rem; border: 1px solid var(--line); border-radius: 3px; color: var(--frost); white-space: nowrap; }
+.fbadge.warn { border-color: var(--amber, #c98a00); color: var(--amber, #c98a00); }
+.fbadge.ok { border-color: var(--ok, #2e8b57); color: var(--ok, #2e8b57); }
