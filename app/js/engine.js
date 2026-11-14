@@ -481,8 +481,10 @@
     }
     if (pos("lymph") && (wk("lymph") >= 3 || P("lymph").persistent || pos("nightsweats") || pos("fever") || pos("pruritus") || pos("weightloss")))
       hits.push({ id: "NG12-lymph", track: "lymphoma", level: "urgent", text: "Unexplained lymphadenopathy" + (wk("lymph") ? ` for ${Math.round(wk("lymph"))} wk` : "") + " with B-symptoms or persistence", src: "nice_ng12" });
-    if (labs && labs.hb && labs.hb < (patient.sex === "M" ? 130 : 117) && labs.ferritinLow)
-      hits.push({ id: "IDA", track: "colorectal", level: "test", text: `Iron-deficiency anaemia (Hb ${labs.hb} g/L): test faecal haemoglobin (FIT)`, src: "nice_dg56" });
+    // Iron-deficiency anaemia: same definition as the Level 0 trigger (Murphy 2015): Hb <= 110 g/l, MCV <= 81 fl, no ferritin >= 100 µg/l
+    if (labs && Number.isFinite(labs.hb) && labs.hb <= 110 && !(Number.isFinite(labs.mcv) && labs.mcv > 81)
+        && !(Number.isFinite(labs.ferritin) && labs.ferritin >= 100) && labs.ferritinLow !== false)
+      hits.push({ id: "IDA", track: "colorectal", level: "test", text: `Iron-deficiency anaemia (Hb ${labs.hb} g/l, at most 110): test faecal haemoglobin (FIT)`, src: "murphy2015" });
     // NICE DG56 (2023): who should be offered a stool test (FIT) in primary care
     const habit = pos("bowelchange") || (pos("loosebowel") && (wk("loosebowel") >= 6 || P("loosebowel").persistent));
     const fit = habit ? "change in bowel habit"

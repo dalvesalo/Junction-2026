@@ -261,7 +261,7 @@
       const smk = v("e-smk");
       custom.name = v("e-name") || "Test patient";
       custom.patient = { age: +v("e-age") || 50, sex: v("e-sex"), copd: v("e-copd") === "1", smoking: smk === "never" ? { ever: false } : { ever: true, current: smk === "current", cigsPerDay: +v("e-cig") || 10, years: +v("e-yrs") || 20, quitYears: smk === "ex" ? (+v("e-quit") || 0) : 0 } };
-      custom.labs = {}; if (v("e-plt")) custom.labs.plt = +v("e-plt"); if (v("e-hb")) custom.labs.hb = +v("e-hb"); if (v("e-fer") === "1") custom.labs.ferritinLow = true;
+      custom.labs = {}; if (v("e-plt")) custom.labs.plt = +v("e-plt"); if (v("e-hb")) custom.labs.hb = +v("e-hb"); if (v("e-fer") === "1") custom.labs.ferritinLow = true; else custom.labs.ferritinLow = false;
       const n = +v("e-rep") || 0; custom.history = Array.from({ length: n }, (_, i) => ({ daysAgo: 20 + i * 25, related: true, text: "(earlier visit for the same complaint)" }));
       const rt = v("e-rt"), rv = parseFloat(v("e-rv")), rd = +v("e-rd") || 70;
       custom.results = !rt ? [] : rt === "chest_imaging" ? [{ type: rt, test: "Chest X-ray", daysAgo: rd, abnormal: true, followedUp: false, finding: "suspicious shadow, CT recommended" }]

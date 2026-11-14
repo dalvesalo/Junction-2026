@@ -40,7 +40,7 @@ None.
 
 ## Held-out set — 20 notes written after the dev fixes
 
-First run: 11/20 fully correct (precision 93 %, recall 58 %). It exposed one bug (a negated list ending in "eikä" also negated a symptom after the comma), which was fixed; that moved one note. The other misses are words the lexicon does not know (SOB, verilimaa, kainalossa patti, swollen nodes, blood-streaked phlegm, hikoilee yöllä, ulosteessa verta). They were left unfixed on purpose: this is the real limit of a fixed word list, and the reason for the AI reader (step 1B), whose suggestions must quote the note and be confirmed by the clinician.
+First run: 11/20 fully correct (precision 93 %, recall 58 %). It exposed one bug (a negated list ending in "eikä" also negated a symptom after the comma), which was fixed; that moved one note (11 → 12/20, the strictly blind score). Engine v3 then added the team's Finnish bowel word list, which includes "ulosteessa verta", one of these misses (C13), so the current score below is not fully blind. The other misses are words the lexicon does not know (SOB, verilimaa, kainalossa patti, swollen nodes, blood-streaked phlegm, hikoilee yöllä). They were left unfixed on purpose: this is the real limit of a fixed word list, and the reason for the AI reader (step 1B), whose suggestions must quote the note and be confirmed by the clinician.
 
 | Measure | Result |
 |---|---|
