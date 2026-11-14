@@ -24,7 +24,7 @@ window.AJOISSA_COUNTY = {
    "unit": " %"
   }
  ],
- "footnote": "Since 1.1.2025 adults (23+) are only guaranteed non-urgent primary care within 3 months (HE 134/2024). '–' = value not available in the source table. Pohjois-Karjala (Siun sote, the proposed pilot region) highlighted.",
+ "footnote": "Since 1.1.2025 adults (23+) are only guaranteed non-urgent primary care within 3 months (HE 134/2024). '–' = value not available in the source table. Päijät-Häme (the proposed pilot county) highlighted.",
  "rows": [
   {
    "name": "Etelä-Karjala",
@@ -152,7 +152,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": 7,
    "unmet": 32.1,
    "fees": 44.5,
-   "highlight": true
+   "highlight": false
   },
   {
    "name": "Pohjois-Pohjanmaa",
@@ -176,7 +176,7 @@ window.AJOISSA_COUNTY = {
    "notSeen14": 20,
    "unmet": 26.0,
    "fees": 41.0,
-   "highlight": false
+   "highlight": true
   },
   {
    "name": "Satakunta",
