@@ -62,7 +62,7 @@ ws["A1"] = "Ajoissa — data & sources (Brainwave Bandits, Junction 2026, AstraZ
 ws["A2"] = "Companion to the report 'Ajoissa — full project report'. Every data row keeps a source column. Grades: strong / moderate / weak. Built 14.11.2026 from overnight/data/*.csv and app/js (engine.js, cases.js, sources.js)."
 ws["A2"].alignment = Alignment(wrap_text=True)
 rd = [
-    ("Gap_DLBCL", "Real (moderate)", "DLBCL days from symptom onset per pathway step, occupational/private vs public entry; gap columns are formulas.", "Kuitunen et al. 2026, values read from AstraZeneca keynote slide"),
+    ("Gap_DLBCL", "Real (moderate)", "DLBCL: tested median symptom-to-treatment 127 vs 76 days (p = 0.027) plus Fig. 1 cumulative step times per pathway step, occupational/private vs public entry; gap columns are formulas.", "Kuitunen et al. 2026 (7 Finnish hospitals, n = 160); Fig. 1 values with provider labels as in the AstraZeneca keynote"),
     ("Nordic_lung", "Real", "Finland vs Nordic lung-cancer survival, stage, surgery and pathway intervals (plus all-cancer and LBCL rows).", "A_nordic_benchmark.csv"),
     ("SES_Finland", "Real", "Education and income gaps in survival, stage, treatment and mortality in Finland.", "A_ses_gaps_finland.csv"),
     ("County_access_2024", "Real (dated)", "Primary-care access by county, March 2024 (THL Avohilmo via HE 134/2024) joined with Terve Suomi 2024 self-reported unmet physician need. Blank = missing in source.", "B_primary_care_access_by_county_2024-03.csv + B_terve_suomi_2024_unmet_physician_need_by_county.csv"),
@@ -79,11 +79,22 @@ ws.freeze_panes = None
 # Gap_DLBCL
 ws = sheet("Gap_DLBCL")
 steps = [("Symptom onset", 0, 0), ("First contact", 42, 72), ("Physician visit", 43, 94), ("Referral", 77, 147), ("Specialist visit", 118, 204), ("Treatment start", 123, 207)]
-src = "Kuitunen et al., Cancer Medicine 2026;15:e71920, doi:10.1002/cam4.71920 (values read from AstraZeneca keynote slide, Junction 13.11.2026; verify against paper)"
+src = "Kuitunen et al., Cancer Medicine 2026;15(5):e71920, doi:10.1002/cam4.71920. Multi-centre (4 university + 3 secondary hospitals), n = 160, 2014-2020. CUMULATIVE STEP TIMES from the paper's Fig. 1 (statistic type not stated; close to the means); provider labels as shown in the AstraZeneca keynote, Junction 13.11.2026"
 rows = []
 for i, (s, o, p) in enumerate(steps, 2):
     rows.append([s, o, p, f"=C{i}-B{i}", ("=D2" if i == 2 else f"=D{i}-D{i-1}"), "Waiting time", "moderate", src])
-table(ws, ["Step", "Occupational / private route (days from onset)", "Public route (days from onset)", "Gap (days) = public - occupational", "Gap added at this step (days)", "Outcome type", "Evidence grade", "Source"], rows, widths={1: 18, 2: 18, 3: 16, 4: 18, 5: 16, 6: 14, 7: 12, 8: 70}, wrap_cols=(8,))
+table(ws, ["Step (Fig. 1 cumulative step times)", "Occupational / private route (cumulative days from onset, Fig. 1)", "Public route (cumulative days from onset, Fig. 1)", "Gap (days) = public - occupational", "Gap added at this step (days)", "Outcome type", "Evidence grade", "Source"], rows, widths={1: 22, 2: 20, 3: 18, 4: 18, 5: 16, 6: 14, 7: 12, 8: 70}, wrap_cols=(1, 2, 3, 8))
+m0 = len(rows) + 3
+ws.cell(m0, 1, "Tested headline (lead with this)").font = B
+msrc = "Kuitunen et al. 2026, text: Mann-Whitney p = 0.027 (about n = 48 vs 39); emergency-route categories excluded. Not 'twice as long' (ratio ~1.7 medians, ~1.6 means); the roadmap's 'twice' cites an unpublished study."
+med = [
+    ["Median symptom-to-treatment (days)", 76, 127, f"=C{m0+1}-B{m0+1}", None, "Waiting time", "moderate", msrc],
+    ["Mean symptom-to-treatment (days)", 126, 201, f"=C{m0+2}-B{m0+2}", None, "Waiting time", "moderate", "Kuitunen et al. 2026, text"],
+]
+for i, r in enumerate(med, m0 + 1):
+    for j, v in enumerate(r, 1):
+        c = ws.cell(i, j, v); c.alignment = Alignment(vertical="top", wrap_text=(j in (1, 8)))
+ws.cell(m0 + 3, 1, "Median gap = 51 days (about 7 weeks), p = 0.027. Public = primary healthcare by appointment; occupational/private = private or occupational care. Small n: moderate evidence, waiting-time outcome only.").alignment = Alignment(wrap_text=False)
 
 # Nordic_lung, SES, FCR, Denmark
 for name, fn in [("Nordic_lung", "A_nordic_benchmark.csv"), ("SES_Finland", "A_ses_gaps_finland.csv"), ("County_outcomes_FCR", "A_county_outcomes_FCR_2019_2023.csv"), ("Denmark_pathways", "B_denmark_cancer_pathway_within_standard_time_2025.csv")]:
@@ -138,8 +149,8 @@ inputs = [
     ("Finland population", 5600000, "people", "Rounded (as used in the app)", "rounded"),
     ("Coverage: health centres using Ajoissa", 1.0, "share", "Full county roll-out; pilot starts with 3 centres", "assumption"),
     ("Sensitivity: share of lung cancers flagged", 0.6, "share", "Schut et al., BJGP 2025 (≈62 % flagged ≈4 months earlier at 3 % PPV); doi:10.3399/BJGP.2023.0489", "moderate"),
-    ("Current primary-care interval", 41, "days", "Unpublished Finnish lung study via Yle MOT, https://yle.fi/a/74-20251023", "weak — replace with county data"),
-    ("Cut in interval for flagged patients", 0.5, "share", "Team assumption; Murphy JCO 2015 RCT roughly halved colorectal time to work-up (200 -> 104 d)", "assumption"),
+    ("Current primary-care interval", 41, "days", "Unpublished Finnish lung study via Yle MOT 12.10.2026, https://yle.fi/a/74-20251023", "weak — replace with county data"),
+    ("Cut in interval for flagged patients", 0.5, "share", "Team assumption; Murphy JCO 2015 RCT roughly halved colorectal time to work-up (200 -> 104 d); its lung arm (n = 19) was not significant", "assumption"),
     ("Work-ups per earlier diagnosis", 33, "patients", "Schut et al., BJGP 2025", "moderate"),
 ]
 table(ws, ["Input", "Value", "Unit", "Source / basis", "Status"], inputs, start=3, widths={1: 42, 2: 14, 3: 12, 4: 80, 5: 28}, wrap_cols=(4,))
@@ -181,6 +192,19 @@ for i in range(2, 2 + len(rows)):
 
 # Sources
 S = json.load(open("/tmp/sources.json"))
+FIX = {  # corrections after independent fact-check (overnight/CORRECTIONS.md), 14.11.2026
+    "kuitunen2026": {"where": "Cancer Medicine 2026;15(5):e71920", "url": "https://doi.org/10.1002/cam4.71920", "note": "Multi-centre prospective cohort: 4 university + 3 secondary hospitals, n = 160, 2014-2020 (not North Ostrobothnia). Tested: median symptom-to-treatment 127 days (public primary care by appointment) vs 76 days (private/occupational), p = 0.027 = 51 days (about 7 weeks); means 201 vs 126. Step values 42/43/77/118/123 vs 72/94/147/204/207 are cumulative step times from Fig. 1 (provider labels as in the AstraZeneca keynote). Does not say 'twice as long'."},
+    "yle2025": {"key": "yle2026", "short": "Yle MOT 12.10.2026 (unpublished study)", "where": "Yle MOT 12.10.2026, study coordinated by Kuittinen (unpublished); 20251023 in the URL is an article ID, not a date"},
+    "ihe2026": {"url": "https://doi.org/10.2340/1651-226X.2025.42778", "grade": "weak-moderate", "note": "Expert survey (Khalife et al. 2025, doi:10.2340/1651-226X.2025.42778): 42 clinicians, 12 Finnish (8 of 21 regions). Only 1 Finnish respondent reported CT access from primary care; most respondents elsewhere did. IHE renders this as < 10 % vs 90-100 %. Measures respondents, not units; no statistics. IHE dashboard MSD-funded; one Khalife co-author from MSD. GP appointment ~14 d vs 2-7 d (modal answer)."},
+    "khalife2025": {"url": "https://doi.org/10.2340/1651-226X.2025.42778"},
+    "he159": {"short": "HE 159/2025 (approved, EV 38/2026)", "note": "Approved by Parliament 21.4.2026 (EV 38/2026). Entry into force to be confirmed on Finlex; do not say 'legal since' until checked. Professional decides every action; patient can refuse; access logged."},
+    "murphy2015": {"note": "Cluster RCT; triggers flagged abnormal test results without follow-up. Colorectal median 104 vs 200 days; prostate 144 vs 192 d (time at which 40 % evaluated); lung arm 65 vs 93 d, n = 19, p = 0.59 (not significant). Evaluation completed 73.4 % vs 52.2 %. Always say 'colorectal'."},
+    "syopa2024": {"note": "Stage available for 42 % of cases nationally; best area (Sisä-Suomi) 60 %. Different year/denominator: the report uses stage missing 61 % (FCR 2019-2023, via IHE) consistently."},
+}
+for k, f in FIX.items():
+    if k in S:
+        S[k].update({a: b for a, b in f.items() if a != "key"})
+S = {FIX.get(k, {}).get("key", k): v for k, v in S.items()}
 rows = [[k, v["short"], f'{v["title"]}. {v["where"]}', v["url"] or None, v["grade"], v["measure"], v.get("note") or None] for k, v in S.items()]
 extra = [
     ["fcr2023", "Finnish Cancer Registry 2025", "Cancer in Finland 2023, sec. 12.4 (county tables)", "https://syoparekisteri.fi/assets/files/2025/06/Syopa_2023_en.pdf", "strong", "Incidence / survival / mortality by county", "Only significant outliers extractable"],
