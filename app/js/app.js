@@ -105,9 +105,10 @@
   }
 
   /* ================= AGENT ================= */
-  const assessed = CASES.map(c => ({ c, r: A.assess(c) }));
+  let ctSlots = 2;                         // CT slots the county gives the agent this week (it never asks for more)
+  let assessed = A.rankWorklist(CASES.map(c => ({ c, r: A.assess(c) })), { ctSlots });
   const rank = r => ({ emergency: 6, lung_urgent: 5, lymphoma_urgent: 5, result_followup: 4, any_urgent: 4, lung_imaging: 3, colorectal_test: 2, safety_net: 1, none: 0 })[r.action.key];
-  assessed.sort((a, b) => rank(b.r) - rank(a.r) || b.r.risk.posterior - a.r.risk.posterior);
+  const levelText = x => x.r.action.key === "emergency" ? "Emergency · today" : x.queued ? "Waiting for a CT slot · chest X-ray and review meanwhile" : x.r.action.level === 0 ? `Already due${x.r.action.overdue ? " · " + x.r.action.overdue + " days overdue" : ""}${x.slot ? " · CT slot" : ""}` : x.r.action.level === 2 ? (x.slot ? "CT slot this week" : "Urgent referral") : x.r.action.level === 1 ? "Simple test" : x.r.action.key === "safety_net" ? "Check-in only" : "";
   const tone = r => rank(r) >= 4 ? "urgent" : rank(r) >= 2 ? "watch" : "calm";
   let current = null;
   const started = {};
@@ -121,14 +122,16 @@
   }
   function renderQueue() {
     const flagged = assessed.filter(x => x.r.action.key !== "none").length;
-    $("#queue").innerHTML = `<div class="qhead"><span>Worklist · ${assessed.length} shown</span><span>${flagged} need a decision</span></div>` +
-      assessed.map(({ c, r }) => `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
+    $("#queue").innerHTML = `<div class="qhead"><span>Worklist · ${assessed.length} shown</span><span>${flagged} need a decision</span></div>
+      <label class="slots">CT slots free this week <input type="number" id="ct-slots" min="0" max="9" value="${ctSlots}"><small>Follow-ups already due go first, then the strongest signals. The agent never asks for more slots than this.</small></label>` +
+      assessed.map(x => { const { c, r } = x; return `<button class="qcard" aria-pressed="${current === c.id}" data-case="${c.id}">
         <span class="who">${c.name}, ${c.patient.age}</span><span class="flag ${r.action.key === "none" ? "" : tone(r)}" title="${r.action.key}"></span>
-        <span class="what">${c.headline}</span></button>`).join("") +
+        <span class="what">${c.headline}</span>${levelText(x) ? `<span class="lvl${x.queued ? " wait" : ""}">${levelText(x)}</span>` : ""}</button>`; }).join("") +
       `<button class="qcard" aria-pressed="${current === "custom"}" id="trynote" style="border-style:dashed"><span class="who">Try your own note</span><span class="flag"></span><span class="what">Type a visit note in Finnish or English and watch the agent read it</span></button>` +
       `<p style="font-size:.78rem;color:var(--mute);margin-top:.4rem"><span class="synthetic-tag">synthetic</span> patients — no real records.</p>`;
     document.querySelectorAll(".qcard[data-case]").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
     $("#trynote").addEventListener("click", openEditor);
+    $("#ct-slots").addEventListener("change", e => { ctSlots = Math.max(0, +e.target.value || 0); assessed = A.rankWorklist(assessed, { ctSlots }); renderQueue(); if (current && current !== "custom") selectCase(current); });
   }
 
   function highlight(note, mentions) {
@@ -181,7 +184,7 @@
         <div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div>
         <div class="gloss">${c.noteEn}</div>
         <div class="btnrow" style="margin-top:.7rem"><span style="font-size:.78rem;color:var(--mute)">Underlined = finding the agent used · struck through = explicitly negated in the note</span></div>
-        ${(c.weights || c.results || c.codes) ? `<div class="patient-meta" style="margin-top:.6rem">${(c.codes || []).length ? `<span>Visit codes: ${c.codes.map(x => `${x.code} (${x.daysAgo ? x.daysAgo + " d ago" : "today"})`).join(", ")}</span>` : ""}${(c.weights || []).length ? `<span>Weight: ${c.weights.slice().sort((a, b) => b.daysAgo - a.daysAgo).map(w => w.kg + " kg").join(" → ")}</span>` : ""}${(c.results || []).map(x => `<span>${esc(x.test)} ${x.daysAgo} d ago: ${esc(x.finding)}${x.abnormal && !x.followedUp ? " — no follow-up recorded" : ""}</span>`).join("")}</div>` : ""}
+        ${(c.weights || c.results || c.codes) ? `<div class="patient-meta" style="margin-top:.6rem">${(c.codes || []).length ? `<span>Visit codes: ${c.codes.map(x => `${x.code} (${x.daysAgo ? x.daysAgo + " d ago" : "today"})`).join(", ")}</span>` : ""}${(c.weights || []).length ? `<span>Weight: ${c.weights.slice().sort((a, b) => b.daysAgo - a.daysAgo).map(w => w.kg + " kg").join(" → ")}</span>` : ""}${(c.results || []).map(x => `<span>${esc(x.test)} ${x.daysAgo} d ago: ${esc(x.finding || (x.value != null ? x.value + (x.type === "fhb" ? " µg/g" : x.type === "psa" ? " µg/l" : "") : ""))}${!x.followedUp && (x.abnormal || x.value != null) ? " — no follow-up recorded" : ""}</span>`).join("")}</div>` : ""}
         ${c.history && c.history.length ? `<ul class="history">${c.history.slice().sort((a, b) => b.daysAgo - a.daysAgo).map(h => `<li><span>${h.daysAgo} days ago</span>${esc(h.text)}</li>`).join("")}<li><span>Today</span>Current visit</li></ul>` : ""}
       </div>`;
     renderReasoning(c, r);
@@ -189,6 +192,17 @@
     if (ef) $("#note-col").insertAdjacentHTML("beforeend", `<div class="panel compare"><h3>Could this have been caught earlier?</h3><p style="margin:0;color:var(--frost)">Re-running the same rules on ${c.name.split(" ")[0]}'s earlier visits, with only what was known then: the agent would have put ${c.patient.sex === "M" ? "him" : "her"} on the list <b style="color:var(--aurora)">${ef.daysAgo} days ago</b> — at the visit noted "${esc(c.history.find(h => h.daysAgo === ef.daysAgo).text)}" — with the action: <i>${ef.r.action.title.toLowerCase()}</i>.</p>${compareSvg(ef.daysAgo)}</div>`);
   }
 
+  function capacityLine(c, r) {
+    const x = assessed.find(y => y.c.id === c.id) || {};
+    const L = r.action.level;
+    const txt = r.action.key === "emergency" ? "Emergency: outside the slot limit."
+      : L === 0 ? `Capacity level 0 — this follow-up was already due${r.action.overdue ? ` ${r.action.overdue} days ago` : ""}. No new demand is created; the agent makes sure it happens.${x.slot ? " It takes the first free CT slot." : ""}`
+      : L === 1 ? "Capacity level 1 — a simple, cheap test. No scarce slot is used."
+      : L === 2 && x.queued ? `Capacity level 2 — no CT slot is free this week (${ctSlots} given, all taken by cases ranked higher). The agent proposes a chest X-ray and a review now and keeps this patient first in line for the next slot.`
+      : L === 2 && x.slot ? `Capacity level 2 — takes one of the ${ctSlots} CT slot(s) the county gave the agent this week, because this is one of the strongest signals on the list.`
+      : L === 2 ? "Capacity level 2 — a specialist slot. Ranked by rule strength; a clinician decides." : "";
+    return txt ? `<p class="scale-note cap">${txt}</p>` : "";
+  }
   function renderReasoning(c, r) {
     const steps = r.risk.steps;
     const maxV = Math.max(0.12, ...steps.map(s => s.value));
@@ -208,8 +222,10 @@
         <p class="scale-note">Amber line = 3 % referral threshold ${cite("nice_ng12")}. Estimate uses published UK likelihood ratios; needs recalibration on Finnish data before clinical use.</p>${ignored}</div>` : `<div class="panel"><h3>Lung-cancer risk estimate</h3><p style="margin:0;color:var(--frost);font-size:.9rem">No lung-cancer symptom in this record — the decision rests on the explicit rules below.</p></div>`}
       <div class="panel"><h3>Rules met</h3>${rules}</div>
       <div class="action ${t === "urgent" ? "" : t}">
-        <h4>${r.action.title}</h4>
+        <h4>${(assessed.find(y => y.c.id === c.id) || {}).queued ? "Chest X-ray and review now — first in line for the next CT slot" : r.action.title}</h4>
         <p>${r.action.why}</p>
+        ${capacityLine(c, r)}
+        ${r.action.also && r.action.also.length ? `<p class="scale-note">Also on this record: ${r.action.also.map(esc).join("; ")}.</p>` : ""}
         ${r.action.target != null ? `<div class="btnrow"><button class="btn" id="approve" ${isStarted ? "disabled" : ""}>${isStarted ? "Approved — clock running" : "Approve and start the clock"}</button><button class="btn ghost" id="dismiss">Dismiss with reason</button></div>
         <div class="clock" id="clock">${r.action.clock.map((s, i) => `<div class="${isStarted ? (i === 0 ? "now" : "") : ""}">${s}</div>`).join("")}</div>
         <p class="scale-note">Target for the first step: ${r.action.target ? r.action.target + " days" : "today"}. If it passes, the case returns to the top of the list.</p>
@@ -369,12 +385,13 @@
   }
 
   /* ================= IMPACT ================= */
-  const P = { pop: 420000, coverage: 100, sens: 60, cut: 50, interval: 41 };
+  const P = { pop: 420000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
   const SL = [
     { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default ≈ North Ostrobothnia (Pohde) size." },
     { k: "coverage", label: "Health centres using Ajoissa", min: 10, max: 100, step: 5, fmt: v => v + " %", note: "Start with 3 pilot centres, then scale." },
     { k: "sens", label: "Share of lung cancers the agent flags", min: 30, max: 80, step: 5, fmt: v => v + " %", note: "Schut 2025: ≈ 62 % flagged at 3 % PPV (moderate evidence)." },
     { k: "cut", label: "Primary-care interval cut for flagged patients", min: 20, max: 60, step: 5, fmt: v => v + " %", note: "Murphy 2015 RCT: trigger + review roughly halved time to work-up (colorectal)." },
+    { k: "slots", label: "Imaging slots a week the county gives the agent", min: 0, max: 100, step: 1, fmt: v => v + " / wk", note: "The agent ranks patients and fills only these. 0 = Level 0 only: chase follow-ups that are already due." },
     { k: "interval", label: "Current primary-care interval (days)", min: 14, max: 90, step: 1, fmt: v => v + " d", note: "41 d in an unpublished Finnish lung study (weak) — replace with the county's own data." }
   ];
   function renderImpact() {
@@ -385,20 +402,24 @@
   function computeImpact() {
     // Lung-cancer incidence ≈ 3,000 / 5.6 M per year (Finnish Cancer Registry, rounded)
     const cases = P.pop * 3000 / 5600000;
-    const flagged = cases * (P.coverage / 100) * (P.sens / 100);
+    let flagged = cases * (P.coverage / 100) * (P.sens / 100);
     const daysEach = P.interval * (P.cut / 100);
     const daysTotal = flagged * daysEach;
-    const workups = flagged * 33; // Schut 2025: ≈ 33 evaluated per earlier diagnosis
+    const workupsAll = flagged * 33; // Schut 2025: ≈ 33 evaluated per earlier diagnosis
+    const share = workupsAll > 0 ? Math.min(1, P.slots * 52 / workupsAll) : 0;   // proportional: ranking is not credited with any extra yield
+    const workups = workupsAll * share;
+    flagged = flagged * share;
     const lo = v => Math.round(v * 0.6), hi = v => Math.round(v * 1.3);
     $("#outcomes").innerHTML = `
       <div class="panel outcome"><div class="v num">${Math.round(flagged)}</div><div class="lbl">lung-cancer patients a year diagnosed through a tracked, faster route</div><div class="range">range ${lo(flagged)}–${hi(flagged)} · of ≈ ${Math.round(cases)} cases in the county <span class="model-tag">model</span></div></div>
       <div class="panel outcome"><div class="v num">${Math.round(daysEach)} d</div><div class="lbl">earlier to diagnostic imaging, per flagged patient</div><div class="range">${Math.round(daysTotal).toLocaleString("en-US")} patient-days recovered a year <span class="model-tag">model</span></div></div>
-      <div class="panel outcome"><div class="v num" style="color:var(--amber)">${Math.round(workups).toLocaleString("en-US")}</div><div class="lbl">extra work-ups (imaging/reviews) a year — the cost side</div><div class="range">≈ ${Math.round(workups / 52)} a week across the county <span class="model-tag">model</span></div></div>`;
+      <div class="panel outcome"><div class="v num" style="color:var(--amber)">${Math.round(workups / 52)} / wk</div><div class="lbl">imaging slots used for symptom flags — capped by the county, not by the agent</div><div class="range">uncapped, the model would ask for ≈ ${Math.round(workupsAll / 52)} a week; ${Math.round(share * 100)} % of flags get a slot <span class="model-tag">model</span></div></div>
+      <div class="panel outcome" style="grid-column:1/-1"><div class="lbl" style="font-size:1rem;color:var(--snow)"><b>Level 0 needs none of these slots.</b> Chasing results that were already abnormal and never followed up creates no new demand. In the trial this design copies, one part-time reviewer spent about 4 hours a week on chart review and 1–2 hours on messages, for 72 primary-care clinicians; 6 in 10 flags were real delays. ${cite("murphy2015")} <span class="real-tag">published</span></div></div>`;
     $("#assumptions").innerHTML = `<h3>What this model does and does not claim</h3><ul class="assume">
       <li>Cases: county population × Finland's ≈ 3,000 lung cancers a year (14,926 in 2019–2023, Finnish Cancer Registry) / 5.6 M people. National rate, not the county's own incidence.</li>
       <li>Flag rate and work-up burden from a retrospective Dutch study ${cite("schut2025")}; speed-up from a US cluster RCT on colorectal and prostate red flags ${cite("murphy2015")}. Neither is Finnish.</li>
       <li><b>No stage shift or survival gain is claimed.</b> The UK trial designed to test that (ERICA) has not reported. The county pilot is how we find out — with the pathway clocks as the measuring instrument.</li>
-      <li>Work-ups are the honest cost: many are chest imaging the patient would have received later anyway — the agent moves them earlier and makes sure results are acted on.</li>
+      <li>Work-ups are the honest cost. The county sets the number of slots; the agent only decides who is proposed for them, so a lower-risk patient waits longer. With fewer slots than flags, the model scales the benefit down in proportion and gives ranking no extra credit.</li>
       <li>Ranges shown are ±30–40 % of the point estimate to signal uncertainty; they are not statistical confidence intervals.</li></ul>`;
   }
 
@@ -445,6 +466,11 @@
       ${row("Development set, after fixes", T.dev)}
       ${row("Held-out set, first run", { notesFullyCorrect: T.heldFirst.fullyCorrect, notes: T.heldFirst.notes, precision: T.heldFirst.precision, recall: T.heldFirst.recall, negOK: "", negN: "", actOK: "", actN: "" })}
       ${row("Held-out set, now", T.heldout)}</tbody></table>
+      ${T.records ? `<table class="tbl" style="margin-top:.8rem"><thead><tr><th>Record tests (no free text needed)</th><th>Right</th></tr></thead><tbody>
+      <tr><td>Result nobody acted on: flag, wait, or stay silent — lung imaging, stool test, iron-deficiency anaemia, PSA</td><td class="num">${T.records.ok}/${T.records.n}</td></tr>
+      <tr><td>Smoking history read from the note and turned into pack-years</td><td class="num">${T.smoking.ok}/${T.smoking.n}</td></tr>
+      <tr><td>A relative's symptom not mistaken for the patient's</td><td class="num">${T.relatives.ok}/${T.relatives.n}</td></tr></tbody></table>
+      <p class="scale-note">Record tests use the time windows and exclusions of the randomised trial (lung 30, bowel 60, prostate 90 days) ${cite("murphy2015")}, Finnish laboratory limits ${cite("fimlab_fhb")} ${cite("fimlab_psa")} and Käypä hoito ${cite("kh_psa")}. Synthetic records.</p>` : ""}
       <p class="scale-note">Development notes (200: 160 generated variants, 40 hand-written traps such as “couching blood violently”, “retired”, “couch”) were used while building the reader. Held-out notes were written afterwards and only one bug they exposed was fixed. Words the reader still misses on held-out notes: ${T.heldout.failures.map(f => "“" + esc(f.note) + "”").slice(0, 4).join(", ")}… — this is why the optional AI reading exists, with every suggestion quoting the note and confirmed by the clinician. All notes were written by the team, so these are not real-world accuracy figures.</p>`;
   }
   function renderSources() {

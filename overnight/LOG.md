@@ -56,3 +56,12 @@ NOTE: Junction rules say team size 1–4; team-plan lists 5 roles → check team
 - New synthetic cases c7 Pentti (record says more than the note → CT) and c8 Aino (abnormal X-ray never followed up). c1–c6 outcomes unchanged.
 - Tests: dev 200 notes first run 190/200 → 200/200 after general fixes (+1 label corrected); held-out 20 notes first run 11/20, 12/20 after fixing one negation bug; remaining misses = vocabulary gaps (SOB, verilimaa, swollen nodes…), left on purpose. AI-guard unit check passes.
 - Bug found and fixed: look-back ("caught earlier?") was seeing today's weights/results.
+
+## Sat 14.11 afternoon — AstraZeneca answers applied (engine v3)
+- Decisions: lung + bowel + prostate; Level 0 first; worklist not plug-in; county's own records only; hereditary secondary; smoking asked at any visit; visuals parked (UI-STATUS.md).
+- Engine v3: typed result triggers with Murphy 2015 windows/exclusions (30/60/90 d), Fimlab F-hHb and PSA limits, Käypä hoito PSA restraint; NICE DG56 stool-test rule; capacity levels 0/1/2; rankWorklist with CT slots; smoking history from text (pack-years with the sum shown); relatives' symptoms excluded; teammate Finnish word lists; 3 new concepts (abdominal pain, anaemia stated, diarrhoea/constipation).
+- Cases: c9 Eero (positive stool test never followed up), c10 Kalevi (raised PSA never repeated), c11 Tapio (PSA at 74: agent stays silent). Aino's X-ray moved from 29 to 36 days so it is past the 30-day window. c1–c7 outcomes unchanged.
+- Tests: notes dev 200/200, held-out 13/20 (one more right because the teammate's word list covers it; set is no longer strictly unseen); records 38/38, smoking 18/18, relatives 5/5.
+- Verified/dropped list: research/D_verification_and_nordic.md. Could not open the Cancer Society release on pre-diagnosis hospital visits → not used.
+- Impact view: imaging-slot slider; benefit scaled down in proportion when slots < flags; Level 0 staffing from Murphy.
+- Not done: experimental survival estimator (needs stage-specific survival inputs with sources); deck/video visuals untouched.

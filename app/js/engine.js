@@ -33,7 +33,7 @@
       typo: ["haemoptysis", "hemoptysis", "veriyskä"] },
     cough: { label: "Cough", fi: "yskä", icpc: "R05", forms: ["ysk", "cough"], typo: ["coughing", "coughed", "cough", "yskää", "yskinyt"] },
     dyspnoea: { label: "Shortness of breath", fi: "hengenahdistus", icpc: "R02",
-      forms: ["hengenahdist", "hengästy", "hengen ahdist", "dyspnoe", "dyspne", "short of breath", "shortness of breath", "breathless", "out of breath"],
+      forms: ["hengenahdist", "hengästy", "hengen ahdist", "hengitysvaikeu", "dyspnoe", "dyspne", "short of breath", "shortness of breath", "breathless", "out of breath"],
       typo: ["hengenahdistus", "hengenahdistusta", "breathless", "breathlessness", "dyspnoea", "dyspnea"] },
     chestpain: { label: "Chest pain", fi: "rintakipu", icpc: "A11", forms: ["rintakipu", "rintakehän kipu", "kylkikipu", "chest pain", "rib pain", "pain in the chest", "pain in chest"], typo: ["rintakipu", "rintakipua"] },
     weightloss: { label: "Weight loss", fi: "laihtuminen", icpc: "T08",
@@ -49,12 +49,15 @@
     fever: { label: "Unexplained fever", fi: "kuume", icpc: "A03", forms: ["kuumeil", "lämpöil", "kuume", "fever", "febrile"], typo: ["kuumetta"] },
     pruritus: { label: "Itching", fi: "kutina", icpc: "S02", forms: ["kutin", "kutiaa", "pruritus", "itch"], typo: ["kutinaa", "pruritus", "itching"] },
     backpain: { label: "Back pain", fi: "selkäkipu", icpc: "L02", forms: ["selkäkipu", "selkä kipeä", "back pain", "lumbago"], typo: ["selkäkipu"] },
-    rectalbleed: { label: "Rectal bleeding", fi: "peräsuolen verenvuoto", icpc: "D16", forms: ["veriuloste", "verta ulosteessa", "veristä ulostetta", "peräsuolen verenvuoto", "rectal bleeding", "blood in stool", "blood in the stool", "bleeding from the bottom"], typo: ["veriuloste"] },
-    bowelchange: { label: "Change in bowel habit", fi: "suolen toiminnan muutos", icpc: "D18", forms: ["suolen toiminnan muutos", "suolen toiminta muuttun", "ulostamistottumu", "change in bowel", "bowel habit"], typo: [] }
+    rectalbleed: { label: "Rectal bleeding", fi: "peräsuolen verenvuoto", icpc: "D16", forms: ["veriuloste", "verta ulosteessa", "verta ulosteen", "ulosteessa verta", "veristä ulostetta", "verisiä ulosteita", "peräsuolen verenvuoto", "hematokez", "melena", "melaena", "mustat ulosteet", "tervamaiset ulosteet", "rectal bleeding", "blood in stool", "blood in the stool", "blood in stools", "bleeding from the bottom", "black stool", "tarry stool"], typo: ["veriuloste"] },
+    bowelchange: { label: "Change in bowel habit", fi: "suolen toiminnan muutos", icpc: "D18", forms: ["suolen toiminnan muutos", "suolen toiminta muuttun", "ulostamistottumu", "ulosteen muutos", "vaihteleva ripuli ja ummetus", "ohut uloste", "ulosteen kaliiperi", "tenesmus", "change in bowel", "bowel habit", "altered bowel"], typo: [] },
+    loosebowel: { label: "Diarrhoea or constipation", fi: "ripuli tai ummetus", icpc: "D11", forms: ["ripuli", "ummetu", "diarrh", "constipat", "loose stool"], typo: ["diarrhoea", "diarrhea", "constipation"] },
+    abdopain: { label: "Abdominal pain", fi: "vatsakipu", icpc: "D01", forms: ["vatsakip", "vatsakiv", "vatsakramp", "vatsa kipeä", "abdominal pain", "stomach pain", "tummy pain", "belly pain", "stomach ache", "stomach cramps"], typo: ["vatsakipu", "vatsakipua"] },
+    anaemia: { label: "Anaemia or iron deficiency (stated)", fi: "anemia / rautavaje", icpc: "B82", forms: ["anemi", "anaemi", "hb matala", "hb laskenut", "matala hb", "rautavaje", "raudanpuu", "iron deficiency", "iron-deficiency", "low haemoglobin", "low hemoglobin"], typo: [] }
   };
   const ICPC_TO_CONCEPT = Object.fromEntries(Object.entries(CONCEPTS).map(([k, c]) => [c.icpc, k]));
 
-  const NEGATORS = [" ei ", " eikä ", " eivät ", "kiistää", "kieltää", " no ", "denies", "denied", "without", " not ", " ilman ", " never ", "negative for"];
+  const NEGATORS = [" ei ", " eikä ", " eivät ", "kiistää", "kieltää", " kielt.", "poissuljettu", " no ", "denies", "denied", "without", " not ", " ilman ", " never ", "negative for"];
   const STOP = [".", ";", "\n", " mutta ", " but ", " however "];
   const CLAUSE = STOP.concat([",", " ja ", " and ", " reports ", " kertoo "]);
   const BLOOD = ["veri", "verta", "verinen", "verisi", "veris", "veren", "blood", "bloody", "bleeding"];
@@ -107,6 +110,12 @@
     if (pieces.some(p => p.trim().split(/\s+/).length > 5)) return false;
     const first = " " + pieces[0].trim().split(/\s+/).slice(0, 2).join(" ") + " ";
     return NEGATORS.some(n => first.includes(n)) || /^ (no|ei|denies|denied|kiistää|kieltää) /.test(first);
+  }
+  // Experiencer: a symptom said of a relative is family history, not the patient's finding
+  const RELATIVE = /(^|[^a-zåäö])(äidillä|isällä|siskolla|sisarella|veljellä|tädillä|sedällä|enolla|isoäidillä|isoisällä|serkulla|sukulaisella|vaimolla|puolisolla|suvussa|sukuanamnee[a-zåäö]*|sa:|mother|father|brother|sister|wife|husband|family history)([^a-zåäö]|$)/;
+  function isRelative(text, idx) {
+    const s = clauseAround(text, idx, STOP);
+    return RELATIVE.test(text.slice(s.start, idx));
   }
   const WORDNUM = { yksi: 1, yhden: 1, kaksi: 2, kahden: 2, kahdessa: 2, kolme: 3, kolmen: 3, neljä: 4, neljän: 4, viisi: 5, viiden: 5, kuusi: 6, kuuden: 6, kahdeksan: 8, kymmenen: 10, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, eight: 8, ten: 10, "couple of": 2, several: 3, muutama: 3, muutaman: 3 };
   function durationWeeks(clause) {
@@ -223,7 +232,7 @@
         if (key === "cough" && bloodInClause(t, idx)) { concept = "haemoptysis"; pattern = "cough + blood in the same clause"; }
         found.push({ concept, label: CONCEPTS[concept].label, fi: CONCEPTS[concept].fi, icpc: CONCEPTS[concept].icpc, surface: f,
           start: O(idx), end: O(end - 1) + 1, index: O(idx), length: O(end - 1) + 1 - O(idx),
-          negated: isNegated(t, idx), weeks: durationWeeks(clauseAround(t, idx, STOP).text) ?? nextSentenceDuration(t, idx), ...modifiersNear(t, idx, f.length),
+          negated: isNegated(t, idx) || isRelative(t, idx), relative: isRelative(t, idx), weeks: durationWeeks(clauseAround(t, idx, STOP).text) ?? nextSentenceDuration(t, idx), ...modifiersNear(t, idx, f.length),
           typo: fix ? `${fix.from} → ${fix.to}` : null, pattern, via: "rules" });
       }
     }
@@ -279,6 +288,104 @@
     return { ...ruleEx, findings, mentions, rejected };
   }
 
+  /* ---------- 2a. Results nobody acted on (Level 0) ---------------------
+     Trigger definitions, time windows and exclusions follow the only
+     randomised trial of this design (Murphy et al., J Clin Oncol 2015):
+     lung 30 days, colorectal 60 days, prostate 90 days. Thresholds are the
+     Finnish laboratory's own (Fimlab) where they exist; a reference limit
+     sent with the result (r.refHigh) always wins. All values are config. */
+  const PSA_REF = [[50, 2.5], [60, 3.5], [70, 4.5], [200, 6.5]];             // Fimlab P-PSA, µg/l, upper limit by age
+  const psaLimit = age => PSA_REF.find(([a]) => age < a)[1];
+  const TRIGGERS = {
+    chest_imaging: { cancer: "lung", window: 30, minAge: 30, maxAge: 200, src: "murphy2015",
+      exclude: { prior_lung_cancer: "lung cancer already diagnosed", palliative: "palliative care", pulmonary_review: "lung clinic review within the last 6 months" },
+      followUp: "CT, lung clinic referral or repeat imaging" },
+    fhb: { cancer: "colorectal", window: 60, minAge: 40, maxAge: 75, src: "fimlab_fhb", positive: 25, borderline: 10,
+      exclude: { prior_crc: "colorectal cancer already diagnosed", colonoscopy_recent: "colonoscopy within the last 5 years", palliative: "palliative care" },
+      followUp: "colonoscopy" },
+    ida: { cancer: "colorectal", window: 60, minAge: 40, maxAge: 75, src: "murphy2015", hbMax: 110, mcvMax: 81, ferritinExcl: 100,
+      exclude: { prior_crc: "colorectal cancer already diagnosed", colonoscopy_recent: "colonoscopy within the last 3 years", menorrhagia: "heavy periods recorded", pregnancy: "pregnancy", other_bleeding: "another source of bleeding recorded", palliative: "palliative care" },
+      followUp: "colonoscopy" },
+    psa: { cancer: "prostate", window: 90, minAge: 40, maxAge: 70, src: "kh_psa",
+      exclude: { prior_prostate_cancer: "prostate cancer already diagnosed", prostate_biopsy_recent: "prostate biopsy within the last 2 years", prostatitis_recent: "prostatitis or urinary infection around the test", palliative: "palliative care" },
+      followUp: "repeat PSA, urology referral or biopsy" }
+  };
+  function resultType(r) {
+    if (r.type) return r.type;
+    const t = (r.test || "").toLowerCase();
+    if (/psa/.test(t)) return "psa";
+    if (/f-hhb|fit|faecal|fecal|ulosteen/.test(t)) return "fhb";
+    if (/x-ray|ct|keuhkokuva|thorax|tt /.test(t)) return "chest_imaging";
+    if (/blood count|pvk|verenkuva|hb/.test(t)) return "ida";
+    return "other";
+  }
+  function resultTriggers(c, findings) {
+    const out = [], p = c.patient || {}, age = Number.isFinite(p.age) ? p.age : 0, excl = c.exclusions || [];
+    const bowelSx = (findings || []).some(f => !f.negated && ["rectalbleed", "bowelchange", "abdopain", "weightloss", "anaemia"].includes(f.concept));
+    for (const r of (c.results || [])) {
+      const type = resultType(r), T = TRIGGERS[type];
+      let abnormal = !!r.abnormal, what = r.finding || "abnormal", extra = "";
+      if (type === "fhb" && Number.isFinite(r.value)) {
+        abnormal = r.value >= T.positive || (r.value >= T.borderline && bowelSx);
+        what = r.value >= T.positive ? `F-hHb ${r.value} µg/g, positive (≥ ${T.positive})` : `F-hHb ${r.value} µg/g, borderline (${T.borderline}–${T.positive}) in a patient with bowel symptoms`;
+      }
+      if (type === "ida") {
+        abnormal = Number.isFinite(r.hb) && r.hb <= T.hbMax && Number.isFinite(r.mcv) && r.mcv <= T.mcvMax && !(r.ferritin >= T.ferritinExcl);
+        what = `iron-deficiency anaemia: Hb ${r.hb} g/l, MCV ${r.mcv} fl${Number.isFinite(r.ferritin) ? `, ferritin ${r.ferritin} µg/l` : ""}`;
+      }
+      if (type === "psa" && Number.isFinite(r.value)) {
+        const lim = Number.isFinite(r.refHigh) ? r.refHigh : psaLimit(age);
+        abnormal = p.sex === "M" && r.value > lim;
+        what = `PSA ${r.value} µg/l, above the age limit of ${lim}`;
+        if ((c.meds || []).some(m => /finaster|dutaster/i.test(m))) extra = " Finasteride/dutasteride lowers PSA, so the true value is higher.";
+      }
+      if (!abnormal) continue;
+      const name = r.test || type;
+      if (!T) {                                          // untyped abnormal result: generic 30-day rule
+        if (!r.followedUp && r.daysAgo > 30) out.push({ id: "UNFOLLOWED", cancer: "other", overdue: r.daysAgo - 30, text: `${name} ${r.daysAgo} days ago was abnormal (${what}) and no follow-up is recorded`, src: "murphy2015" });
+        continue;
+      }
+      const why = excl.map(e => T.exclude[e]).find(Boolean);
+      if (age < T.minAge || age > T.maxAge) { out.push({ id: "NOT_FLAGGED", cancer: T.cancer, text: `${name}: ${what}. Not flagged: age ${age} is outside the range where follow-up is recommended (${T.minAge}–${T.maxAge})${type === "psa" ? "; PSA testing is not advised for symptom-free men over 70" : ""}`, src: type === "psa" ? "kh_psa" : "murphy2015" }); continue; }
+      if (why) { out.push({ id: "NOT_FLAGGED", cancer: T.cancer, text: `${name}: ${what}. Not flagged: ${why}`, src: "murphy2015" }); continue; }
+      if (r.followedUp) continue;
+      if (r.daysAgo > T.window) out.push({ id: "UNFOLLOWED", cancer: T.cancer, type, overdue: r.daysAgo - T.window, text: `${name} ${r.daysAgo} days ago: ${what}. No ${T.followUp} recorded within ${T.window} days.${extra}`, src: T.src });
+      else out.push({ id: "PENDING", cancer: T.cancer, type, dueIn: T.window - r.daysAgo, text: `${name} ${r.daysAgo} days ago: ${what}. Follow-up (${T.followUp}) is due within ${T.window - r.daysAgo} more days — the clock is running.${extra}`, src: T.src });
+    }
+    return out;
+  }
+
+  /* ---------- 2b. Smoking history from free text ------------------------
+     Pack-years = (cigarettes per day ÷ 20) × years smoked. Always shows the
+     sum; anything missing is listed so the professional can ask. */
+  function parseSmoking(text, age) {
+    const t = " " + String(text || "").toLowerCase().replace(/\s+/g, " ") + " ";
+    const num = x => parseFloat(String(x).replace(",", "."));
+    const never = /(ei tupakoi|tupakoimaton|ei koskaan tupakoinut|ei ole koskaan tupakoinut|ei polta|savuton|never smoked|never-smoker|never smoker|non-smoker|nonsmoker|does not smoke|doesn't smoke)/.test(t);
+    const former = /(entinen tupakoi|ent\. tupakoi|ex-tupakoi|ex-tup|lopettanut tupakoin|tupakoinnin lopet|tupakoinut aiemmin|former smoker|ex-smoker|ex smoker|quit smoking|stopped smoking|gave up smoking|lopettanut v|lopetti tupakoin)/.test(t);
+    const any = /(tupakoi|tupakoin|tupakoitsija|polttaa|polttanut|[^a-z]tup\.|smok|aski|sav\/|savuket|cigarette|pack-year|pack year|askivuo|pakkavuo)/.test(t);
+    if (never && !former) return { known: true, ever: false, text: "Non-smoker (stated in the note)" };
+    if (!any) return { known: false };
+    const out = { known: true, ever: true, current: !former, missing: [] };
+    let m;
+    if ((m = t.match(/(\d+(?:[.,]\d+)?)\s*(?:askivuotta|pakkavuotta|pack[- ]years?|py\b)/))) out.packYears = num(m[1]);
+    if ((m = t.match(/(\d+)\s*(?:savuketta|sav\b|sav\/|cigarettes?|cigs?|\/\s*pv|\/\s*vrk|kpl\/)/))) out.cigsPerDay = num(m[1]);
+    else if ((m = t.match(/(puoli|½|0[.,]5|\d+(?:[.,]\d+)?)\s*(?:aski|askia|packs?)\b/)) || (m = t.match(/\b(a|an|one|half a)\s+pack\b/))) out.cigsPerDay = (/puoli|½|half/.test(m[1]) ? 0.5 : /^(a|an|one)$/.test(m[1]) ? 1 : num(m[1])) * 20;
+    if ((m = t.match(/(\d+)\s*(?:vuotta|vuoden|v\b|v\.|years|yrs)/))) out.years = num(m[1]);
+    else if ((m = t.match(/(?:alkanut|aloittanut|since age|from age)\s*(\d+)/)) && Number.isFinite(age)) out.years = Math.max(1, age - num(m[1]));
+    if (!out.cigsPerDay && /(^|[^a-zåäö])aski(n)?\s*(\/|päivässä|vrk|per)/.test(t)) out.cigsPerDay = 20;
+    if (former) {
+      if ((m = t.match(/(?:lopettanut|lopetti|quit|stopped|gave up)(?:\s+(?:tupakoinnin|smoking))?(?:\s+(?:v\.?|vuonna|in))?\s*((?:19|20)\d\d)/))) out.quitYears = Math.max(0, new Date().getFullYear() - num(m[1]));
+      else if ((m = t.match(/(?:lopettanut|lopetti|quit|stopped|gave up)[^.;]{0,25}?(\d+)\s*(?:vuotta|v\b|years|yrs)\s*(?:sitten|ago)/))) { out.quitYears = num(m[1]); if (out.years === out.quitYears) delete out.years; }
+      else out.missing.push("when they stopped");
+    }
+    if (out.cigsPerDay && out.years && !out.packYears) { out.packYears = Math.round(out.cigsPerDay / 20 * out.years * 10) / 10; out.calc = `${out.cigsPerDay} a day ÷ 20 × ${out.years} years = ${out.packYears} pack-years`; }
+    if (!out.cigsPerDay && !out.packYears) out.missing.push("how much");
+    if (!out.years && !out.packYears) out.missing.push("for how many years");
+    out.text = `${out.current ? "Current smoker" : "Former smoker"}${out.calc ? ": " + out.calc : out.packYears ? `: ${out.packYears} pack-years` : ""}${out.missing.length ? ` — not stated: ${out.missing.join(", ")}` : ""}`;
+    return out;
+  }
+
   /* ---------- 2. Structured data -------------------------------------- */
   const ABX = /antibiot|amoksis|doksisyk|kefalek|atsitro|amoxic|doxycyc|penisill|penicill/i;
   function structured(c, findings) {
@@ -299,10 +406,12 @@
         if (!has("weightloss")) added.push({ concept: "weightloss", label: CONCEPTS.weightloss.label, fi: CONCEPTS.weightloss.fi, icpc: "T08", negated: false, weeks: null, via: "measured", surface: "weight records" });
       }
     }
+    for (const s of resultTriggers(c, findings)) signals.push(s);
     for (const r of (c.results || [])) {
-      if (r.abnormal && !r.followedUp && r.daysAgo > 14) signals.push({ id: "UNFOLLOWED", text: `${r.test} ${r.daysAgo} days ago was abnormal (${r.finding}) and no follow-up is recorded`, src: "murphy2015" });
       if (/chest x-ray|thorax x-ray|keuhkokuva|thoraxkuva/i.test(r.test) && !r.abnormal && r.daysAgo <= 90) signals.push({ id: "CXR_NORMAL", text: `Normal chest X-ray ${r.daysAgo} days ago — about 1 in 5 lung cancers have a normal X-ray, so persistent symptoms still count`, src: "okoli2018" });
     }
+    const p = c.patient || {};
+    if (!p.smoking && (p.age || 0) >= 40 && findings.some(f => !f.negated && LUNG_LR[f.concept])) signals.push({ id: "ASK_SMOKING", text: "Smoking history is not recorded — ask at this visit (years smoked, amount, when stopped); the risk estimate assumes a never-smoker until then", src: "plcom2012" });
     const abx = (c.history || []).filter(h => h.daysAgo <= 90 && ABX.test(h.text || "")).length;
     if (abx >= 1) signals.push({ id: "ABX", text: `${abx} antibiotic course(s) in the last 90 days`, src: "lyratzopoulos2012" });
     if (c.labs && c.labs.plt > 400 && c.labs.pltPrev > 400) signals.push({ id: "PLT2", text: `Platelets raised on two tests (${c.labs.pltPrev} → ${c.labs.plt})`, src: "bailey2017" });
@@ -374,11 +483,20 @@
       hits.push({ id: "NG12-lymph", track: "lymphoma", level: "urgent", text: "Unexplained lymphadenopathy" + (wk("lymph") ? ` for ${Math.round(wk("lymph"))} wk` : "") + " with B-symptoms or persistence", src: "nice_ng12" });
     if (labs && labs.hb && labs.hb < (patient.sex === "M" ? 130 : 117) && labs.ferritinLow)
       hits.push({ id: "IDA", track: "colorectal", level: "test", text: `Iron-deficiency anaemia (Hb ${labs.hb} g/L): test faecal haemoglobin (FIT)`, src: "nice_dg56" });
-    if (age >= 40 && (pos("rectalbleed") || pos("bowelchange")))
-      hits.push({ id: "NG12-crc", track: "colorectal", level: "test", text: "Age ≥ 40 with rectal bleeding or bowel-habit change: FIT", src: "nice_dg56" });
+    // NICE DG56 (2023): who should be offered a stool test (FIT) in primary care
+    const habit = pos("bowelchange") || (pos("loosebowel") && (wk("loosebowel") >= 6 || P("loosebowel").persistent));
+    const fit = habit ? "change in bowel habit"
+      : (age >= 40 && pos("weightloss") && pos("abdopain")) ? "age ≥ 40 with weight loss and abdominal pain"
+      : (age >= 50 && pos("rectalbleed")) ? "age ≥ 50 with rectal bleeding"
+      : (age < 50 && pos("rectalbleed") && (pos("abdopain") || pos("weightloss"))) ? "rectal bleeding with abdominal pain or weight loss"
+      : (age >= 50 && pos("abdopain")) ? "age ≥ 50 with unexplained abdominal pain"
+      : (age >= 60 && pos("anaemia")) ? "age ≥ 60 with anaemia"
+      : null;
+    if (fit && !signals.some(s => s.type === "fhb"))
+      hits.push({ id: "DG56-fit", track: "colorectal", level: "test", text: `Stool test (FIT) advised: ${fit}`, src: "nice_dg56" });
     const repeat = relatedVisits(history);
     if (repeat >= 2) hits.push({ id: "REPEAT", track: "pattern", level: "imaging", text: `${repeat + 1}${repeat + 1 === 3 ? "rd" : "th"} visit in 90 days for the same unresolved complaint`, src: "lyratzopoulos2012" });
-    for (const s of signals.filter(s => s.id === "UNFOLLOWED")) hits.push({ id: "UNFOLLOWED", track: "result", level: "urgent", text: s.text, src: "murphy2015" });
+    for (const s of signals.filter(s => s.id === "UNFOLLOWED")) hits.push({ id: "UNFOLLOWED", track: "result", cancer: s.cancer, type: s.type, overdue: s.overdue, level: "urgent", text: s.text, src: s.src });
     if (sig("CXR_NORMAL") && lungSx.length >= 1) hits.push({ id: "CXR-NEG", track: "lung", level: "imaging", text: "Symptoms continue after a normal chest X-ray — X-ray does not rule out lung cancer", src: "nice_ng12" });
     return hits;
   }
@@ -387,7 +505,7 @@
   const ACTIONS = {
     emergency: { title: "Assess today for large-volume bleeding (emergency department if heavy) — then the urgent CT pathway", target: 0, clock: ["Seen today", "CT done", "Specialist decision", "Diagnosis", "Treatment start"], why: "Coughing up a large amount of blood is a medical emergency; the cancer work-up follows once the patient is stable." },
     lung_urgent: { title: "Order thorax CT directly — urgent cancer-suspicion slot", target: 7, clock: ["CT done", "CT reported", "Specialist decision", "Diagnosis", "Treatment start"], why: "Direct CT from primary care is routine elsewhere in the Nordics but rare in Finland (expert survey) — reserved urgent slots close that gap." },
-    result_followup: { title: "Act on the abnormal result: book the recommended follow-up today", target: 7, clock: ["Follow-up booked", "Follow-up done", "Result reviewed"], why: "Abnormal results with no recorded follow-up are a known cause of diagnostic delay; in a trial, flagging them sped up colorectal work-up." },
+    result_followup: { title: "Act on the abnormal result: book the recommended follow-up today", target: 7, clock: ["Follow-up booked", "Follow-up done", "Result reviewed"], why: "This follow-up was already due. In a randomised trial, a weekly review of results like this cut the wait for colorectal work-up from 200 to 104 days." },
     lymphoma_urgent: { title: "Urgent neck ultrasound + needle biopsy referral (lymphoma suspicion)", target: 7, clock: ["Ultrasound", "Biopsy", "Specialist visit", "Diagnosis", "Treatment start"], why: "DLBCL in Finland: median 127 days from symptom to treatment via public primary care vs 76 via private/occupational care — the gap builds up before the specialist." },
     any_urgent: { title: "Raised platelets: review for occult cancer — chest imaging + targeted work-up", target: 14, clock: ["Repeat FBC", "Imaging", "Review"], why: "One-third of patients with thrombocytosis and lung or colorectal cancer had no other symptom." },
     lung_imaging: { title: "Order chest imaging now and book a 2-week safety-net review", target: 14, clock: ["Imaging done", "Result reviewed", "Safety-net review"], why: "Persistent symptoms in a high-risk patient: investigate now rather than at the next visit." },
@@ -395,6 +513,47 @@
     safety_net: { title: "No referral now — automatic safety-net check-in in 3 weeks", target: 21, clock: ["Check-in"], why: "If the symptom has not resolved in 3 weeks, the agent re-opens the case." },
     none: { title: "No cancer signal — no action", target: null, clock: [], why: "Specificity matters: the agent stays silent on routine visits." }
   };
+  // Capacity level: 0 = follow-up that was already due (no new demand), 1 = cheap test, 2 = scarce slot (CT, ultrasound + biopsy)
+  const LEVEL = { emergency: null, result_followup: 0, colorectal_test: 1, any_urgent: 1, lung_imaging: 1, lung_urgent: 2, lymphoma_urgent: 2, safety_net: null, none: null };
+  const NEEDS_CT = { lung_urgent: true };
+  const FOLLOWUP = {
+    lung: { title: "Book the follow-up the radiologist recommended: CT or lung clinic referral", clock: ["CT booked", "CT done", "Specialist decision", "Diagnosis", "Treatment start"], ct: true },
+    colorectal: { title: "Refer for colonoscopy — the abnormal result has not been investigated", clock: ["Referral sent", "Colonoscopy done", "Result reviewed"] },
+    prostate: { title: "Repeat the PSA now; refer to urology if it is still raised", clock: ["PSA repeated", "Result reviewed", "Urology referral if raised"], why: "Käypä hoito: an abnormal PSA should be repeated after 1–2 months. This one never was. No new testing is started for symptom-free men over 70." },
+    other: {}
+  };
+  function decideWithLevel(risk, hits, findings) {
+    const a = decide(risk, hits, findings);
+    if (a.key === "result_followup") {
+      const h = hits.filter(x => x.id === "UNFOLLOWED").sort((x, y) => (y.overdue || 0) - (x.overdue || 0))[0];
+      Object.assign(a, FOLLOWUP[h.cancer] || {}, { cancer: h.cancer, overdue: h.overdue });
+    }
+    a.level = LEVEL[a.key];
+    a.needsCt = !!(NEEDS_CT[a.key] || a.ct);
+    // other things the same record calls for, so nothing is lost behind the main action
+    const also = [];
+    if (a.key !== "result_followup") for (const h of hits.filter(x => x.id === "UNFOLLOWED")) also.push((FOLLOWUP[h.cancer] || {}).title || ACTIONS.result_followup.title);
+    if (a.key !== "colorectal_test" && hits.some(h => h.track === "colorectal")) also.push(ACTIONS.colorectal_test.title);
+    a.also = also;
+    return a;
+  }
+  /* Worklist order for the capacity the county already has.
+     1 emergency · 2 follow-up already due (longest overdue first) · 3 urgent rule met ·
+     4 risk ≥ 3 % only · 5 cheap tests · 6 safety net. CT slots are handed out in that order;
+     when they run out, the patient gets chest imaging and a safety-net date instead, and
+     keeps their place for next week. A clinician can always override. */
+  function rankWorklist(items, opts = {}) {
+    const tier = r => r.action.key === "emergency" ? 0 : r.action.level === 0 ? 1
+      : r.action.level === 2 ? (r.hits.some(h => h.level === "urgent" || h.level === "emergency") ? 2 : 3)
+      : r.action.level === 1 ? 4 : r.action.key === "safety_net" ? 5 : 6;
+    const sorted = items.slice().sort((a, b) => tier(a.r) - tier(b.r) || (b.r.action.overdue || 0) - (a.r.action.overdue || 0) || b.r.risk.posterior - a.r.risk.posterior);
+    let slots = Number.isFinite(opts.ctSlots) ? opts.ctSlots : Infinity;
+    return sorted.map(x => {
+      const out = { ...x, tier: tier(x.r), queued: false };
+      if (x.r.action.needsCt && x.r.action.key !== "emergency") { if (slots > 0) { slots--; out.slot = true; } else out.queued = true; }
+      return out;
+    });
+  }
   function decide(risk, hits, findings) {
     if (hits.some(h => h.track === "emergency")) return { key: "emergency", ...ACTIONS.emergency };
     if (hits.some(h => h.track === "lymphoma")) return { key: "lymphoma_urgent", ...ACTIONS.lymphoma_urgent };
@@ -412,11 +571,17 @@
   function assess(c, opts = {}) {
     let ex = extract(c.note || "");
     if (opts.ai) ex = reconcile(ex, opts.ai, c.note || "");
-    const st = structured(c, ex.findings);
+    let patient = c.patient || {}, smokingRead = null;
+    if (!patient.smoking) {
+      const sm = parseSmoking([c.note].concat((c.history || []).map(h => h.text)).join(". "), patient.age);
+      if (sm.known) { smokingRead = sm; patient = { ...patient, smoking: sm.ever ? { ever: true, current: sm.current, cigsPerDay: sm.cigsPerDay || (sm.packYears && sm.years ? sm.packYears / sm.years * 20 : undefined), years: sm.years, quitYears: sm.quitYears } : { ever: false } }; }
+    }
+    const st = structured({ ...c, patient }, ex.findings);
+    if (smokingRead) st.signals.push({ id: "SMOKING_READ", text: `Smoking history read from the notes — ${smokingRead.text}`, src: "plcom2012" });
     const findings = ex.findings.concat(st.added);
-    const risk = lungRisk(c.patient || {}, findings, c.history);
-    const hits = rules(c.patient || {}, findings, c.labs, c.history, st.signals);
-    const action = decide(risk, hits, findings);
+    const risk = lungRisk(patient, findings, c.history);
+    const hits = rules(patient, findings, c.labs, c.history, st.signals);
+    const action = decideWithLevel(risk, hits, findings);
     const n = k => findings.filter(k).length;
     const sev = findings.filter(f => f.severity && !f.negated).map(f => f.label.toLowerCase());
     const readBits = [`${findings.length} finding(s)`, `${n(f => f.negated)} negated`];
@@ -434,5 +599,5 @@
     return { extraction: { ...ex, findings }, signals: st.signals, rejected: ex.rejected || [], risk, hits, action, trace };
   }
 
-  global.Ajoissa = { VERSION: "2.0", CONCEPTS, LUNG_LR, THRESHOLDS, ACTIONS, extract, correctTypos, aiPrompt, parseAi, reconcile, structured, plcom2012, lungRisk, rules, decide, assess, damerau };
+  global.Ajoissa = { VERSION: "3.0", TRIGGERS, PSA_REF, LEVEL, parseSmoking, resultTriggers, rankWorklist, CONCEPTS, LUNG_LR, THRESHOLDS, ACTIONS, extract, correctTypos, aiPrompt, parseAi, reconcile, structured, plcom2012, lungRisk, rules, decide, assess, damerau };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -74,7 +74,7 @@
     { id: "B20", note: "Kaulalla kyhmy, ei aristava. Ollut 6 viikkoa.", patient: YOUNG, pos: ["lymph"], action: "lymphoma_urgent", why: "duration in the next sentence: we accept a miss here only if persistence is lost" },
     { id: "B21", note: "Coughing up blood twice, age 32, non-smoker.", patient: YOUNG, pos: ["haemoptysis"], action: "safety_net", why: "age < 40: NG12 haemoptysis rule does not apply; risk stays low" },
     { id: "B22", note: "Smoker, cough 4 weeks.", patient: NODETAIL, pos: ["cough"], action: "lung_imaging", why: "smoking detail missing: defaults must not crash" },
-    { id: "B23", note: "Iron deficiency, Hb low. Blood in the stool on two occasions.", patient: { age: 70, sex: "F", smoking: { ever: false } }, pos: ["rectalbleed"], action: "colorectal_test" },
+    { id: "B23", note: "Iron deficiency, Hb low. Blood in the stool on two occasions.", patient: { age: 70, sex: "F", smoking: { ever: false } }, pos: ["rectalbleed", "anaemia"], action: "colorectal_test", why: "label extended in v3: anaemia became a concept" },
     { id: "B24", note: "Selkä kipeä nostamisen jälkeen.", patient: NEVER, pos: ["backpain"], action: "none" },
     { id: "B25", note: "Kuumeinen flunssa 3 pv, yskää.", patient: NEVER, pos: ["fever", "cough"], action: "safety_net" },
     { id: "B26", note: "Rintakipu rasituksessa, EKG normaali.", patient: SMOKER, pos: ["chestpain"], action: "lung_imaging" },
