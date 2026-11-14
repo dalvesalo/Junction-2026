@@ -18,6 +18,7 @@
     window.scrollTo({ top: 0 });
     if (view === "gap") drawRiver(true);
     if (view === "behind") animatePipeline();
+    if (view === "county") renderCounty();   // clocks follow the worklist (signed orders start them)
   }
   document.querySelectorAll(".menubar button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
   document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if (g) { e.preventDefault(); show(g.dataset.goto); } const v = e.target.closest("[data-view-link]"); if (v) { e.preventDefault(); show(v.dataset.viewLink); } });
@@ -607,7 +608,18 @@
     const flagged = assessed.filter(x => x.r.action.target);
     $("#clocks").innerHTML = `<h3><span>Open pathway clocks</span><span class="synthetic-tag">synthetic</span></h3>
       <table class="tbl"><thead><tr><th>Patient</th><th>Next step</th><th class="r">Day</th><th class="r">Target</th><th>Status</th></tr></thead><tbody>
-      ${flagged.map((x, i) => { const isMatti = /^Matti\b/.test(x.c.name); /* matches the worklist: CT slot this week, clock starts at signing */ const lv0 = x.r.action.level === 0; /* Level 0: flagged overnight, nobody has acted yet (worklist: "Already due") */ const day = (isMatti || lv0) ? 0 : [9, 2, 4, 16, 1][i % 5]; const over = day > x.r.action.target; return `<tr><td>${x.c.name}</td><td>${lv0 ? "Flag open" : isMatti ? "CT booked" : x.r.action.clock[0]}</td><td class="r num">${day}</td><td class="r num">${x.r.action.target}</td><td><span class="pill ${over ? "over" : day > x.r.action.target * .7 ? "risk" : "ontime"}">${over ? "overdue — escalated" : day > x.r.action.target * .7 ? "at risk" : "on time"}</span></td></tr>`; }).join("")}
+      ${flagged.filter(x => (orders[x.c.id] || {}).status !== "dismissed").map(x => {
+        /* County view follows the worklist (source of truth): flags were raised overnight (day 0); a clock starts when the nurse signs. */
+        const status = (orders[x.c.id] || {}).status || "draft", a = x.r.action, signed = status === "sent";
+        const next = status === "review" ? "Review booked"
+          : a.level === 0 ? (signed ? a.clock[0] : "Flag open")
+          : x.slot ? (signed ? "CT booked" : "CT slot this week")
+          : x.queued ? (signed ? "X-ray ordered, CT next week" : "X-ray now, CT next week")
+          : a.key === "safety_net" ? "Check-in in 3 weeks"
+          : signed ? a.clock[0] : "Flag open";
+        const day = 0, target = a.target, over = day > target;
+        return `<tr><td>${x.c.name}</td><td>${next}</td><td class="r num">${day}</td><td class="r num">${target}</td><td><span class="pill ${over ? "over" : day > target * .7 ? "risk" : "ontime"}">${over ? "overdue — escalated" : day > target * .7 ? "at risk" : "on time"}</span></td></tr>`;
+      }).join("")}
       </tbody></table>`;
   }
 

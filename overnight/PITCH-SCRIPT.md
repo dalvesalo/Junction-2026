@@ -4,7 +4,7 @@
 
 **Total ≈ 2:50.** One speaker; a second person drives the live demo. Pace ≈ 150 words a minute; numbers take longer to say than they look. If a rehearsal runs over, cut the Eero/Kalevi sentences in the demo first, then the `mechanism` slide.
 
-**Deck order (deck rebuilt 14.11 evening, main c0a14ef — verify ids against `overnight/deck/build.py`):** cover → hook → born (slide 3, chart: blue = first symptom to referral, "Ajoissa acts here") → who → stakes → mechanism → invisible (red) → *local* → solution → how ("How Does It Work?") → **demo (live)** → *matti* → *behind* → *earlier* → *county* → evidence → *impact* → *recs* → ask ("Implementation") → *honest* → close → *refs*. *Italic* = not shown on stage. `matti`, `behind`, `earlier`, `county` are **backup only**: the live demo covers them; show them only if the demo fails.
+**Deck order (deck rebuilt 14.11 evening, main e718899):** cover → hook → born (slide 3, chart: grey dashed "before first contact", blue = first contact to referral, "Ajoissa acts here"; specialist and treatment grey, "not our target") → who → stakes → mechanism → invisible (red) → *local* → solution → how ("How Does It Work?") → **demo (live)** → *matti* → *behind* → *earlier* → *county* → evidence → *impact* → *recs* → ask ("Implementation") → *honest* → close → *refs*. *Italic* = not shown on stage. `matti`, `behind`, `earlier`, `county` are **backup only**: the live demo covers them; show them only if the demo fails.
 
 **Every number below is in `overnight/BRIEF.md`** (source table at the end). Names of synthetic patients (Aino, Eero, Kalevi, Matti) come from the demo and are labelled synthetic on screen.
 
@@ -41,7 +41,7 @@
 | `honest` | — | APPENDIX / Q&A (not on stage). Real vs modelled vs synthetic. UK-derived likelihood ratios and PLCOm2012 need recalibration on Finnish data. |
 | `close` | 2:47–2:50 (3 s) | STAGE (3 s). Same symptom, same speed — whichever door you walk in. Thank you. |
 
-**Changed in v3:** `born` is now on stage (slide 3 chart), its 10 s taken from `hook` (specialist sentence moved there) and `mechanism` (dropped "the legal guarantee is three months" — still in Q&A); new `how` transition (4 s, from `solution`); `matti`/`behind` added as backup-only. Deck chat: copy the new `hook`, `born`, `mechanism`, `solution`, `how` notes into build.py's NOTES table.
+**Changed in v3:** `born` is now on stage (slide 3 chart), its 10 s taken from `hook` (specialist sentence moved there) and `mechanism` (dropped "the legal guarantee is three months" — still in Q&A); new `how` transition (4 s, from `solution`); `matti`/`behind` added as backup-only. Speaker notes copied into build.py (e718899).
 
 ## Live demo click path (driver) — 56 s
 
@@ -52,7 +52,7 @@
 | 1:33 | "Then Matti … one of the CT slots the county already has." | Click **Matti K.** (red, Act now). Point at the threshold box and the drafted **Thorax CT**; point at "CT slots free this week". |
 | 1:51 | "The nurse signs; the clock starts." | **Sign and send** → Matti moves to "Out of your hands", clock starts. |
 | 1:55 | "How did it decide? Step by step: …" | **How did Ajoissa decide this?** → **▶ Walk through it step by step**: Read the note (struck-through "veriyskää") → Check the record (weight −5 %) → Calculate → Match rules → Propose ("caught 35 days earlier"). One click per phrase. |
-| 2:08 | "And every clock leaves timestamps …" | **County view** (Evidence menu) → click **Health centre D**. Matti shows "CT booked, day 0, on time". |
+| 2:08 | "And every clock leaves timestamps …" | **County view** (Evidence menu) → click **Health centre D**. Matti shows "CT booked, day 0"; Aino, Eero, Kalevi "Flag open, day 0, on time". |
 | 2:16 | — | Back to slides at `evidence`. |
 
 **If the demo breaks:** stay on slides and use `matti` → `behind` → `earlier` → `county` with their backup notes (same words, ≈ same time). Backup in Q&A: "+ Create a test patient" and let a judge type a note.
