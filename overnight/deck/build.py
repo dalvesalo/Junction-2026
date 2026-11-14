@@ -87,7 +87,7 @@ src="Seppä et al., Acta Oncol 2020 — strong · Finnish Cancer Registry, Cance
 slide("solution","dark",'''<p class="eyebrow mint">Our solution</p>
 <h2>Ajoissa: a safety net for public primary care</h2>
 <div class="flow">
-<div class="fstep"><p class="fh">Read</p><p class="fb">Overnight: visit notes (FI/EN), labs, visit history — the county’s own records</p></div>
+<div class="fstep"><p class="fh">Read</p><p class="fb">Overnight: results nobody followed up (lung, bowel, prostate), labs, visit notes (FI/EN) — the county’s own records</p></div>
 <div class="fstep"><p class="fh">Weigh</p><p class="fb">Bayesian risk: smoking-history prior × published symptom likelihood ratios</p></div>
 <div class="fstep"><p class="fh">Match</p><p class="fb">Explicit referral rules (3 % threshold) — the criteria roadmap 2.5.2 will standardise</p></div>
 <div class="fstep"><p class="fh">Act</p><p class="fb">A named nurse’s worklist: one proposed action, a reason, a source</p></div>
@@ -129,9 +129,9 @@ slide("evidence","light",'''<p class="eyebrow berryd">Why we believe it works �
 slide("impact","dark",'''<p class="eyebrow mint">One county, year one — a model, every assumption adjustable in the demo</p>
 <h2>What it buys, and what it costs</h2>
 <div class="grid3">
-<div class="kpi"><p class="huge mint">≈ 135</p><p class="body">lung-cancer patients a year on a tracked, faster route (of ≈ 225)</p></div>
+<div class="kpi"><p class="huge mint">≈ 135</p><p class="body">lung-cancer patients a year on a faster route (of ≈ 225), if every flag gets a slot</p></div>
 <div class="kpi"><p class="huge mint">≈ 21 d</p><p class="body">earlier to diagnostic imaging per flagged patient</p></div>
-<div class="kpi"><p class="huge amber">≈ 4,455</p><p class="body">extra work-ups a year (≈ 86 a week) — the honest cost</p></div>
+<div class="kpi"><p class="huge amber">0–86</p><p class="body">imaging slots a week: 0 for follow-ups already due; the county sets the rest</p></div>
 </div>
 <p class="body soft">We do <b>not</b> claim a stage or survival effect: the UK trial built to test that has not reported. The pilot measures it.</p>''',
 "APPENDIX / Q&A. Model for a 420,000-person county: national incidence rate; 60 % flagged (Schut 2025); 50 % cut of a 41-day interval (Murphy 2015; 41 d is an unpublished Finnish figure). Ranges in the app.",
@@ -141,8 +141,8 @@ slide("recs","light",'''<p class="eyebrow berryd">Recommendations</p>
 <h2>What a county can do on Monday</h2>
 <table class="recs">
 <tr><th style="width:40%">Action</th><th style="width:22%">Owner</th><th style="width:20%">Evidence</th><th style="width:18%">County alone?</th></tr>
-<tr><td>Switch on the Ajoissa tracker in 3 health centres</td><td>Chief physician, primary care</td><td>Strong (RCT, time)</td><td>Yes</td></tr>
-<tr><td>Direct CT for agent-flagged patients</td><td>Imaging lead</td><td>Weak–moderate</td><td>Yes, if capacity</td></tr>
+<tr><td>Switch on Ajoissa in 3 health centres: chase results nobody followed up (lung, bowel, prostate)</td><td>Chief physician, primary care</td><td>Strong (RCT, time)</td><td>Yes</td></tr>
+<tr><td>Name a fixed number of existing CT slots for the agent’s strongest symptom flags</td><td>Imaging lead</td><td>Weak–moderate</td><td>Yes, no new capacity</td></tr>
 <tr><td>Publish step times per health centre monthly</td><td>County cancer lead</td><td>Moderate</td><td>Yes</td></tr>
 <tr><td>Phase 2: calibrated risk scoring (MDR route)</td><td>County + FICAN</td><td>Moderate (detection)</td><td>Needs QMS</td></tr>
 <tr><td>National referral criteria + published pathway times</td><td>STM, FICAN, THL</td><td>Moderate</td><td>No — national</td></tr>

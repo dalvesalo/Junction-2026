@@ -421,6 +421,38 @@
       <li><b>No stage shift or survival gain is claimed.</b> The UK trial designed to test that (ERICA) has not reported. The county pilot is how we find out — with the pathway clocks as the measuring instrument.</li>
       <li>Work-ups are the honest cost. The county sets the number of slots; the agent only decides who is proposed for them, so a lower-risk patient waits longer. With fewer slots than flags, the model scales the benefit down in proportion and gives ranking no extra credit.</li>
       <li>Ranges shown are ±30–40 % of the point estimate to signal uncertainty; they are not statistical confidence intervals.</li></ul>`;
+    renderSurvival(flagged, daysEach);
+  }
+
+  /* ---- Highly experimental: what faster diagnosis MIGHT mean for 5-year survival ----
+     Proportional hazards: S_new = S ^ (1 / h^(days/28)), h = hazard ratio per 4 weeks of delay (Hanna 2020).
+     Every input is shown; prostate is left out (not in Hanna 2020; high survival; overdiagnosis risk). */
+  const SV = { h: 1.06, bowelShare: 10, bowelDays: 96 };
+  function renderSurvival(lungFlagged, lungDays) {
+    const el = $("#survival-exp"); if (!el) return;
+    const gain = (n, S, d) => { const f = Math.pow(SV.h, d / 28); return n * (Math.pow(S, 1 / f) - S); };
+    const lungS = 0.20;                                   // between men 16.4 % and women 25.5 % (Tichanek 2023)
+    const bowelS = 0.61;                                  // 2006–2015, Olenius 2022
+    const bowelCases = P.pop * 4153 / 5600000 * (P.coverage / 100);   // 4,153 new colorectal cancers in 2024 (Cancer Registry, Syöpä 2024)
+    const bowelN = bowelCases * SV.bowelShare / 100;
+    const gl = gain(lungFlagged, lungS, lungDays), gb = gain(bowelN, bowelS, SV.bowelDays);
+    const f1 = v => v < 0.05 ? "≈ 0" : v.toFixed(1);
+    el.innerHTML = `<h3><span>What it might mean for survival</span><span class="model-tag" style="background:var(--alert);color:#fff">highly experimental</span></h3>
+      <p style="color:var(--frost);font-size:.92rem;margin:.2rem 0 .8rem">Not a claim. A transparent what-if: if diagnosis comes earlier, and if earlier helps as much as published data on <i>treatment</i> delay suggests, how many more people would be alive at 5 years? Every input below is visible and changeable.</p>
+      <div class="slider"><label for="sv-h"><span>Extra risk of death per 4 weeks of delay</span><b class="num" id="sv-hv">${Math.round((SV.h - 1) * 100)} %</b></label><input type="range" id="sv-h" min="1" max="1.08" step="0.01" value="${SV.h}"><small>0 % = earlier diagnosis changes nothing (possible: the sickest are often diagnosed fastest). 6–8 % = surgery in Hanna 2020 ${cite("hanna2020")}, which measured delay <i>after</i> diagnosis.</small></div>
+      <div class="slider"><label for="sv-bs"><span>Bowel cancers found through an unfollowed result</span><b class="num" id="sv-bsv">${SV.bowelShare} %</b></label><input type="range" id="sv-bs" min="0" max="30" step="1" value="${SV.bowelShare}"><small>Assumption with no source: the share of the county's bowel cancers that had an abnormal stool test or anaemia nobody acted on. The pilot would measure it.</small></div>
+      <div class="slider"><label for="sv-bd"><span>Days earlier for those bowel cancers</span><b class="num" id="sv-bdv">${SV.bowelDays} d</b></label><input type="range" id="sv-bd" min="0" max="120" step="1" value="${SV.bowelDays}"><small>96 d = the trial's median difference in time to work-up (200 vs 104 days) ${cite("murphy2015")}.</small></div>
+      <table class="tbl" style="margin-top:.8rem"><thead><tr><th>Cancer</th><th class="r">Patients a year</th><th class="r">Days earlier</th><th class="r">5-year survival now</th><th class="r">Extra 5-year survivors a year</th></tr></thead><tbody>
+      <tr><td>Lung (symptom flags, slots as set above)</td><td class="r num">${Math.round(lungFlagged)}</td><td class="r num">${Math.round(lungDays)}</td><td class="r num">≈ 20 % ${cite("actaonc2025_surv")}</td><td class="r num"><b>${f1(gl)}</b></td></tr>
+      <tr><td>Bowel (Level 0: results nobody followed up)</td><td class="r num">${Math.round(bowelN)}</td><td class="r num">${SV.bowelDays}</td><td class="r num">≈ 61 % ${cite("olenius2022")}</td><td class="r num"><b>${f1(gb)}</b></td></tr>
+      <tr><td>Prostate</td><td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="r">left out</td></tr></tbody></table>
+      <ul class="assume" style="margin-top:.8rem">
+      <li><b>Why this is highly experimental.</b> The hazard ratio comes from delay between diagnosis and treatment, not from delay before diagnosis. Earlier diagnosis can also look like longer survival just because the clock starts sooner (lead-time bias). No trial has shown a survival effect for this kind of tool.</li>
+      <li>Method: proportional hazards, S<sub>new</sub> = S<sup>1/h<sup>days/28</sup></sup>. Bowel cases: county population × 4,153 new cases in Finland in 2024 ${cite("syopa2024_crc")} / 5.6 M people.</li>
+      <li>Sanity check from real data: after Denmark introduced cancer pathways, 3-year survival of patients diagnosed via primary care rose from 45 % to 54 %, with the same lead-time caveat ${cite("jensen2017")}.</li>
+      <li>Prostate is left out: it is not in the hazard-ratio review, survival is already high, and faster diagnosis there risks overdiagnosis.</li></ul>`;
+    [["sv-h", "h", v => Math.round((v - 1) * 100) + " %", "sv-hv"], ["sv-bs", "bowelShare", v => v + " %", "sv-bsv"], ["sv-bd", "bowelDays", v => v + " d", "sv-bdv"]].forEach(([id, k]) =>
+      $("#" + id).addEventListener("change", e => { SV[k] = +e.target.value; computeImpact(); }));
   }
 
   /* ================= BRIEFING ================= */

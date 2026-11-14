@@ -251,3 +251,6 @@ body.live-ai .live-only { display: block; }
 .slots input { width: 3.4rem; padding: .2rem .3rem; background: var(--night-2); color: var(--snow); border: 1px solid var(--line); border-radius: 3px; font: inherit; }
 .slots small { grid-column: 1 / -1; color: var(--mute); font-size: .74rem; }
 .scale-note.cap { color: var(--snow); }
+
+/* experimental survival estimator */
+.panel.experimental { border: 1px dashed var(--alert, #c8344a); }
