@@ -36,20 +36,20 @@ The agent never asks for more scans than the county gives it: follow-ups already
 - [ ] Set to FINAL.
 - [ ] Peer review 10:30–13:00: everyone present.
 
-## Optional voiceover for the video (≤ 1:56; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second
+## Optional voiceover for the video (≤ 1:56; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second; no personal pronouns — say "the nurse", "the doctor", "Matti"
 | Time | Scene | Line |
 |---|---|---|
-| 0:00 | Hook: two people, same lump | Two people in Finland notice the same lump in their neck. One has occupational health care. One goes to the public health centre. |
-| 0:10 | River: the two routes | Same lymphoma: 76 days to treatment on one route, 127 on the other. Seven weeks — and the gap opens before a specialist ever sees them. |
+| 0:00 | Hook: two people, same lump | Two people in Finland notice the same lump in the neck. One has occupational health care. One goes to the public health centre. |
+| 0:10 | River: the two routes | Same lymphoma: 76 days to treatment on one route, 127 on the other. Seven weeks — and the gap opens before a specialist ever sees either patient. |
 | 0:22 | Who + Goal 3 | The public door serves the retired, the unemployed, the low-paid. And Finland has the Nordics' lowest lung-cancer survival. |
 | 0:32 | Invisible | Nobody measures the wait between a symptom and a diagnosis. You can't shorten a wait you don't see. |
 | 0:39 | Title | So we built Ajoissa. Finnish for "in time". |
-| 0:44 | Worklist: Level 0 rows | Every night it reads the county's own records and finds results nobody followed up: a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Already due. No new capacity needed. |
-| 0:59 | Matti | Then Matti — third visit, same cough. Ajoissa reads his Finnish note, even the "no blood". His signal is today's strongest, so he gets one of the CT slots the county already has. |
-| 1:12 | Sign and send | A nurse decides. She signs, and a clock runs until he's diagnosed or cleared. |
-| 1:19 | Behind the flag, step by step | Every step is shown, with its source. Same rules on his history: thirty-five days earlier. |
+| 0:44 | Worklist: Level 0 rows | Every night Ajoissa reads the county's own records and finds results nobody followed up: a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Already due. No new capacity needed. |
+| 0:59 | Matti | Then Matti — third visit, same cough. Ajoissa reads Matti's Finnish note, even the "no blood". Matti's signal is today's strongest, so Matti gets one of the CT slots the county already has. |
+| 1:12 | Sign and send | The nurse decides and signs, and a clock runs until Matti is diagnosed or cleared. |
+| 1:19 | Behind the flag, step by step | Every step is shown, with the source. Same rules on Matti's history: thirty-five days earlier. |
 | 1:30 | County view | The clocks add up to the data Finland is missing: days per step, per health centre. |
-| 1:36 | Evidence | The pattern is proven in a randomised trial. Parliament approved it this spring. And Päijät-Häme already runs it for kidney disease. |
+| 1:36 | Evidence | The pattern is proven in a randomised trial. Parliament approved this approach in the spring. And Päijät-Häme already runs the same model for kidney disease. |
 | 1:46 | Close | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
 | 1:56 | end | |
 

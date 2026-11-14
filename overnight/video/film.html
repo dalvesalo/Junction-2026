@@ -63,7 +63,7 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
 
 <!-- A · hook -->
 <div class="scene light" id="A">
-  <h1 data-in="0.4" style="font-size:92px;max-width:1500px">Two people in Finland notice<br>the same lump in their neck.</h1>
+  <h1 data-in="0.4" style="font-size:92px;max-width:1500px">Two people in Finland notice<br>the same lump in the neck.</h1>
   <div class="row">
     <div class="panel" data-in="2.6"><div class="strip">Person 1</div><div class="bd"><div class="body" style="margin:0;font-size:46px">Has <b>occupational</b> health care.</div></div></div>
     <div class="panel" data-in="4.6" style="border-left:10px solid var(--red)"><div class="strip">Person 2</div><div class="bd"><div class="body" style="margin:0;font-size:46px">Goes to the <b style="color:var(--red)">public</b> health centre.</div></div></div>
@@ -80,7 +80,7 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
   <div class="lane-l" style="top:540px;color:var(--red)" data-in="0.9">Public primary care</div>
   <div class="lane" id="laneP" style="top:605px;background:var(--red)"></div>
   <div class="lend" id="endP" style="top:650px;color:var(--red)">Treatment · day 127</div>
-  <div class="lead" data-in="8.4" style="position:absolute;top:760px;left:150px;right:150px;margin:0;font-size:46px;color:var(--text)"><b style="color:var(--red)">51 days — about 7 weeks.</b> And it opens <b>before</b> a specialist sees them:<br>specialist → treatment takes 3–5 days on both routes.</div>
+  <div class="lead" data-in="8.4" style="position:absolute;top:760px;left:150px;right:150px;margin:0;font-size:46px;color:var(--text)"><b style="color:var(--red)">51 days — about 7 weeks.</b> And the gap opens <b>before</b> a specialist sees either patient:<br>specialist → treatment takes 3–5 days on both routes.</div>
   <div class="src">Diffuse large B-cell lymphoma · 7 Finnish hospitals, n = 160 · median days from symptom to treatment, p = 0.027 · Kuitunen et al., Cancer Medicine 2026</div>
 </div>
 
@@ -132,7 +132,7 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
   <h1 data-in="0.2">Proven. Approved. Already running.</h1>
   <div class="row">
     <div class="panel" data-in="1.0"><div class="strip">Randomised trial</div><div class="bd"><div class="big" style="font-size:76px">200 → 104</div><div class="body">days to bowel-cancer work-up when result triggers meet a human reviewer.</div><div class="ps">Murphy et al., J Clin Oncol 2015</div></div></div>
-    <div class="panel" data-in="2.6"><div class="strip">Law</div><div class="bd"><div class="big" style="font-size:76px">April 2026</div><div class="body">Parliament: counties may use their own records to find health problems early.</div><div class="ps">HE 159/2025 · EV 38/2026</div></div></div>
+    <div class="panel" data-in="2.6"><div class="strip">Law</div><div class="bd"><div class="big" style="font-size:76px">April 2026</div><div class="body">Parliament: counties may use county patient records to find health problems early.</div><div class="ps">HE 159/2025 · EV 38/2026</div></div></div>
     <div class="panel" data-in="4.6" style="border-top:8px solid var(--primary)"><div class="strip">Already running</div><div class="bd"><div class="big" style="font-size:76px">Päijät-Häme</div><div class="body">The same list → nurse → doctor model runs there today, for kidney disease.</div><div class="ps">AINO: Mehiläinen's tool, run by Harjun terveys; AstraZeneca supports the project work · county press release 12.3.2026</div></div></div>
   </div>
 </div>
@@ -184,13 +184,13 @@ const SPOT=[[48.6,49.8,box('st_list','kalevi')],[49.9,51.2,box('st_list','eero')
   [82.5,83.3,[26,352,770,128]],[89.4,90.8,pad([332,410,1090,170])],[94.0,96.5,pad([775,445,646,170])]];
 const CAPS=[[44,47.4,'Every night, Ajoissa reads the county’s own records.','Notes, lab results, visit history — already in the system.'],
   [47.4,53.6,'First: results nobody followed up.','A raised PSA · a positive stool test · a suspicious chest X-ray.'],
-  [53.6,59.6,'Already due. No new scanners.','Each on a named nurse’s list, with the reason and its source.'],
-  [59.6,65.1,'Then Matti. Third visit, same cough.','It reads his Finnish note — even “Ei veriyskää”: no blood.'],
+  [53.6,59.6,'Already due. No new scanners.','Each patient goes on a named nurse’s list, with the reason and the source.'],
+  [59.6,65.1,'Then Matti. Third visit, same cough.','Ajoissa reads Matti’s Finnish note — even “Ei veriyskää”: no blood.'],
   [65.1,68.6,'Today’s strongest signal.','Lung-cancer risk 21.5 % against a 3 % referral threshold.'],
-  [68.6,72.4,'So he gets one of the CT slots the county already has.','The agent ranks who goes first. It never asks for more.'],
-  [72.4,79.6,'A nurse decides. She signs — and a clock starts.','It runs until diagnosis or all-clear. A late step puts him back on top.'],
-  [79.6,89.1,'Behind every flag: each step, with its source.','Same record in → same result out. Every step can be checked.'],
-  [89.1,90.9,'Same rules on his history: 35 days earlier.','Re-run on his earlier visits.'],
+  [68.6,72.4,'So Matti gets one of the CT slots the county already has.','The agent ranks who goes first and never asks for more.'],
+  [72.4,79.6,'The nurse decides and signs — and a clock starts.','The clock runs until diagnosis or all-clear. A late step puts Matti back on top.'],
+  [79.6,89.1,'Behind every flag: each step, with the source.','Same record in → same result out. Every step can be checked.'],
+  [89.1,90.9,'Same rules on Matti’s history: 35 days earlier.','Re-run on Matti’s earlier visits.'],
   [90.9,96.5,'The clocks add up to the data Finland is missing.','Days per pathway step, per health centre.']];
 const STEPLAB=[[81.8,'Step 1 · Read the note'],[83.8,'Step 2 · Check the record'],[85.6,'Step 3 · Calculate risk'],[87.2,'Step 4 · Match rules'],[88.5,'Step 5 · Propose'],[90.9,'']];
 const capEls=CAPS.map(c=>{const d=document.createElement('div');d.className='cap';d.innerHTML=`<div class="m">${c[2]}</div><div class="s">${c[3]}</div>`;$('capbar').appendChild(d);return d;});

@@ -16,8 +16,21 @@ async def textbox(pg, sel, text):
 async def deepest(pg, text):
     return await pg.evaluate("""t=>{let best=null;for(const e of document.querySelectorAll('body *')){if(e.offsetParent===null||!e.textContent.includes(t))continue;if(!best||best.contains(e))best=e;}
       if(!best)return null;const r=best.getBoundingClientRect();return [r.left+scrollX,r.top+scrollY,r.width,r.height]}""", text)
+# Video wording rule (14.11): no personal pronouns on screen. The app's panel title
+# "Why he/she is on your list" is shown in the film as "Why on your list".
+NOPRONOUN = [["Why he is on your list", "Why on your list"], ["Why she is on your list", "Why on your list"],
+             ["would have flagged him", "would have flagged Matti"], ["would have flagged her", "would have flagged the patient"],
+             ["in the record system they already use", "in the record system already in use"],
+             ["Added up, they give", "Added up, the timestamps give"]]
+async def scrub(pg):
+    await pg.evaluate("""rep=>{const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+      while(n=w.nextNode()){let v=n.nodeValue;for(const [a,b] of rep)v=v.split(a).join(b);if(v!==n.nodeValue)n.nodeValue=v;}}""", NOPRONOUN)
+    left = await pg.evaluate("""()=>{const out=[];const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+      while(n=w.nextNode()){const e=n.parentElement;if(!e||e.offsetParent===null)continue;const m=n.nodeValue.match(/\\b(he|she|his|her|him|hers|they|them|their)\\b/i);if(m)out.push(n.nodeValue.trim().slice(0,90));}return out}""")
+    for x in left: print("  pronoun left:", x)
 async def shot(pg, name, targets):
     await pg.wait_for_timeout(900)
+    await scrub(pg)
     await pg.evaluate("window.scrollTo(0,0)")
     h = await pg.evaluate("document.documentElement.scrollHeight")
     b = {"h": h}
