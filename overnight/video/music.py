@@ -1,4 +1,4 @@
-"""Generated soundtrack (no samples, no licences): low ambient drone until the Ajoissa title (39 s), soft clicks on demo clicks,
+"""Generated soundtrack (no samples, no licences): soft chord intro with a piano-like line until the Ajoissa title (39 s), soft clicks on demo clicks,
 then a warm pad + soft arpeggio under the demo, lifting at the evidence and resolving at the close.
 python3 music.py out.wav [duration]"""
 import sys, numpy as np, wave
@@ -28,13 +28,28 @@ for k in []:  # (clock ticks removed 14.11)
     f = 2600 if k % 2 else 2000
     tick = np.sin(2 * np.pi * f * x) * np.exp(-x * 260) + rng.normal(0, .3, n) * np.exp(-x * 600)
     add(tick, k - 0.4, pan=(-.3 if k % 2 else .3), gain=0.10 + 0.06 * (k > 32))
-# 2) low drone 0–39 with swell; a fifth joins under "nobody measures"
+# 2) intro 0–39 s: soft pad with changing chords + a sparse piano-like line (replaces the old drone)
 def tone(m, d, harm=(1, .35, .15, .08), det=0.0):
     x = np.arange(int(d * SR)) / SR
     return sum(a * np.sin(2 * np.pi * hz(m) * (h) * (1 + det) * x) for h, a in enumerate(harm, 1))
-dr = tone(45, 39.3) * env(int(39.3 * SR), 4, 1.5) * (0.6 + 0.4 * np.sin(2 * np.pi * t[:int(39.3 * SR)] / 9) ** 2)
-add(dr, 0, gain=0.06)
-add(tone(52, 7.3) * env(int(7.3 * SR), 2, 1.2), 32, gain=0.035)
+def piano(m, d=2.4):
+    x = np.arange(int(d * SR)) / SR
+    s = sum(a * np.sin(2 * np.pi * hz(m) * h * x) * np.exp(-x * (2.2 + h)) for h, a in [(1, 1), (2, .45), (3, .2), (4, .1)])
+    return s * np.minimum(1, x * 300)
+ICH = [[57, 60, 64], [53, 57, 60], [48, 55, 64], [52, 55, 59]]          # Am – F – C – Em
+MEL = [[69, 72, 76, 72], [69, 72, 77, 72], [67, 72, 76, 79], [71, 67, 64, 67]]
+ib = 4.8
+for k in range(8):                                                     # 8 bars × 4.8 s = 38.4 s
+    t0i = 0.6 + k * ib; ch = ICH[k % 4]
+    n = int((ib + 1.2) * SR); p = np.zeros(n)
+    for mm in ch:
+        for det in (-.002, .002): p += tone(mm, ib + 1.2, harm=(1, .4, .15), det=det)[:n]
+    add(p * env(n, 1.2, 1.4), t0i, gain=0.010 + 0.002 * (k >= 6))
+    add(tone(ch[0] - 12, ib + 1.0, harm=(1, .25)) * env(int((ib + 1.0) * SR), .8, 1.2), t0i, gain=0.03)
+    if k >= 1:                                                         # melody enters after the first bar
+        for q, mm in enumerate(MEL[k % 4]):
+            if k % 2 == 1 and q == 3: continue
+            add(piano(mm), t0i + q * 1.2 + (0.3 if q == 2 else 0), pan=-.2 + .13 * q, gain=0.05)
 # 3) reveal chime at 39
 def bell(m, d=4.0):
     x = np.arange(int(d * SR)) / SR
@@ -65,8 +80,22 @@ while tt < 105.6:
     g = 0.035 * (0.75 if tt < 96.5 else 1.0) * min(1, (tt - 44) / 2)
     add(pl, tt, pan=.35 * np.sin(i * .7), gain=g); tt += step; i += 1
 # 6) final chord + chime at 106 (close), long fade
-add(pad([45, 57, 60, 64, 69], DUR - 114.6, 0.02), 114.6)
-for m, dt in [(69, 0), (72, .15), (76, .3)]: add(bell(m, 6), 115.05 + dt, gain=0.06)
+def halo(notes, d):
+    n = int(d * SR); x = np.arange(n) / SR; s = np.zeros(n)
+    vib = 1 + 0.003 * np.sin(2 * np.pi * 5.2 * x)
+    for mm in notes:
+        for det in (-.004, -.0015, .0015, .004):                          # choir-like stack of detuned voices
+            ph = 2 * np.pi * hz(mm) * (1 + det) * np.cumsum(vib) / SR
+            s += np.sin(ph) + .3 * np.sin(2 * ph) + .12 * np.sin(3 * ph)
+    e = np.minimum(1, x / 0.9) * np.clip((d - x) / 2.0, 0, 1)
+    out = s * e
+    for dl, g in [(0.11, .5), (0.23, .35), (0.37, .25), (0.53, .15)]:     # simple reverb tail
+        k = int(dl * SR); out[k:] += s[:-k] * e[:-k] * g
+    return out
+hd = DUR - 114.9
+add(halo([57, 64, 69, 73, 76], hd), 114.9, gain=0.0065)                # A major "aah"
+for m_, dt in [(81, 0.0), (85, .18), (88, .36), (93, .6)]:             # high shimmer
+    add(bell(m_, 5), 115.1 + dt, pan=(dt - .3), gain=0.035)
 # master: gentle fade-in/out, normalise
 mix = np.stack([L, Rr], 1)
 fi = np.minimum(1, t / 1.0); fo = np.clip((DUR - t) / 3.0, 0, 1)

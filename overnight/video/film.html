@@ -142,9 +142,9 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
   <h1 data-in="0.2" style="font-size:72px">Our ask: Päijät-Häme.<br>Three health centres. Six months.</h1>
   <p class="lead" data-in="0.9" style="margin-top:18px;font-size:38px">Inside the area where AINO already runs the list → nurse → doctor model. The plan is ready.</p>
   <div class="row" style="margin-top:44px;gap:0">
-    <div class="panel" data-in="1.8"><div class="strip">Month 1 · Set up</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Legal basis (HE 159/2025), nightly data extract, nurses named and trained</div></div></div>
+    <div class="panel" data-in="1.8"><div class="strip">Month 1 · Set up</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Legal basis (HE 159/2025), nightly data extract, nurses and doctors named and trained</div></div></div>
     <div class="panel" data-in="2.6"><div class="strip">Month 2 · Shadow run</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Worklist every morning, nothing acted on: count real misses and nurse minutes</div></div></div>
-    <div class="panel" data-in="3.4" style="border-top:8px solid var(--primary)"><div class="strip">Month 3 · Live</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Nurses act on overlooked results, clocks run, first report per health centre</div></div></div>
+    <div class="panel" data-in="3.4" style="border-top:8px solid var(--primary)"><div class="strip">Month 3 · Live</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Nurses review the list, doctors sign the drafted requests, clocks run, first report</div></div></div>
     <div class="panel" data-in="4.2"><div class="strip">Months 4–6 · Decide</div><div class="bd"><div class="body" style="margin:0;font-size:31px">Go / no-go at day 90; then add symptom flags with fixed CT slots</div></div></div>
   </div>
   <div class="row" style="margin-top:34px" data-in="5.2">
@@ -197,15 +197,15 @@ const CUR=[[47.4,760,640],[48.6,...R('kalevi')],[49.5,...R('kalevi')],[50.2,...R
 const pad=(b,p=8)=>[b[0]-p,b[1]-p,b[2]+2*p,b[3]+2*p];
 const SPOT=[[48.6,49.8,box('st_list','kalevi')],[49.9,51.2,box('st_list','eero')],[51.3,52.9,box('st_list','aino')],
   [54.4,58.8,pad(box('st_aino','why'))],[62.4,65.0,pad(box('st_matti','veri'),6)],[65.9,68.4,pad([box('st_matti','thr')[0],box('st_matti','thr')[1]+36,box('st_matti','thr')[2],100])],
-  [69.2,71.8,pad([1041,182,380,300])],[75.0,78.7,pad([1041,box('st_signed','olog')[1],380,184])],
+  [69.2,71.8,pad([1041,182,380,300])],[75.0,78.7,pad([1041,box('st_signed','olog')[1]-46,380,230])],
   [82.5,83.3,[26,352,770,128]],[89.4,90.8,pad([332,410,1090,170])],[94.0,96.5,pad([775,445,646,170])]];
 const CAPS=[[44,47.4,'Every night, Ajoissa reads the county’s own records.','Notes, lab results, visit history — already in the system.'],
   [47.4,53.6,'First: results nobody followed up.','A raised PSA · a positive stool test · a suspicious chest X-ray.'],
-  [53.6,59.6,'Already due. No new scanners.','Each patient goes on a named nurse’s list, with the reason and the source.'],
+  [53.6,59.6,'Already due. No new scanners.','Each morning a named nurse reviews the list, with the reason and the source.'],
   [59.6,65.1,'Then Matti. Third visit, same cough.','Ajoissa reads Matti’s Finnish note — even “Ei veriyskää”: no blood.'],
   [65.1,68.6,'Today’s strongest signal.','Lung-cancer risk 21.5 % against a 3 % referral threshold.'],
   [68.6,72.4,'So Matti gets one of the CT slots the county already has.','The agent ranks who goes first and never asks for more.'],
-  [72.4,79.6,'The nurse decides and signs — and a clock starts.','The clock runs until diagnosis or all-clear. A late step puts Matti back on top.'],
+  [72.4,79.6,'The nurse reviews. The doctor signs.','Nothing is sent before the doctor signs; then a clock runs to diagnosis or all-clear.'],
   [79.6,89.1,'Behind every flag: each step, with the source.','Same record in → same result out. Every step can be checked.'],
   [89.1,90.9,'Same rules on Matti’s history: 35 days earlier.','Re-run on Matti’s earlier visits.'],
   [90.9,96.5,'The clocks add up to the data Finland is missing.','Days per pathway step, per health centre.']];
