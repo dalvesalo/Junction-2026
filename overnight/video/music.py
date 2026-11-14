@@ -1,8 +1,8 @@
-"""Generated soundtrack (no samples, no licences): clock ticks until the Ajoissa title (39 s),
+"""Generated soundtrack (no samples, no licences): low ambient drone until the Ajoissa title (39 s), soft clicks on demo clicks,
 then a warm pad + soft arpeggio under the demo, lifting at the evidence and resolving at the close.
 python3 music.py out.wav [duration]"""
 import sys, numpy as np, wave
-SR = 44100; DUR = float(sys.argv[2]) if len(sys.argv) > 2 else 116.0
+SR = 44100; DUR = float(sys.argv[2]) if len(sys.argv) > 2 else 119.5
 N = int(SR * DUR); t = np.arange(N) / SR
 L = np.zeros(N); Rr = np.zeros(N)
 def hz(m): return 440 * 2 ** ((m - 69) / 12)
@@ -15,8 +15,15 @@ def env(n, a, r):
     e = np.ones(n); na = int(a * SR); nr = int(r * SR)
     e[:na] = np.linspace(0, 1, na); e[-nr:] *= np.linspace(1, 0, nr); return e
 rng = np.random.default_rng(7)
-# 1) clock ticks 0.6–39 s (tick-tock), quiet, slightly louder near the red slide
-for k in range(1, 39):
+# 1) soft UI clicks at the demo's cursor clicks (times from film.html, written by render.py)
+import json, os
+CL = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "clicks.json")
+for c in (json.load(open(CL)) if os.path.exists(CL) else []):
+    n = int(0.06 * SR); x = np.arange(n) / SR
+    clk = (np.sin(2 * np.pi * 1800 * x) * np.exp(-x * 180) + 0.5 * np.sin(2 * np.pi * 900 * x) * np.exp(-x * 120)
+           + rng.normal(0, .25, n) * np.exp(-x * 900))
+    add(clk, c, gain=0.16)
+for k in []:  # (clock ticks removed 14.11)
     n = int(0.03 * SR); x = np.arange(n) / SR
     f = 2600 if k % 2 else 2000
     tick = np.sin(2 * np.pi * f * x) * np.exp(-x * 260) + rng.normal(0, .3, n) * np.exp(-x * 600)
@@ -35,7 +42,7 @@ def bell(m, d=4.0):
 for m, dt in [(69, 0), (76, .12), (81, .24)]: add(bell(m), 39.05 + dt, pan=(dt * 2 - .25), gain=0.09)
 # 4) pad progression from 39.5: Am – F – C – G (each 3.6 s)
 CH = [[57, 60, 64], [53, 57, 60], [48, 55, 60, 64], [55, 59, 62]]
-bar = 3.6; t0 = 39.5; tend = 113.4
+bar = 3.6; t0 = 39.5; tend = 114.4
 def pad(notes, d, g):
     n = int(d * SR); s = np.zeros(n)
     for m in notes:
@@ -58,8 +65,8 @@ while tt < 105.6:
     g = 0.035 * (0.75 if tt < 96.5 else 1.0) * min(1, (tt - 44) / 2)
     add(pl, tt, pan=.35 * np.sin(i * .7), gain=g); tt += step; i += 1
 # 6) final chord + chime at 106 (close), long fade
-add(pad([45, 57, 60, 64, 69], 10, 0.02), 106)
-for m, dt in [(69, 0), (72, .15), (76, .3)]: add(bell(m, 6), 106.1 + dt, gain=0.06)
+add(pad([45, 57, 60, 64, 69], DUR - 114.6, 0.02), 114.6)
+for m, dt in [(69, 0), (72, .15), (76, .3)]: add(bell(m, 6), 115.05 + dt, gain=0.06)
 # master: gentle fade-in/out, normalise
 mix = np.stack([L, Rr], 1)
 fi = np.minimum(1, t / 1.0); fo = np.clip((DUR - t) / 3.0, 0, 1)

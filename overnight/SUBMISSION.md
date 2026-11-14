@@ -23,7 +23,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
 **Demo link:** https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
 **Source code:** https://github.com/dalvesalo/Junction-2026 (must be accessible to organisers; MIT licence applies to submissions)
-**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:56, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip) to YouTube as *Unlisted/Public* and paste the link.
+**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:59.5, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip, pilot-plan slide, end card "Ajoissa." + slogan; music and soft click sounds, no voiceover) to YouTube as *Unlisted/Public* and paste the link.
 **Pitch deck (PDF):** export from https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i (Share/Export → PDF), or use `overnight/deliverables/Ajoissa_pitch_deck.pdf`.
 
 ## Checklist before 10:00
@@ -36,22 +36,8 @@ The agent never asks for more scans than the county gives it: follow-ups already
 - [ ] Set to FINAL.
 - [ ] Peer review 10:30–13:00: everyone present.
 
-## Optional voiceover for the video (≤ 1:56; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second; no personal pronouns — say "the nurse", "the doctor", "Matti"
-| Time | Scene | Line |
-|---|---|---|
-| 0:00 | Hook: two people, same lump | Two people in Finland notice the same lump in the neck. One has occupational health care. One goes to the public health centre. |
-| 0:10 | River: the two routes | Same lymphoma: 76 days to treatment on one route, 127 on the other. Seven weeks — and the gap opens before a specialist ever sees either patient. |
-| 0:22 | Who + Goal 3 | The public door serves the retired, the unemployed, the low-paid. And Finland has the Nordics' lowest lung-cancer survival. |
-| 0:32 | Invisible | Nobody measures the wait between a symptom and a diagnosis. You can't shorten a wait you don't see. |
-| 0:39 | Title | So we built Ajoissa. Finnish for "in time". |
-| 0:44 | Worklist: Level 0 rows | Every night Ajoissa reads the county's own records and finds results nobody followed up: a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Already due. No new capacity needed. |
-| 0:59 | Matti | Then Matti — third visit, same cough. Ajoissa reads Matti's Finnish note, even the "no blood". Matti's signal is today's strongest, so Matti gets one of the CT slots the county already has. |
-| 1:12 | Sign and send | The nurse decides and signs, and a clock runs until Matti is diagnosed or cleared. |
-| 1:19 | Behind the flag, step by step | Every step is shown, with the source. Same rules on Matti's history: thirty-five days earlier. |
-| 1:30 | County view | The clocks add up to the data Finland is missing: days per step, per health centre. |
-| 1:36 | Evidence | The pattern is proven in a randomised trial. Parliament approved this approach in the spring. And Päijät-Häme already runs the same model for kidney disease. |
-| 1:46 | Close | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
-| 1:56 | end | |
+## Voiceover
+None (decided 14.11): the video carries its message in captions, with ambient music and soft click sounds in the demo clip.
 
 ## 3-minute stage pitch (if top 5) — script in `overnight/PITCH-SCRIPT.md`
 Stage slides: cover → hook → who → stakes → mechanism → invisible → solution → **live demo** → evidence → ask → close (≈ 2:50). `earlier` and `county` are shown live in the demo; use them only if the demo fails. Full speaker notes, timings, driver cues and the numbers' sources are in `overnight/PITCH-SCRIPT.md` (the deck chat copies the notes from there). One speaker; second person drives the demo.
