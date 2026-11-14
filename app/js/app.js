@@ -38,37 +38,37 @@
   function drawRiver(animate) {
     const d = D.dlbcl, W = 1000, H = 360, x0 = 40, x1 = 930, maxD = 220;
     const X = v => x0 + (v / maxD) * (x1 - x0);
-    const lanes = [{ key: "occupational", y: 118, color: "#a9b8c6", label: "Occupational / private care" }, { key: "public", y: 222, color: "#d0435a", label: "Public primary care" }];
+    const lanes = [{ key: "occupational", y: 118, color: "var(--route-a)", label: "Occupational / private care" }, { key: "public", y: 222, color: "var(--alert)", label: "Public primary care" }];
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="DLBCL: days from symptom onset to treatment. Occupational route 123 days, public route 207 days.">`;
-    for (let t = 0; t <= maxD; t += 30) svg += `<line x1="${X(t)}" x2="${X(t)}" y1="40" y2="280" stroke="#2f4559" stroke-width="1"/><text x="${X(t)}" y="298" fill="#7d90a3" font-size="12" text-anchor="middle">${t} d</text>`;
+    for (let t = 0; t <= maxD; t += 30) svg += `<line x1="${X(t)}" x2="${X(t)}" y1="40" y2="280" stroke="var(--grid)" stroke-width="1"/><text x="${X(t)}" y="298" fill="var(--mute)" font-size="12" text-anchor="middle">${t} d</text>`;
     lanes.forEach(L => {
       const v = d[L.key];
-      svg += `<text x="${x0}" y="${L.y - 66}" fill="${L.key === "public" ? "#eef2f5" : "#a9b8c6"}" font-size="14" font-weight="600">${L.label}</text>`;
+      svg += `<text x="${x0}" y="${L.y - 66}" fill="${L.key === "public" ? "var(--snow)" : "var(--route-a)"}" font-size="14" font-weight="600">${L.label}</text>`;
       svg += `<line class="lane" x1="${X(0)}" x2="${X(v[v.length - 1])}" y1="${L.y}" y2="${L.y}" stroke="${L.color}" stroke-width="${L.key === "public" ? 10 : 6}" stroke-linecap="round" pathLength="1"/>`;
       let lastX = -999, row = 0;
       v.forEach((day, i) => {
         if (i === 0) return;
         const big = i === v.length - 1;
-        svg += `<circle cx="${X(day)}" cy="${L.y}" r="${big ? 9 : 6}" fill="#13202e" stroke="${L.color}" stroke-width="3"/>`;
+        svg += `<circle cx="${X(day)}" cy="${L.y}" r="${big ? 9 : 6}" fill="var(--dot-fill)" stroke="${L.color}" stroke-width="3"/>`;
         row = (X(day) - lastX < 120) ? row + 1 : 0; lastX = X(day);
         const dir = L.key === "public" ? 1 : -1;
         const ty = big ? L.y + dir * 46 + (dir > 0 ? 8 : 0) : L.y + dir * 18 + dir * row * 15 + (dir > 0 ? 8 : 0);
-        svg += `<text x="${X(day)}" y="${ty}" fill="${big ? "#eef2f5" : "#a9b8c6"}" font-size="11.5" font-weight="${big ? 700 : 400}" text-anchor="${big ? "end" : "middle"}" dx="${big ? 8 : 0}">${d.steps[i]} · ${day}</text>`;
+        svg += `<text x="${X(day)}" y="${ty}" fill="${big ? "var(--snow)" : "var(--route-a)"}" font-size="11.5" font-weight="${big ? 700 : 400}" text-anchor="${big ? "end" : "middle"}" dx="${big ? 8 : 0}">${d.steps[i]} · ${day}</text>`;
       });
     });
     // gap bracket
     const a = X(d.occupational[5]), b = X(d.public[5]);
-    svg += `<rect x="${a}" y="${lanes[0].y + 14}" width="${b - a}" height="${lanes[1].y - lanes[0].y - 28}" fill="rgba(208,67,90,.12)" stroke="#d0435a" stroke-dasharray="4 4"/>`;
+    svg += `<rect x="${a}" y="${lanes[0].y + 14}" width="${b - a}" height="${lanes[1].y - lanes[0].y - 28}" fill="var(--alert-soft)" stroke="var(--alert)" stroke-dasharray="4 4"/>`;
     // where the gap grows
     const deltas = d.public.map((p, i) => p - d.occupational[i]);
-    svg += `<text x="${x0}" y="335" fill="#7d90a3" font-size="12">Gap by step (days):</text>`;
-    deltas.forEach((g, i) => { if (!i || i === 5) return; svg += `<text x="${X(d.public[i])}" y="335" fill="${i < 5 ? "#ff9aaa" : "#7d90a3"}" font-size="13" font-weight="700" text-anchor="middle">+${g}</text>`; });
+    svg += `<text x="${x0}" y="335" fill="var(--mute)" font-size="12">Gap by step (days):</text>`;
+    deltas.forEach((g, i) => { if (!i || i === 5) return; svg += `<text x="${X(d.public[i])}" y="335" fill="${i < 5 ? "var(--alert-text)" : "var(--mute)"}" font-size="13" font-weight="700" text-anchor="middle">+${g}</text>`; });
     svg += `</svg>`;
     $("#river").innerHTML = `<div class="river-head">
         <div><div class="gapnum num">+${D.dlbcl.median.public - D.dlbcl.median.occupational} days<small>median, later to treatment on the public route</small></div></div>
         <div style="max-width:44ch;color:var(--frost);font-size:.95rem">Diffuse large B-cell lymphoma, 7 Finnish hospitals, n = 160: median <b style="color:var(--snow)">${D.dlbcl.median.public} vs ${D.dlbcl.median.occupational} days</b> from symptom to treatment (p = 0.027). The chart shows the paper's cumulative step times: the gap is already <b style="color:var(--snow)">+86 days at the specialist</b>; from there both routes take 3–5 days. The delay is born in primary care. <br>${cite("kuitunen2026")} <span class="real-tag">real</span></div>
       </div>${svg}
-      <div class="legend"><span><i style="background:#a9b8c6"></i>Occupational / private</span><span><i style="background:#d0435a"></i>Public primary care</span><span>Cumulative step times, Fig. 1 of the paper. A symptom-to-diagnosis interval over 7 weeks is linked to worse progression-free survival ${cite("tokola2025")}</span></div>`;
+      <div class="legend"><span><i style="background:var(--route-a)"></i>Occupational / private</span><span><i style="background:var(--alert)"></i>Public primary care</span><span>Cumulative step times, Fig. 1 of the paper. A symptom-to-diagnosis interval over 7 weeks is linked to worse progression-free survival ${cite("tokola2025")}</span></div>`;
     if (animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.querySelectorAll("#river .lane").forEach((l, i) => {
         l.style.strokeDasharray = "1"; l.style.strokeDashoffset = "1";
@@ -259,11 +259,11 @@
     const W = 520, H = 92, x0 = 20, x1 = 500, span = 90;
     const X = d => x0 + ((span - d) / span) * (x1 - x0);
     return `<svg viewBox="0 0 ${W} ${H}" aria-label="Flag ${daysEarlier} days earlier">
-      <line x1="${x0}" x2="${x1}" y1="40" y2="40" stroke="#2f4559" stroke-width="2"/>
-      <rect x="${X(daysEarlier)}" y="32" width="${X(0) - X(daysEarlier)}" height="16" fill="rgba(95,211,176,.25)"/>
-      <circle cx="${X(daysEarlier)}" cy="40" r="7" fill="#5fd3b0"/><text x="${X(daysEarlier)}" y="22" fill="#5fd3b0" font-size="12" text-anchor="middle">Agent flag</text>
-      <circle cx="${X(0)}" cy="40" r="7" fill="#d0435a"/><text x="${X(0)}" y="22" fill="#ff9aaa" font-size="12" text-anchor="middle">Today</text>
-      <text x="${(X(daysEarlier) + X(0)) / 2}" y="72" fill="#eef2f5" font-size="13" text-anchor="middle" font-weight="700">${daysEarlier} days recovered</text></svg>`;
+      <line x1="${x0}" x2="${x1}" y1="40" y2="40" stroke="var(--grid)" stroke-width="2"/>
+      <rect x="${X(daysEarlier)}" y="32" width="${X(0) - X(daysEarlier)}" height="16" fill="var(--ok-soft)"/>
+      <circle cx="${X(daysEarlier)}" cy="40" r="7" fill="var(--aurora)"/><text x="${X(daysEarlier)}" y="22" fill="var(--aurora)" font-size="12" text-anchor="middle">Agent flag</text>
+      <circle cx="${X(0)}" cy="40" r="7" fill="var(--alert)"/><text x="${X(0)}" y="22" fill="var(--alert-text)" font-size="12" text-anchor="middle">Today</text>
+      <text x="${(X(daysEarlier) + X(0)) / 2}" y="72" fill="var(--snow)" font-size="13" text-anchor="middle" font-weight="700">${daysEarlier} days recovered</text></svg>`;
   }
 
   /* ================= COUNTY ================= */
@@ -293,7 +293,7 @@
       <p class="scale-note"><b style="color:var(--snow)">Why per health centre?</b> Two-thirds of the variation in Finnish cancer survival between municipalities lies <i>inside</i> hospital districts — at the local level a county can act on. ${cite("seppa2020")}</p>
       <p class="scale-note">Green tick = target used in the demo. National cancer-specific waiting-time targets are being defined in roadmap 3.1.2 (2026–2028). ${cite("roadmap2026")}</p>
       <table class="tbl" style="margin-top:.8rem"><thead><tr><th>Health centre</th>${steps.map(s => `<th class="r">${s.s.split(" → ")[1]}</th>`).join("")}</tr></thead>
-      <tbody>${data.map((d, di) => `<tr class="clickable ${d === sel ? "sel" : ""}" data-centre="${di}" tabindex="0"><td>${d.c}</td>${d.v.map((v, i) => `<td class="r num" style="color:${v > steps[i].t ? "#ff9aaa" : "var(--snow)"}">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <tbody>${data.map((d, di) => `<tr class="clickable ${d === sel ? "sel" : ""}" data-centre="${di}" tabindex="0"><td>${d.c}</td>${d.v.map((v, i) => `<td class="r num" style="color:${v > steps[i].t ? "var(--alert-text)" : "var(--snow)"}">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>
       <p class="scale-note">Click a health centre to see its steps.</p>`;
     document.querySelectorAll("[data-centre]").forEach(tr => { const go = () => drawCentre(+tr.dataset.centre); tr.addEventListener("click", go); tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); }); });
     };
@@ -420,6 +420,13 @@
     $("#brief-controls").after(box);
     $("#ask").addEventListener("click", () => { const q = $("#aq").value.trim(); if (q) askAnalyst(q, $("#aout"), $("#ask")); });
   });
+
+  /* ---------------- theme switch ---------------- */
+  const tt = $("#theme-toggle");
+  if (tt) {
+    tt.checked = document.documentElement.dataset.theme === "dark";
+    tt.addEventListener("change", () => { const t = tt.checked ? "dark" : "light"; document.documentElement.dataset.theme = t; try { localStorage.setItem("ajoissa-theme", t); } catch (e) {} });
+  }
 
   /* ---------------- boot ---------------- */
   renderEvidence(); renderQueue(); selectCase(assessed[0].c.id); renderCounty(); renderImpact(); renderBrief(); renderSources();

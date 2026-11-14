@@ -6,6 +6,8 @@
 <title>Ajoissa — the cancer safety net for public primary care</title>
 <meta name="description" content="Ajoissa finds patients whose cancer signals are stalling in public primary care, puts them on a named clinician's list, and keeps a clock running until they are diagnosed or cleared.">
 <link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/glass.css">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("ajoissa-theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
 </head>
 <body>
 <header class="top">
@@ -21,6 +23,7 @@
     <button role="tab" data-view="brief" aria-selected="false">2-minute briefing</button>
     <button role="tab" data-view="sources" aria-selected="false">Sources</button>
   </nav>
+  <label class="theme-switch" title="Switch dark mode"><input type="checkbox" id="theme-toggle" aria-label="Dark mode"><span class="track"><span class="knob"></span></span>Dark</label>
 </header>
 
 <main>
