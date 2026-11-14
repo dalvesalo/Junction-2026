@@ -1,118 +1,122 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-palette="a">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ajoissa — the cancer safety net for public primary care</title>
 <meta name="description" content="Ajoissa finds patients whose cancer signals are stalling in public primary care, puts them on a named clinician's list, and keeps a clock running until they are diagnosed or cleared.">
-<link rel="stylesheet" href="css/app.css">
-<link rel="stylesheet" href="css/civic.css">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem("ajoissa-theme")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script>
+<link rel="stylesheet" href="css/classic.css">
+<script>try{var p=localStorage.getItem("ajoissa-palette");if(p)document.documentElement.dataset.palette=p}catch(e){}</script>
 </head>
 <body>
-<header class="top">
-  <div class="brand">
-    <span class="wordmark">Ajoissa<span class="dot">.</span></span>
-    <small>Same symptom, same speed — whichever door you walk in.</small>
+<header class="appbar">
+  <div class="appbar-top">
+    <span class="wordmark">Ajoissa</span>
+    <span class="appname">Cancer safety net · Siun sote, Pohjois-Karjala</span>
+    <span class="appuser">Nurse M. Korhonen · Health centres A–C <span class="synthetic-tag">synthetic</span></span>
+    <label class="palette-pick" title="Preview only: pick a colour palette">Palette
+      <select id="palette">
+        <option value="a">A · Hospital blue</option>
+        <option value="b">B · Clinical teal</option>
+        <option value="c">C · Civic blue</option>
+        <option value="d">D · Slate</option>
+      </select>
+    </label>
   </div>
-  <nav class="tabs" role="tablist" aria-label="Views">
-    <button role="tab" data-view="gap" aria-selected="true">The gap</button>
-    <button role="tab" data-view="agent" aria-selected="false">Safety-net agent</button>
-    <button role="tab" data-view="ehr" aria-selected="false">What the doctor sees</button>
-    <button role="tab" data-view="county" aria-selected="false">County view</button>
-    <button role="tab" data-view="impact" aria-selected="false">Impact</button>
-    <button role="tab" data-view="brief" aria-selected="false">2-minute briefing</button>
-    <button role="tab" data-view="sources" aria-selected="false">Sources</button>
+  <nav class="menubar" aria-label="Views">
+    <span class="grp">Demo</span>
+    <button data-view="worklist" aria-selected="true"><b>1</b> Worklist <small>what the nurse sees</small></button>
+    <button data-view="behind" aria-selected="false"><b>2</b> Behind the flag <small>how the agent decided</small></button>
+    <span class="grp sep">Evidence</span>
+    <button data-view="gap" aria-selected="false">The gap</button>
+    <button data-view="county" aria-selected="false">County view</button>
+    <button data-view="impact" aria-selected="false">Impact</button>
+    <button data-view="sources" aria-selected="false">Sources</button>
   </nav>
-  <label class="theme-switch" title="Switch dark mode"><input type="checkbox" id="theme-toggle" aria-label="Dark mode"><span class="track"><span class="knob"></span></span>Dark</label>
 </header>
 
 <main>
+  <!-- ======================= 1 · WORKLIST ======================= -->
+  <section class="view active" id="view-worklist" aria-label="Worklist">
+    <div class="infobar">
+      <div><b>Monday, 08:00 at the health centre.</b> Overnight, Ajoissa read the centre's own records and put these patients on your list. Click a patient to see why, and the order it has drafted. <em>Nothing is sent until a clinician signs.</em></div>
+      <button class="btn ghost" data-goto="behind">How did it decide? →</button>
+    </div>
+    <div class="wl">
+      <div class="panel plist" id="plist"></div>
+      <div id="pmid"></div>
+      <div id="pright"></div>
+    </div>
+  </section>
+
+  <!-- ======================= 2 · BEHIND THE FLAG ======================= -->
+  <section class="view" id="view-behind" aria-label="Behind the flag">
+    <div class="behindbar" id="behindbar"></div>
+    <div id="pipeline"></div>
+    <div class="bh">
+      <div id="bh-left"></div>
+      <div id="bh-right"></div>
+    </div>
+    <div id="bh-earlier"></div>
+  </section>
+
   <!-- ======================= THE GAP ======================= -->
-  <section class="view active" id="view-gap" aria-label="The gap">
-    <p class="kicker">Finland · National Cancer Strategy Goal 3 · equal and timely treatment</p>
+  <section class="view" id="view-gap" aria-label="The gap">
+    <p class="kicker">Evidence · Finland · National Cancer Strategy Goal 3</p>
     <h1>Two patients. Same lymphoma. Seven weeks apart.</h1>
     <p class="lede">In Finland the first door you knock on decides how fast you are diagnosed. Patients who enter through <em>public primary care</em> reach treatment months after those who enter through occupational or private care — and almost all of that time is lost <em>before</em> the specialist ever sees them.</p>
-
+    <div class="keynums" id="keynums"></div>
     <div class="river" id="river"></div>
-
     <div class="evidence" id="evidence"></div>
-
     <div class="unmeasured">
       <div class="q">?</div>
       <p>How long does a Finnish patient wait between a first symptom and a cancer diagnosis? <em>No routine statistic answers that.</em> The strategy says the data "is not collected systematically", and cancer target times are not published by county — while Denmark publishes them by region every quarter. You cannot shorten a wait you do not see. <button class="cite" data-src="strategy2026">Strategy 2.5</button> <button class="cite" data-src="thl2017">THL 4/2017</button> <button class="cite" data-src="sst2025">Sundhedsstyrelsen 2025</button></p>
     </div>
   </section>
 
-  <!-- ======================= AGENT ======================= -->
-  <section class="view" id="view-agent" aria-label="Safety-net agent">
-    <p class="kicker">What a nurse at a health centre sees on Monday morning</p>
-    <h2>The safety-net worklist</h2>
-    <p class="lede">Ajoissa reads the health centre's own records overnight, finds patients whose cancer signals have not been acted on, and explains each one in plain language. <em>A named nurse or GP decides every action.</em> Nothing is sent to a patient automatically.</p>
-    <div class="runbar" id="runbar"></div>
-    <div class="clinic">
-      <div class="queue" id="queue"></div>
-      <div id="note-col"></div>
-      <div id="reason-col"></div>
-    </div>
-  </section>
-
-  <!-- ======================= EHR ======================= -->
-  <section class="view" id="view-ehr" aria-label="What the doctor sees">
-    <p class="kicker">Inside the county's own patient-record system</p>
-    <h2>No new app to open. The signal appears where the doctor already works.</h2>
-    <p class="lede">When Dr. Virtanen opens Matti's record, a card from Ajoissa sits beside the chart: why he was flagged, the risk estimate, and one pre-filled order. <em>Nothing happens until she signs it.</em></p>
-    <div id="ehr"></div>
-    <h3 style="margin-top:2rem">How it plugs into different patient-record systems</h3>
-    <div class="flowrow" id="ehr-flow"></div>
-  </section>
-
   <!-- ======================= COUNTY ======================= -->
   <section class="view" id="view-county" aria-label="County view">
-    <p class="kicker">For the county's cancer-care lead</p>
+    <p class="kicker">Evidence · for the county's cancer-care lead</p>
     <h2>Where is time being lost — in our county, this week?</h2>
     <p class="lede">Every patient the agent starts tracking leaves timestamps behind. Added up, they give the county what the strategy says is missing: <em>the time spent at each step, per health centre.</em></p>
+    <h3 class="sechead">How it plugs into the county</h3>
+    <div class="flowrow" id="ehr-flow"></div>
     <div class="county-grid">
-      <div>
-        <div class="panel" id="county-table"></div>
-      </div>
-      <div>
-        <div class="panel" id="centre-steps"></div>
-        <div class="panel" id="clocks"></div>
-      </div>
+      <div><div class="panel" id="county-table"></div></div>
+      <div><div class="panel" id="centre-steps"></div><div class="panel" id="clocks"></div></div>
     </div>
   </section>
 
   <!-- ======================= IMPACT ======================= -->
   <section class="view" id="view-impact" aria-label="Impact simulator">
-    <p class="kicker">Model, not a promise — every assumption is listed and adjustable</p>
+    <p class="kicker">Evidence · model, not a promise — every assumption is listed and adjustable</p>
     <h2>What would one county get in year one?</h2>
     <div class="impact">
       <div class="panel" id="sliders"></div>
       <div>
         <div class="outcomes" id="outcomes"></div>
-        <div class="panel" style="margin-top:1rem" id="assumptions"></div>
-        <div class="panel experimental" style="margin-top:1rem" id="survival-exp"></div>
+        <div class="panel" id="assumptions"></div>
+        <div class="panel experimental" id="survival-exp"></div>
       </div>
-    </div>
-  </section>
-
-  <!-- ======================= BRIEFING ======================= -->
-  <section class="view" id="view-brief" aria-label="Two-minute briefing">
-    <p class="kicker">The AI analyst, for a decision-maker with two minutes</p>
-    <div class="brief">
-      <div class="brief-card" id="brief-card"></div>
-      <div class="panel" id="brief-controls"></div>
     </div>
   </section>
 
   <!-- ======================= SOURCES ======================= -->
   <section class="view" id="view-sources" aria-label="Sources">
-    <p class="kicker">Data quality and transparency</p>
+    <p class="kicker">Evidence · data quality and transparency</p>
     <h2>Every number, where it comes from, and how much to trust it</h2>
     <p class="lede">Real public data is marked <span class="real-tag">real</span>. Modelled estimates are marked <span class="model-tag">model</span>. Everything invented for the demo — patients, health centres, timestamps — is marked <span class="synthetic-tag">synthetic</span>.</p>
-    <div class="panel" style="margin-top:1.4rem" id="test-results"></div>
-    <div class="panel" style="margin-top:1.4rem" id="source-table"></div>
+    <div class="panel" id="test-results"></div>
+    <div class="panel" id="source-table"></div>
+  </section>
+
+  <!-- ======================= TEAM ONLY ======================= -->
+  <section class="view" id="view-brief" aria-label="Team only: two-minute briefing">
+    <div class="teambar">Team only — not part of the demo. Reached from the link at the bottom of the page.</div>
+    <div class="brief">
+      <div class="brief-card" id="brief-card"></div>
+      <div class="panel" id="brief-controls"></div>
+    </div>
   </section>
 </main>
 
@@ -121,7 +125,12 @@
   <div id="drawer-body"></div>
 </aside>
 
-<footer class="foot">Ajoissa · Brainwave Bandits · Junction 2026, AstraZeneca challenge. Research prototype — not CE-marked. All patients and health centres shown are synthetic.</footer>
+<footer class="statusbar">
+  <span id="runstat"></span>
+  <span class="spacer"></span>
+  <span>Research prototype — not CE-marked. All patients and health centres are synthetic.</span>
+  <a href="#brief" data-view-link="brief">Team: 2-minute briefing</a>
+</footer>
 
 <script src="js/sources.js"></script>
 <script src="js/data.js"></script>

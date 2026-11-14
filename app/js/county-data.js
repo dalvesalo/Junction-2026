@@ -24,7 +24,7 @@ window.AJOISSA_COUNTY = {
    "unit": " %"
   }
  ],
- "footnote": "Since 1.1.2025 adults (23+) are only guaranteed non-urgent primary care within 3 months (HE 134/2024). '–' = value not available in the source table. Pohjois-Pohjanmaa (Pohde, the keynote's county) highlighted.",
+ "footnote": "Since 1.1.2025 adults (23+) are only guaranteed non-urgent primary care within 3 months (HE 134/2024). '–' = value not available in the source table. Pohjois-Karjala (Siun sote, the proposed pilot region) highlighted.",
  "rows": [
   {
    "name": "Etelä-Karjala",
