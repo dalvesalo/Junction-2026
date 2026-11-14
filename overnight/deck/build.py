@@ -65,27 +65,32 @@ def svg_gap():
     return "".join(o)
 
 def svg_born():
-    W, H = 1664, 330
-    k = W / 207
+    # Two routes to scale. Blue = symptom -> physician visit (where Ajoissa acts); grey = referral and hospital.
+    W, H, k = 1664, 440, 7.0
     X = lambda d: round(d * k, 1)
-    gaps = [p - q for p, q in zip(PUB, OCC)]          # +30 +51 +70 +86 +84
-    cols = ["#2B5D8C", "#8FB3D9"]
-    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Public primary-care route drawn to scale in days from first symptom: first contact day 72 (+30 days vs occupational care), physician visit 94 (+51), referral 147 (+70), specialist visit 204 (+86), treatment start 207 (+84). Occupational or private care reaches treatment at day 123." {FONT}>']
-    prev = 0
-    centers = []
-    for i, d in enumerate(PUB):
-        o.append(f'<rect x="{X(prev)}" y="96" width="{max(X(d)-X(prev)-3, 3)}" height="64" fill="{cols[i % 2]}"/>')
-        centers.append((X(prev) + X(d)) / 2); prev = d
-    # gap numbers above, step labels below; the 3-day last step is right-aligned at the end
-    pos = [(centers[0], "middle"), (centers[1], "middle"), (centers[2], "middle"), (centers[3], "middle"), (W, "end")]
-    for i, (x, a) in enumerate(pos):
-        red = "#B42318"
-        o.append(f'<text x="{x}" y="72" fill="{red}" font-size="60" font-weight="800" text-anchor="{a}">+{gaps[i]}</text>')
-        row = 204 if i != 4 else 252
-        o.append(f'<text x="{x}" y="{row}" fill="#1B2A3F" font-size="26" font-weight="700" text-anchor="{a}">{STEPS[i]}</text>')
-        o.append(f'<text x="{x}" y="{row+30}" fill="#4F5F72" font-size="24" text-anchor="{a}">day {PUB[i]}</text>')
-    o.append(f'<rect x="0" y="300" width="{X(123)}" height="14" fill="#C3CDD8"/>')
-    o.append(f'<text x="{X(123)+16}" y="314" fill="#4F5F72" font-size="24">occupational / private care: treatment at day 123</text>')
+    blue, grey = ["#2B5D8C", "#4F7FAF"], ["#B7C3CF", "#D3DBE4"]
+    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Two routes drawn to scale in days from first symptom (Kuitunen et al. 2026, Fig. 1). Occupational or private care: physician visit by day 43, treatment at day 123. Public primary care: physician visit by day 94, treatment at day 207. Blue marks first symptom to physician visit, where Ajoissa acts; grey marks referral and hospital steps." {FONT}>']
+    for occ, name, vals, y in [(True, "Occupational / private care", OCC, 52), (False, "Public primary care", PUB, 186)]:
+        o.append(f'<text x="0" y="{y-14}" fill="#1B2A3F" font-size="28" font-weight="700">{name}</text>')
+        prev = 0
+        for i, d in enumerate(vals):
+            col = blue[i % 2] if i < 2 else grey[i % 2]
+            o.append(f'<rect x="{X(prev)}" y="{y}" width="{max(X(d) - X(prev) - 3, 2)}" height="72" fill="{col}"/>')
+            prev = d
+        o.append(f'<text x="{X(vals[1]) / 2}" y="{y + 48}" fill="#FFFFFF" font-size="36" font-weight="800" text-anchor="middle">{vals[1]} days</text>')
+        o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 36}" fill="#1B2A3F" font-size="34" font-weight="800">{vals[-1]} days</text>')
+        o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 64}" fill="#4F5F72" font-size="22">to treatment</text>')
+    # milestones under the public bar (no day numbers: the scale carries them)
+    y = 186 + 72
+    for d, t, a in [(72, "First contact", "middle"), (94, "Physician visit", "start"), (147, "Referral", "middle"), (207, "Specialist, treatment", "end")]:
+        o.append(f'<line x1="{X(d) - 1.5}" y1="{y}" x2="{X(d) - 1.5}" y2="{y + 12}" stroke="#4F5F72" stroke-width="2"/>')
+        xx = X(d) + (6 if a == "start" else 0)
+        o.append(f'<text x="{xx}" y="{y + 38}" fill="#4F5F72" font-size="22" text-anchor="{a}">{t}</text>')
+    # brackets
+    yb = y + 78
+    for x1, x2, col, txt, w in [(0, X(94) - 3, "#2B5D8C", "Ajoissa acts here: first symptom to physician visit", "700"), (X(94) + 6, X(207) - 3, "#8A99AA", "Referral and hospital: not our target", "400")]:
+        o.append(f'<path d="M{x1} {yb - 14} V{yb} H{x2} V{yb - 14}" fill="none" stroke="{col}" stroke-width="4"/>')
+        o.append(f'<text x="{(x1 + x2) / 2}" y="{yb + 40}" fill="{col if w == "700" else "#4F5F72"}" font-size="28" font-weight="{w}" text-anchor="middle">{txt}</text>')
     o.append('</svg>')
     return "".join(o)
 
@@ -101,7 +106,7 @@ def slide(id, cls, body, notes, src=None, trans="fade"):
 
 slide("cover","dark cover",'''<div class="cover-wrap">
 <p class="eyebrow">Junction 2026 · AstraZeneca challenge · Goal 3</p>
-<h1 class="wordmark">Ajoissa<span class="hi">.</span></h1>
+<h1 class="wordmark">Ajoissa<span style="color:#ffffff">.</span></h1>
 <p class="lead">Same symptom, same speed, whichever door you walk in.</p>
 <p class="meta">A safety-net agent for Finland’s public primary care · Brainwave Bandits</p>
 </div>''', "STAGE. (5 s) Ajoissa means ‘in time’. Hold a beat on the title before speaking.")
@@ -114,8 +119,7 @@ src="Kuitunen et al., Cancer Medicine 2026;15(5):e71920 · median 127 vs 76 days
 
 slide("born","light",'''<p class="eyebrow">Where the gap emerges</p>
 <h2>The delay is born before the specialist</h2>
-<div class="chart">''' + svg_born() + '''</div>
-<p class="body">Public primary-care route drawn to scale, in days from the first symptom. Red: extra days compared with occupational or private care at each step (cumulative step times, Fig. 1). After the specialist visit the gap stops growing, so the delay comes from the public front door. The national roadmap describes the same pattern from another, unpublished lymphoma study.</p>''',
+<div class="chart" style="flex:1;align-items:center">''' + svg_born() + '''</div>''',
 "APPENDIX / Q&A. Gap per step from the paper’s Fig. 1 (cumulative step times; values close to the means 201 vs 126). Tested result: medians 127 vs 76 days, p = 0.027. Small n (160).",
 src="Kuitunen et al. 2026 (Fig. 1) · National Cancer Strategy roadmap 2026–2031, p. 12 · moderate · waiting time")
 
@@ -178,7 +182,7 @@ slide("solution","dark",'''<p class="eyebrow">Our solution</p>
 <p class="body soft">Deterministic: same record, same answer. A professional decides every action. Nothing is sent to a patient automatically.</p>''',
 "STAGE (20 s). So we built Ajoissa — ‘in time’. Every night it reads the health centre’s own records in five steps: read the notes, check the record, calculate against published limits, match explicit referral rules, and propose one action to a named nurse — with the reason and the source. It starts with Level 0: results that were already due and nobody followed up. Then it runs a clock until each patient is diagnosed or cleared. A human decides every step.")
 
-slide("how","accent center",'''<h2 class="statement">How It Works?</h2>''',
+slide("how","accent center",'''<h2 class="statement">How Does It Work?</h2>''',
 "TRANSITION (1 s). Switch to the live demo here. Click path: PITCH-SCRIPT.md.")
 
 slide("demo","dark",'''<p class="eyebrow">Live demo · Level 0 · synthetic patients</p>
@@ -268,7 +272,7 @@ slide("honest","light",'''<p class="eyebrow">Data quality and transparency</p>
 "APPENDIX / Q&A. Limitations: DLBCL values read from a slide; county access data is pre-2025; 41-day lung interval unpublished.")
 
 slide("close","dark cover",'''<div class="cover-wrap">
-<h1 class="wordmark">Ajoissa<span class="hi">.</span></h1>
+<h1 class="wordmark">Ajoissa<span style="color:#ffffff">.</span></h1>
 <p class="lead">In time, for everyone, whichever door they walk in.</p>
 <p class="meta">Demo: claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 · Code: github.com/dalvesalo/Junction-2026</p>
 </div>''',
