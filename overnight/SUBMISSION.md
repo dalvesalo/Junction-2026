@@ -17,7 +17,7 @@ Ajoissa ("in time") reads a wellbeing services county's own records overnight an
 
 The agent is deterministic and auditable: a Finnish/English clinical lexicon mapped to ICPC-2 codes, with negation, duration, severity and typo handling (tested on 220 synthetic notes: 200/200 on the development set, 13/20 on a held-out set, results in the app), an optional AI second reading whose every suggestion must quote the note and be confirmed by the clinician, structured record signals (measured weight loss, unfollowed abnormal results, normal chest X-ray with continuing symptoms), a Bayesian lung-cancer risk (PLCOm2012 prior × published primary-care likelihood ratios), explicit NICE NG12-style referral rules (the criteria the national roadmap plans to standardise), thrombocytosis and repeat-visit triggers. The design copies the time windows and exclusions of the only randomised trial of this class of tool (EHR triggers on un-followed results + human review: colorectal work-up 200 → 104 days, prostate 192 → 144; lung arm not significant; Murphy et al., JCO 2015), with Finnish laboratory thresholds (Fimlab) and Käypä hoito's restraint on PSA, and Parliament approved in April 2026 that counties may use their own records to find health problems early (HE 159/2025, EV 38/2026). Päijät-Häme already runs the same list → nurse → doctor model for kidney disease.
 
-The agent never asks for more scans than the county gives it: follow-ups already due go first, then the strongest signals fill the CT slots the county names. Our ask: Päijät-Häme — where the same list → nurse → doctor model already runs for kidney disease (AINO, with AstraZeneca) — three health centres, six months, about €28,000: one nurse per centre, 45 minutes a day. Every number in the demo is sourced and graded; all patients and health centres are synthetic and labelled as such.
+The agent never asks for more scans than the county gives it: follow-ups already due go first, then the strongest signals fill the CT slots the county names. Our ask: Päijät-Häme — where the same list → nurse → doctor model already runs for kidney disease (AINO: Mehiläinen's tool, run by Harjun terveys (the county's joint venture with Mehiläinen), with AstraZeneca supporting the project work) — three health centres, six months, about €28,000: one nurse per centre, 45 minutes a day. Every number in the demo is sourced and graded; all patients and health centres are synthetic and labelled as such.
 
 **Technologies used:** JavaScript (vanilla, no framework), HTML/CSS, SVG; deterministic NLP (Finnish/English lexicon mapped to ICPC-2, negation, duration, severity, one-letter typo correction); optional LLM second reading with verbatim-quote validation; Node test runner (220 synthetic notes); Bayesian risk model (PLCOm2012 × likelihood ratios); rule engine; Web Speech API (team briefing read-aloud); Python (data processing, Playwright rendering, ffmpeg video); Claude (research, analysis and code assistant).
 
@@ -36,27 +36,27 @@ The agent never asks for more scans than the county gives it: follow-ups already
 - [ ] Set to FINAL.
 - [ ] Peer review 10:30–13:00: everyone present.
 
-## Optional voiceover for the video (≈ 1:55; record over the existing track, music stays under)
-| Time | Line |
-|---|---|
-| 0:00 | Two people in Finland notice the same lump in their neck. |
-| 0:09 | One has occupational health care. One goes to the public health centre. |
-| 0:14 | Watch the days. The private route reaches treatment first. The public route keeps going… |
-| 0:25 | Seven weeks. Same lymphoma. A median of 127 days against 76. |
-| 0:33 | And the delay is born before a specialist ever sees them — in primary care. |
-| 0:43 | Inequality runs through the whole system. And Finland has the Nordics' lowest lung-cancer survival. Denmark fixed theirs. We can too. |
-| 0:56 | But nobody measures the wait between a symptom and a diagnosis. You cannot shorten a wait you do not see. |
-| 1:03 | So we built Ajoissa. Finnish for "in time". |
-| 1:10 | Every night it reads the health centre's own records… |
-| 1:20 | …finds Matti, back for the third time with the same cough, reads his note in Finnish — even the "no blood" — and puts him on a nurse's list with a reason and a source. A human decides. Then a clock runs until he's diagnosed or cleared. |
-| 1:32 | Run the same rules on his history: thirty-five days earlier. |
-| 1:40 | The pattern is proven in a randomised trial. Parliament approved it this spring. And a Finnish county already does it for kidney disease. |
-| 1:49 | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
+## Optional voiceover for the video (≤ 1:55; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second
+| Time | Scene | Line |
+|---|---|---|
+| 0:00 | Hook: two people, same lump | Two people in Finland notice the same lump in their neck. One has occupational health care. One goes to the public health centre. |
+| 0:10 | River: the two routes | Same lymphoma: 76 days to treatment on one route, 127 on the other. Seven weeks — and the gap opens before a specialist ever sees them. |
+| 0:22 | Who + Goal 3 | The public door serves the retired, the unemployed, the low-paid. And Finland has the Nordics' lowest lung-cancer survival. |
+| 0:32 | Invisible | Nobody measures the wait between a symptom and a diagnosis. You can't shorten a wait you don't see. |
+| 0:39 | Title | So we built Ajoissa. Finnish for "in time". |
+| 0:44 | Worklist: Level 0 rows | Every night it reads the county's own records and finds results nobody followed up: a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Already due. No new capacity needed. |
+| 0:59 | Matti | Then Matti — third visit, same cough. Ajoissa reads his Finnish note, even the "no blood". His signal is today's strongest, so he gets one of the CT slots the county already has. |
+| 1:12 | Sign and send | A nurse decides. She signs, and a clock runs until he's diagnosed or cleared. |
+| 1:19 | Behind the flag, step by step | Every step is shown, with its source. Same rules on his history: thirty-five days earlier. |
+| 1:28 | County view | The clocks add up to the data Finland is missing: days per step, per health centre. |
+| 1:35 | Evidence | The pattern is proven in a randomised trial. Parliament approved it this spring. And Päijät-Häme already runs it for kidney disease. |
+| 1:45 | Close | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
+| 1:54 | end | |
 
-## 3-minute stage pitch (if top 5) — follow the deck's STAGE slides
-Slides: cover → hook (river) → who → stakes → mechanism → invisible → solution → **live demo (Matti)** → earlier → county → evidence → ask → close. Speaker notes in each slide contain the script with timings (≈ 2:50 total). One speaker; second person drives the demo.
+## 3-minute stage pitch (if top 5) — script in `overnight/PITCH-SCRIPT.md`
+Stage slides: cover → hook → who → stakes → mechanism → invisible → solution → **live demo** → evidence → ask → close (≈ 2:50). `earlier` and `county` are shown live in the demo; use them only if the demo fails. Full speaker notes, timings, driver cues and the numbers' sources are in `overnight/PITCH-SCRIPT.md` (the deck chat copies the notes from there). One speaker; second person drives the demo.
 
-**Demo click path (60 s):** Worklist opens (Monday 08:00 at the health centre) → click **Matti K.** (red, Act now) → point at the threshold box (lung 21.5 % vs 3 %; platelets 468) and the drafted **Thorax CT** → **Sign and send** (clock starts, Matti moves to "Out of your hands") → **How did Ajoissa decide this?** → **▶ Walk through it step by step**: Read the note (struck-through "veriyskää") → Check the record (weight −5 %) → Calculate (0.91 % → 21.5 %) → Match rules → Propose ("caught 35 days earlier") → County view → click Health centre D → back to slides. Backup: "+ Create a test patient" and let a judge type a note.
+**Demo click path (56 s):** Worklist opens (Monday 08:00 at the health centre) → point at the "Already due" rows first (**Aino M.** chest X-ray, **Eero T.** stool test, **Kalevi N.** PSA — Level 0, no new capacity) → click **Matti K.** (red, Act now) → point at the threshold box (lung 21.5 % vs 3 %; platelets 468) and the drafted **Thorax CT** → **Sign and send** (clock starts, Matti moves to "Out of your hands") → **How did Ajoissa decide this?** → **▶ Walk through it step by step**: Read the note (struck-through "veriyskää") → Check the record (weight −5 %) → Calculate (0.91 % → 21.5 %) → Match rules → Propose ("caught 35 days earlier") → County view → click Health centre D → back to slides. Backup: "+ Create a test patient" and let a judge type a note.
 
 ## Likely judge questions — short answers
 - **"Where do the extra scans come from?"** Nowhere. Level 0 chases follow-ups that were already due. For symptom flags the county names a number of CT slots; the agent ranks who is proposed and never asks for more. We say openly that a lower-risk patient then waits longer.
@@ -75,4 +75,4 @@ Slides: cover → hook (river) → who → stakes → mechanism → invisible �
 - **"Can Ajoissa refer a patient straight to an oncologist?"** No. Specialist care needs a doctor's referral (Health Care Act §52), and an automated decision about a person is restricted (GDPR Art. 22) and would raise the device class. Also, suspected cancer goes to the diagnosing specialist (CT / lung clinic, colonoscopy, urology), not oncology. Ajoissa drafts the right next step; a doctor signs.
 - **"Isn't this common sense — why doesn't the doctor see it?"** Common symptoms, rare cancer; a different doctor each visit; results arrive after the patient has left; weeks between visits. ≥ 3 GP visits before referral in 41–51 % for some cancers (Lyratzopoulos 2012); only ~half of haemoptysis got imaging within 2 weeks (Koo 2024); Finnish primary-care visits rise 3–4 months before a bowel diagnosis (Hermiö 2023). Ajoissa is the memory between visits.
 - **"Why not skip the first visit?"** A CT needs a doctor's justification (radiation law) and a referral; the doctor also rules out emergencies and other causes. Ajoissa flags the triage note overnight so the visit comes sooner with the next step drafted.
-- **"Why Päijät-Häme?"** Because it already works there: AINO runs the same list → nurse → doctor model on the county's own records for kidney disease, with AstraZeneca, started on residents' consent (press release 12.3.2026). One shared record system, a personal-GP push, a real access gap (20 % not seen within 14 days). AINO has no results yet, so we cite it as an operating model, not as proof. Pohjois-Karjala is the second region, for the equity case. Pilot ≈ €28,000.
+- **"Why Päijät-Häme?"** Because it already works there: the same list → nurse → doctor model runs on the county's own records for kidney disease (AINO: Mehiläinen's tool, run by Harjun terveys (the county's joint venture with Mehiläinen), with AstraZeneca supporting the project work), started on residents' consent (press release 12.3.2026). One shared record system, a personal-GP push, a real access gap (20 % not seen within 14 days). AINO has no results yet, so we cite it as an operating model, not as proof. Pohjois-Karjala is the second region, for the equity case. Pilot ≈ €28,000.
