@@ -1,6 +1,6 @@
 # Morning report — what was built overnight, what works, what won't
 
-Run: Sat 14.11.2026, 01:21 → (see LOG.md for every step and mistake). Everything is also in the repo under `overnight/` and in the project folder `claude/overnight/`.
+Run: Sat 14.11.2026, 01:21 → 06:25 (paused 02:10–06:10 by the account usage limit; see LOG.md for every step and mistake). Everything is also in the repo under `overnight/` and in the project folder `claude/overnight/`.
 
 ## Links
 | What | Where |
@@ -12,7 +12,7 @@ Run: Sat 14.11.2026, 01:21 → (see LOG.md for every step and mistake). Everythi
 | **Data workbook** (Sheets, 11 tabs, every row sourced, live impact formulas) | https://claude.ai/artifact/FrDamYM9Md26HhFQXXa9n4 — .xlsx copy in `overnight/deliverables/` |
 | Submission texts, checklist, VO script, Q&A | `overnight/SUBMISSION.md` |
 | One-page brief (all numbers + sources) | `overnight/BRIEF.md` |
-| Independent fact-check | `overnight/QA_REPORT.md` |
+| Independent fact-check + what was corrected | `overnight/QA_REPORT.md`, `overnight/CORRECTIONS.md` (all corrections applied to app, deck, video, report, sheet) |
 | Code | https://github.com/dalvesalo/Junction-2026 |
 
 ## The idea in one breath
