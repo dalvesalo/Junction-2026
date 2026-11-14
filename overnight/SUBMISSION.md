@@ -23,14 +23,25 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
 **Demo link:** https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
 **Source code:** https://github.com/dalvesalo/Junction-2026 (must be accessible to organisers; MIT licence applies to submissions)
-**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:57.6, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip, pilot-plan slide, end card "Ajoissa." + slogan; music and soft click sounds, no voiceover) to YouTube as *Unlisted/Public* and paste the link.
+**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:57.6, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip, pilot-plan slide, end card "Ajoissa." + slogan; music and soft click sounds, no voiceover) to YouTube as *Unlisted/Public* and paste the link. *(Final cut, Sat 14.11 evening: 1:57.6 — this is the one to upload.)*
 **Pitch deck (PDF):** export from https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i (Share/Export → PDF), or use `overnight/deliverables/Ajoissa_pitch_deck.pdf`.
+
+## YouTube upload (decided 14.11: YouTube, Unlisted)
+- Upload from a team member's personal account. Visibility: **Unlisted**. Audience: **No, it's not made for kids**.
+- **Title:** Ajoissa — Brainwave Bandits, Junction 2026 (AstraZeneca challenge)
+- **Description:**
+  ```
+  A safety-net agent for Finland's public primary care: same symptom, same speed — whichever door you walk in.
+
+  All patients and health centres in this video are synthetic.
+  ```
+- Before pasting the link into the form: open it in a private window — plays without login, ≤ 2:00, HD finished processing.
 
 ## Checklist before 10:00
 - [ ] Team size on Junction Platform is 1–4 (rule!). Team plan listed 5 roles — check registration.
 - [ ] Share the demo artifact (or deploy app/ to GitHub Pages) and test the link in a private window.
 - [ ] Make the repo public or give organisers access.
-- [ ] Upload video; check it is ≤ 2:00 and playable without login.
+- [ ] Upload final video to YouTube (Unlisted, see above); check it is ≤ 2:00 and playable without login.
 - [ ] Export deck PDF.
 - [ ] Phone numbers + Discord usernames of all members.
 - [ ] Set to FINAL.
