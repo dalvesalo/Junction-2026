@@ -26,7 +26,7 @@ Tagline: *Same symptom, same speed — whichever door you walk in.*
 - **No stage/survival effect is claimed.** ERICA RCT (UK) has not reported. The pilot measures it.
 
 ## How the agent works (deterministic, auditable)
-1. **Read** — FI/EN lexicon over free-text notes with negation and duration detection; structured labs (platelets, Hb/ferritin); visit history.
+1. **Read** — FI/EN lexicon mapped to ICPC-2 codes over free-text notes: negation (incl. lists), duration, severity words (urgency only), one-letter typos next to medical words, phrase patterns ("cough … blood"); optional AI second reading that must quote the note. Structured data: ICPC-2 visit codes, measured weight loss > 5 % (AAFP 2014), repeat platelets, abnormal results with no follow-up, normal chest X-ray with continuing symptoms, repeat antibiotics. Test set: tests/RESULTS.md.
 2. **Weigh** — Bayesian lung-cancer risk: PLCOm2012 prior (Tammemägi NEJM 2013; 6-yr risk ÷ 6) × the two strongest published LR+ (Hamilton 2005 via Okoli 2018: haemoptysis 13.2, weight loss 6.2, appetite loss 4.8, dyspnoea 3.6, chest pain 3.3, fatigue 2.3; cough 2.5 & hoarseness 1.9 Iyen-Omofoman 2013). Cough counts only if ≥ 3 weeks or repeat visits.
 3. **Match** — explicit NICE NG12-style rules (3 % PPV threshold), which roadmap 2.5.2 plans to standardise nationally; lymphadenopathy + B-symptoms; iron-deficiency anaemia → FIT; thrombocytosis; ≥ 3 visits in 90 days for the same complaint.
 4. **Act** — one proposed action (direct thorax CT, chest imaging + 2-week review, neck ultrasound/biopsy, FIT, safety-net check-in) + a pathway clock with step targets; overdue clocks escalate.

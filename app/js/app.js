@@ -106,7 +106,7 @@
 
   /* ================= AGENT ================= */
   const assessed = CASES.map(c => ({ c, r: A.assess(c) }));
-  const rank = r => ({ lung_urgent: 5, lymphoma_urgent: 5, any_urgent: 4, lung_imaging: 3, colorectal_test: 2, safety_net: 1, none: 0 })[r.action.key];
+  const rank = r => ({ emergency: 6, lung_urgent: 5, lymphoma_urgent: 5, result_followup: 4, any_urgent: 4, lung_imaging: 3, colorectal_test: 2, safety_net: 1, none: 0 })[r.action.key];
   assessed.sort((a, b) => rank(b.r) - rank(a.r) || b.r.risk.posterior - a.r.risk.posterior);
   const tone = r => rank(r) >= 4 ? "urgent" : rank(r) >= 2 ? "watch" : "calm";
   let current = null;
@@ -132,18 +132,26 @@
   }
 
   function highlight(note, mentions) {
-    const t = note; const ms = mentions.slice().sort((a, b) => a.index - b.index);
+    const t = note; const ms = mentions.filter(m => m.start >= 0).slice().sort((a, b) => a.start - b.start);
     let out = "", pos = 0;
-    const lower = t.toLowerCase();
     for (const m of ms) {
-      const i = lower.indexOf(m.surface, Math.max(pos, m.index - 2));
-      if (i < 0 || i < pos) continue;
-      // extend to word end for readability
-      let j = i + m.surface.length; while (j < t.length && /[\wäöåÄÖÅ-]/.test(t[j])) j++;
-      out += esc(t.slice(pos, i)) + `<mark class="${m.negated ? "neg" : (A.LUNG_LR[m.concept] || ["lymph", "nightsweats", "pruritus", "bowelchange", "rectalbleed"].includes(m.concept) ? "" : "calm")}" title="${m.label}${m.negated ? " — negated" : ""}">${esc(t.slice(i, j))}</mark>`;
+      const i = m.start, j = Math.min(t.length, m.end);
+      if (i < pos || j <= i) continue;
+      const tip = [m.label + (m.icpc ? ` (ICPC-2 ${m.icpc})` : ""), m.negated && "negated", m.typo && `typo read as ${m.typo.split(" → ")[1]}`, m.pattern, m.severity && "described as severe", m.via === "ai" && "AI-read — please confirm"].filter(Boolean).join(" · ");
+      out += esc(t.slice(pos, i)) + `<mark class="${m.negated ? "neg" : (A.LUNG_LR[m.concept] || ["lymph", "nightsweats", "pruritus", "bowelchange", "rectalbleed"].includes(m.concept) ? "" : "calm")}${m.via === "ai" ? " ai" : ""}" title="${tip}">${esc(t.slice(i, j))}</mark>`;
       pos = j;
     }
     return out + esc(t.slice(pos));
+  }
+  function findingsPanel(r) {
+    const fs = r.extraction.findings;
+    if (!fs.length) return "";
+    const badge = (txt, cls = "") => `<span class="fbadge ${cls}">${txt}</span>`;
+    const via = { rules: "", both: badge("rules + AI agree", "ok"), ai: badge("AI-read · please confirm", "warn"), code: badge("from visit code"), measured: badge("from weight records") };
+    return `<div class="panel"><h3>What the agent read</h3><ul class="findings">${fs.map(f => `<li class="${f.negated ? "neg" : ""}"><span class="fl">${f.negated ? "No " + f.label.toLowerCase() : f.label}</span>${f.icpc ? badge("ICPC-2 " + f.icpc) : ""}${f.weeks ? badge(Math.round(f.weeks * 10) / 10 + " wk") : ""}${f.persistent ? badge("persistent") : ""}${f.severity ? badge("severe wording", "warn") : ""}${f.typo ? badge("typo: " + esc(f.typo)) : ""}${f.pattern ? badge("phrase pattern") : ""}${via[f.via] || ""}${f.conflict ? badge(f.conflict, "warn") : ""}</li>`).join("")}</ul>
+      ${r.signals && r.signals.length ? `<h3 style="margin-top:.9rem">From the record, not the note</h3><ul class="rules">${r.signals.map(s => `<li><span>${esc(s.text)}</span>${cite(s.src)}</li>`).join("")}</ul>` : ""}
+      ${r.rejected && r.rejected.length ? `<p class="scale-note">AI suggestions dropped because the quoted words are not in the note: ${r.rejected.map(x => esc(String(x.concept))).join(", ")}.</p>` : ""}
+      <div class="live-only btnrow" style="margin-top:.6rem"><button class="btn ghost" id="ai-read">Second reading by AI (quotes checked)</button></div></div>`;
   }
   const esc = s => s.replace(/[&<>]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[ch]);
 
@@ -153,7 +161,8 @@
     for (let i = 0; i < visits.length; i++) {
       const v = visits[i];
       const past = visits.slice(0, i).map(h => ({ ...h, daysAgo: h.daysAgo - v.daysAgo }));
-      const r = A.assess({ ...c, note: v.text, history: past, labs: {} });
+      const shift = xs => (xs || []).filter(x => x.daysAgo >= v.daysAgo).map(x => ({ ...x, daysAgo: x.daysAgo - v.daysAgo }));
+      const r = A.assess({ ...c, note: v.text, history: past, labs: {}, codes: shift(c.codes).filter(x => x.daysAgo > 0), weights: shift(c.weights), results: (c.results || []).filter(x => x.daysAgo > v.daysAgo).map(x => ({ ...x, daysAgo: x.daysAgo - v.daysAgo })) });
       if (!["none", "safety_net"].includes(r.action.key)) return { daysAgo: v.daysAgo, r };
     }
     return null;
@@ -172,6 +181,7 @@
         <div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div>
         <div class="gloss">${c.noteEn}</div>
         <div class="btnrow" style="margin-top:.7rem"><span style="font-size:.78rem;color:var(--mute)">Underlined = finding the agent used · struck through = explicitly negated in the note</span></div>
+        ${(c.weights || c.results || c.codes) ? `<div class="patient-meta" style="margin-top:.6rem">${(c.codes || []).length ? `<span>Visit codes: ${c.codes.map(x => `${x.code} (${x.daysAgo ? x.daysAgo + " d ago" : "today"})`).join(", ")}</span>` : ""}${(c.weights || []).length ? `<span>Weight: ${c.weights.slice().sort((a, b) => b.daysAgo - a.daysAgo).map(w => w.kg + " kg").join(" → ")}</span>` : ""}${(c.results || []).map(x => `<span>${esc(x.test)} ${x.daysAgo} d ago: ${esc(x.finding)}${x.abnormal && !x.followedUp ? " — no follow-up recorded" : ""}</span>`).join("")}</div>` : ""}
         ${c.history && c.history.length ? `<ul class="history">${c.history.slice().sort((a, b) => b.daysAgo - a.daysAgo).map(h => `<li><span>${h.daysAgo} days ago</span>${esc(h.text)}</li>`).join("")}<li><span>Today</span>Current visit</li></ul>` : ""}
       </div>`;
     renderReasoning(c, r);
@@ -192,6 +202,7 @@
     $("#reason-col").innerHTML = `
       <div class="panel"><h3>How the agent decided <span class="model-tag">deterministic</span></h3>
         <ol class="trace">${r.trace.map(s => `<li><b>${s.step}</b><span>${s.text}</span></li>`).join("")}</ol></div>
+      ${findingsPanel(r)}
       ${(r.risk.used.length || r.action.key.startsWith("lung")) ? `<div class="panel"><h3>Lung-cancer risk estimate</h3>
         <div class="waterfall">${wf}</div>
         <p class="scale-note">Amber line = 3 % referral threshold ${cite("nice_ng12")}. Estimate uses published UK likelihood ratios; needs recalibration on Finnish data before clinical use.</p>${ignored}</div>` : `<div class="panel"><h3>Lung-cancer risk estimate</h3><p style="margin:0;color:var(--frost);font-size:.9rem">No lung-cancer symptom in this record — the decision rests on the explicit rules below.</p></div>`}
@@ -199,9 +210,9 @@
       <div class="action ${t === "urgent" ? "" : t}">
         <h4>${r.action.title}</h4>
         <p>${r.action.why}</p>
-        ${r.action.target ? `<div class="btnrow"><button class="btn" id="approve" ${isStarted ? "disabled" : ""}>${isStarted ? "Approved — clock running" : "Approve and start the clock"}</button><button class="btn ghost" id="dismiss">Dismiss with reason</button></div>
+        ${r.action.target != null ? `<div class="btnrow"><button class="btn" id="approve" ${isStarted ? "disabled" : ""}>${isStarted ? "Approved — clock running" : "Approve and start the clock"}</button><button class="btn ghost" id="dismiss">Dismiss with reason</button></div>
         <div class="clock" id="clock">${r.action.clock.map((s, i) => `<div class="${isStarted ? (i === 0 ? "now" : "") : ""}">${s}</div>`).join("")}</div>
-        <p class="scale-note">Target for the first step: ${r.action.target} days. If it passes, the case returns to the top of the list.</p>
+        <p class="scale-note">Target for the first step: ${r.action.target ? r.action.target + " days" : "today"}. If it passes, the case returns to the top of the list.</p>
         <div class="live-only" style="margin-top:.8rem"><button class="btn ghost" id="draft">Draft the referral (AI, Finnish)</button><div id="draft-out" style="margin-top:.6rem;font-family:var(--serif);font-size:.98rem;white-space:pre-wrap"></div></div>` : ""}
       </div>
 `;
@@ -211,6 +222,8 @@
     if (ap) ap.addEventListener("click", () => { started[c.id] = true; runClock(); ap.disabled = true; ap.textContent = "Approved — clock running"; });
     const dr = $("#draft");
     if (dr) dr.addEventListener("click", () => draftReferral(c, r, $("#draft-out"), dr));
+    const ar = $("#ai-read");
+    if (ar) ar.addEventListener("click", () => aiRead(c, ar));
     const dm = $("#dismiss");
     if (dm) dm.addEventListener("click", () => { dm.textContent = "Dismissed — reason logged for audit"; dm.disabled = true; });
   }
@@ -233,7 +246,7 @@
       </div>
       <textarea id="e-note" rows="6" style="width:100%;background:var(--night);color:var(--snow);border:1px solid var(--line);border-radius:6px;padding:.8rem;font-family:var(--serif);font-size:1.05rem;line-height:1.6">${esc(custom.note)}</textarea>
       <div class="note" id="e-hl" style="margin-top:.8rem"></div>
-      <p class="scale-note">Examples: “Yskinyt verta”, “laihtunut 6 kg”, “ei laihtumista”, “neck lump for 4 weeks, night sweats”, “kiistää veriyskän”.</p></div>`;
+      <p class="scale-note">Examples: “couching blood violently”, “Yskinyt verta”, “laihtunut 6 kg”, “ei laihtumista”, “neck lump for 4 weeks, night sweats”, “kiistää veriyskän”.</p></div>`;
     const sync = () => {
       const smk = $("#e-smk").value;
       custom.patient = { age: +$("#e-age").value || 50, sex: $("#e-sex").value, smoking: smk === "never" ? { ever: false } : { ever: true, current: smk === "current", cigsPerDay: +$("#e-cig").value || 10, years: +$("#e-yrs").value || 20, quitYears: smk === "ex" ? 5 : 0 } };
@@ -372,7 +385,20 @@
   function stopSpeak() { speaking = false; if ("speechSynthesis" in window) speechSynthesis.cancel(); clearInterval(tick); document.querySelectorAll(".brief-card li").forEach(li => li.classList.remove("speaking")); }
 
   /* ================= SOURCES ================= */
+  function renderTests() {
+    const T = window.AJOISSA_TEST_RESULTS; if (!T) return "";
+    const p = x => x == null ? "–" : Math.round(x * 100) + " %";
+    const row = (n, s) => `<tr><td>${n}</td><td class="num">${s.notesFullyCorrect}/${s.notes}</td><td class="num">${p(s.precision)}</td><td class="num">${p(s.recall)}</td><td class="num">${s.negN === "" ? "–" : s.negOK + "/" + s.negN}</td><td class="num">${s.actN === "" ? "–" : s.actOK + "/" + s.actN}</td></tr>`;
+    return `<h3>How well the agent reads notes <span class="synthetic-tag">synthetic test notes</span></h3>
+      <table class="tbl"><thead><tr><th>Test set</th><th>Notes fully right</th><th>Precision</th><th>Recall</th><th>Negations</th><th>Right action</th></tr></thead><tbody>
+      ${row("Development set, first run", { notesFullyCorrect: T.firstRun.fullyCorrect, notes: T.firstRun.notes, precision: T.firstRun.precision, recall: T.firstRun.recall, negOK: "", negN: "", actOK: "", actN: "" })}
+      ${row("Development set, after fixes", T.dev)}
+      ${row("Held-out set, first run", { notesFullyCorrect: T.heldFirst.fullyCorrect, notes: T.heldFirst.notes, precision: T.heldFirst.precision, recall: T.heldFirst.recall, negOK: "", negN: "", actOK: "", actN: "" })}
+      ${row("Held-out set, now", T.heldout)}</tbody></table>
+      <p class="scale-note">Development notes (200: 160 generated variants, 40 hand-written traps such as “couching blood violently”, “retired”, “couch”) were used while building the reader. Held-out notes were written afterwards and only one bug they exposed was fixed. Words the reader still misses on held-out notes: ${T.heldout.failures.map(f => "“" + esc(f.note) + "”").slice(0, 4).join(", ")}… — this is why the optional AI reading exists, with every suggestion quoting the note and confirmed by the clinician. All notes were written by the team, so these are not real-world accuracy figures.</p>`;
+  }
   function renderSources() {
+    $("#test-results").innerHTML = renderTests();
     $("#source-table").innerHTML = `<table class="tbl src-table"><thead><tr><th>Source</th><th>What it shows</th><th>Evidence</th><th>Outcome type</th></tr></thead><tbody>
       ${Object.entries(S).map(([k, s]) => `<tr><td><button class="cite" data-src="${k}">${s.short}</button></td><td>${s.title}<br><span style="color:var(--mute);font-size:.82rem">${s.where}</span></td><td><span class="grade ${s.grade}">${s.grade}</span></td><td>${s.measure}</td></tr>`).join("")}
       </tbody></table>`;
@@ -399,6 +425,18 @@
       out.innerHTML = esc(r.text).replace(/\[([a-z0-9_]+)\]/gi, (m, k) => S[k] ? `<button class="cite" data-src="${k}">${S[k].short}</button>` : m);
     } catch (e) { out.textContent = e && e.code === "rate_limited" ? "The analyst is busy — try again in a minute." : "The live analyst is not available here. The briefing on the left is generated from the same data."; }
     btn.disabled = false;
+  }
+  async function aiRead(c, btn) {
+    const sample = await getSample(); if (!sample) return;
+    btn.disabled = true; btn.textContent = "Reading…";
+    try {
+      const res = await sample(A.aiPrompt(c.note), { modelTier: "default", cache: false });
+      const r = A.assess(c, { ai: res.text });
+      if (c.id === "custom") { $("#e-hl").innerHTML = highlight(c.note, r.extraction.mentions); }
+      else { const nt = $("#note-text"); if (nt) nt.innerHTML = highlight(c.note, r.extraction.mentions); }
+      renderReasoning(c, r);
+      const b2 = $("#ai-read"); if (b2) { b2.disabled = true; b2.textContent = "AI reading added — rules still decide"; }
+    } catch (e) { btn.textContent = "AI reading not available here"; }
   }
   async function draftReferral(c, r, out, btn) {
     const sample = await getSample(); if (!sample) return;
