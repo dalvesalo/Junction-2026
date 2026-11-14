@@ -409,9 +409,9 @@ body.live-ai .live-only { display: block; }
 .walk .cur:only-child { grid-column: 1 / -1; }
 .walk .cur { margin: 0; border-top: 3px solid var(--primary); animation: slidein .35s ease; }
 .past { display: grid; gap: .5rem; }
-.pastcard { font: inherit; text-align: left; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--green); padding: .5rem .6rem; cursor: pointer; color: var(--text); display: grid; gap: .25rem; animation: shrinkin .35s ease; }
+.pastcard { font: inherit; text-align: left; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--line); padding: .5rem .6rem; cursor: pointer; color: var(--text); display: grid; gap: .25rem; animation: shrinkin .35s ease; }
 .pastcard:hover { background: var(--sel); }
-.pastcard .n { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--green); }
+.pastcard .n { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--mute); }
 .pastcard .t { font-weight: 700; color: var(--brand); font-size: .9rem; }
 .pastcard .chips { margin-top: .1rem; }
 .pastcard .chip-f { font-size: .7rem; }

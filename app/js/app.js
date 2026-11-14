@@ -516,7 +516,7 @@
     const walk = bhStep != null;
     $("#view-behind").classList.toggle("walking", walk);
     $("#bh-step").innerHTML = !walk ? `<div class="walkhint"><button class="btn" id="bh-start">▶ Walk through it step by step</button><span>or click any step above. Below: all five steps at once.</span></div>` : `<div class="walk">
-      ${bhStep > 0 ? `<div class="past">${Array.from({ length: bhStep }, (_, k) => `<button class="pastcard" data-i="${k}"><span class="n">Step ${k + 1} ✓</span><span class="t">${STEPS[k]}</span>${stepMini(c, r, k)}</button>`).join("")}</div>` : ""}
+      ${bhStep > 0 ? `<div class="past">${Array.from({ length: bhStep }, (_, k) => `<button class="pastcard" data-i="${k}"><span class="n">Step ${k + 1} · done</span><span class="t">${STEPS[k]}</span>${stepMini(c, r, k)}</button>`).join("")}</div>` : ""}
       <div class="panel cur" key="${bhStep}"><h3><span>Step ${bhStep + 1} of 5 · ${STEPS[bhStep]}</span><span class="btnrow">${bhStep > 0 ? `<button class="btn ghost sm" id="bh-prev">← Previous</button>` : ""}${bhStep < 4 ? `<button class="btn sm" id="bh-next">Next step →</button>` : ""}<button class="btn ghost sm" id="bh-close">Show all</button></span></h3>
         ${stepMain(c, r, bhStep)}
         <div class="noticed"><div class="nh">What it noticed</div>${stepDetail(c, r, bhStep)}</div></div></div>`;
