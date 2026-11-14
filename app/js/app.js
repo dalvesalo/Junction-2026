@@ -245,7 +245,7 @@
     const ar = $("#ai-read");
     if (ar) ar.addEventListener("click", () => aiRead(c, ar));
     const dm = $("#dismiss");
-    if (dm) dm.addEventListener("click", () => { dm.textContent = "Dismissed — reason logged for audit"; dm.disabled = true; });
+    if (dm) dm.addEventListener("click", () => { dm.textContent = "Archived with reason — comes back if there is a new visit or result"; dm.disabled = true; });
   }
 
   const custom = { id: "custom", name: "Your patient", centre: "Your health centre", synthetic: true, history: [], labs: {},
@@ -339,9 +339,9 @@
   }
 
   /* ================= IMPACT ================= */
-  const P = { pop: 420000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
+  const P = { pop: 161000, coverage: 100, sens: 60, cut: 50, interval: 41, slots: 10 };
   const SL = [
-    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default ≈ North Ostrobothnia (Pohde) size." },
+    { k: "pop", label: "County population", min: 60000, max: 1700000, step: 10000, fmt: v => v.toLocaleString("en-US"), note: "Default = Pohjois-Karjala, the proposed pilot region (161,441 residents, Aug 2025)." },
     { k: "coverage", label: "Health centres using Ajoissa", min: 10, max: 100, step: 5, fmt: v => v + " %", note: "Start with 3 pilot centres, then scale." },
     { k: "sens", label: "Share of lung cancers the agent flags", min: 30, max: 80, step: 5, fmt: v => v + " %", note: "Schut 2025: ≈ 62 % flagged at 3 % PPV (moderate evidence)." },
     { k: "cut", label: "Primary-care interval cut for flagged patients", min: 20, max: 60, step: 5, fmt: v => v + " %", note: "Murphy 2015 RCT: trigger + review roughly halved time to work-up (colorectal)." },
