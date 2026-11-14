@@ -2,8 +2,7 @@
    Ajoissa — "classic" theme. Light only. Square corners, 1px rules,
    panel title strips, bevelled buttons: the look of a hospital
    information system, not of an AI product.
-   Palettes A–D are switchable in the preview (html[data-palette]).
-   Status colours (red / amber / green) are the same in every palette.
+   Palette: "Hospital blue" (chosen 14.11).
    ============================================================ */
 @font-face { font-family: "Source Sans 3"; src: url("../fonts/source-sans-3-latin-wght-normal.woff2") format("woff2"); font-weight: 200 900; font-display: swap; }
 @font-face { font-family: "Source Sans 3"; src: url("../fonts/source-sans-3-latin-ext-wght-normal.woff2") format("woff2"); font-weight: 200 900; unicode-range: U+0100-024F; font-display: swap; }
@@ -19,15 +18,8 @@
   --surface: #FFFFFF;
   --text: #1B1F23; --text-2: #3E4851; --mute: #67717A;
 }
-/* A · Hospital blue (default) */
-:root, [data-palette="a"] { --brand: #23395B; --primary: #2B5D8C; --primary-dark: #1F4A72; --bg: #E9EDF1; --inset: #F3F5F7; --head: #DCE3EA; --sel: #E2ECF6; --line: #A8B3BE; --line-soft: #D4DAE0; }
-/* B · Clinical teal */
-[data-palette="b"] { --brand: #1D4B4B; --primary: #1E6E69; --primary-dark: #165753; --bg: #E7EDEC; --inset: #F2F6F5; --head: #D6E2E0; --sel: #DDEDEA; --line: #A5B6B3; --line-soft: #D2DCDA; }
-/* C · Civic blue (suomi.fi-like) */
-[data-palette="c"] { --brand: #00347A; --primary: #2A6EBB; --primary-dark: #235A9A; --bg: #EEF1F4; --inset: #F5F7F9; --head: #DFE6EE; --sel: #E1ECF8; --line: #B3BDC8; --line-soft: #DCE2E8; }
-/* D · Slate (warm grey, Epic-like) */
-[data-palette="d"] { --brand: #333F4B; --primary: #3D6A8E; --primary-dark: #2F5573; --bg: #ECEBE8; --inset: #F5F4F2; --head: #DEDCD7; --sel: #E3E9EE; --line: #AAA9A3; --line-soft: #D7D5D0; }
-
+/* Hospital blue */
+:root { --brand: #23395B; --primary: #2B5D8C; --primary-dark: #1F4A72; --bg: #E9EDF1; --inset: #F3F5F7; --head: #DCE3EA; --sel: #E2ECF6; --line: #A8B3BE; --line-soft: #D4DAE0; }
 /* legacy names used by the chart code */
 :root {
   --night: var(--bg); --night-2: var(--surface); --night-3: var(--inset); --dot-fill: #fff;
@@ -67,8 +59,6 @@ h3 { font-size: 1rem; }
 .appname { opacity: .9; }
 .appuser { margin-left: auto; opacity: .95; }
 .appuser .synthetic-tag { background: transparent; color: #FFD58A; border-color: #FFD58A; }
-.palette-pick { display: flex; align-items: center; gap: .4rem; font-size: .78rem; padding-left: 1rem; border-left: 1px solid rgba(255,255,255,.35); }
-.palette-pick select { font: inherit; font-size: .8rem; border: 1px solid #fff; background: #fff; color: var(--text); padding: .1rem .2rem; border-radius: 0; }
 .menubar { display: flex; align-items: flex-end; gap: 0; background: var(--head); border-bottom: 1px solid var(--line); padding: .4rem 1.2rem 0; overflow-x: auto; }
 .menubar .grp { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); padding: 0 .6rem .55rem 0; align-self: flex-end; }
 .menubar .grp.sep { margin-left: 1.4rem; padding-left: 1.4rem; border-left: 1px solid var(--line); }
@@ -201,9 +191,9 @@ td.flag-cell { color: var(--red); font-weight: 600; }
 .order .exam .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--mute); font-weight: 700; }
 .order .exam .v { font-size: 1.2rem; font-weight: 700; color: var(--brand); }
 .order .exam .u { margin-top: .25rem; }
-.ofields { display: grid; grid-template-columns: 7.2rem 1fr; font-size: .86rem; }
-.ofields > div { padding: .35rem .9rem .35rem 0; border-bottom: 1px solid var(--line-soft); }
-.ofields > div:nth-child(odd) { padding-left: .9rem; color: var(--mute); font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; padding-top: .45rem; background: var(--inset); border-right: 1px solid var(--line-soft); }
+.ofields { display: grid; grid-template-columns: 8rem 1fr; font-size: .87rem; line-height: 1.45; }
+.ofields > div { padding: .6rem 1rem .6rem .85rem; border-bottom: 1px solid var(--line-soft); }
+.ofields > div:nth-child(odd) { padding-left: .9rem; padding-right: .6rem; color: var(--mute); font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; padding-top: .7rem; background: var(--inset); border-right: 1px solid var(--line-soft); }
 .ofields [contenteditable="true"] { outline: 2px solid var(--primary); outline-offset: -2px; background: #FFFDF2; }
 .oacts { padding: .7rem .9rem; display: grid; gap: .4rem; }
 .oacts .btn { justify-content: center; }
@@ -375,7 +365,7 @@ body.live-ai .live-only { display: block; }
   .pipeline { grid-template-columns: 1fr; }
   .pipeline > button::after { display: none; }
 }
-@media (max-width: 760px) { .wl { grid-template-columns: 1fr; } .appname, .palette-pick { display: none; } }
+@media (max-width: 760px) { .wl { grid-template-columns: 1fr; } .appname { display: none; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 .pipeline > button.hit::before { content: "decided here"; position: absolute; right: .9rem; top: .45rem; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--red); }
 .pipeline > button.hit::after { background: var(--red-soft); }
@@ -403,3 +393,35 @@ body.live-ai .live-only { display: block; }
 .note b { font-weight: 700; color: var(--text-2); }
 .formula { white-space: normal; }
 @media (max-width: 1200px) { .kv { grid-template-columns: 7.5rem 1fr; } .egrid { grid-template-columns: 1fr 1fr; } }
+
+/* v2.2: bin, walkthrough */
+.bin { margin-top: .8rem; border: 1px solid var(--line); background: var(--inset); }
+.bin summary { display: grid; grid-template-columns: auto 1fr auto; gap: 0 .5rem; align-items: baseline; padding: .45rem .6rem; cursor: pointer; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); list-style: none; }
+.bin summary::-webkit-details-marker { display: none; }
+.bin summary::before { content: "▸"; grid-row: span 2; color: var(--primary); }
+.bin[open] summary::before { content: "▾"; }
+.bin summary small { grid-column: 2; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--mute); }
+.bin summary b { grid-row: 1; grid-column: 3; background: var(--green); color: #fff; padding: 0 .4rem; }
+.bin .prow { opacity: .85; }
+.btn.sm { padding: .15rem .55rem; font-size: .78rem; text-transform: none; letter-spacing: 0; }
+.walkhint { display: flex; align-items: center; gap: .8rem; margin: 0 0 .8rem; font-size: .88rem; color: var(--text-2); }
+.walk { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: .8rem; align-items: start; margin-bottom: .8rem; }
+.walk .cur:only-child { grid-column: 1 / -1; }
+.walk .cur { margin: 0; border-top: 3px solid var(--primary); animation: slidein .35s ease; }
+.past { display: grid; gap: .5rem; }
+.pastcard { font: inherit; text-align: left; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--green); padding: .5rem .6rem; cursor: pointer; color: var(--text); display: grid; gap: .25rem; animation: shrinkin .35s ease; }
+.pastcard:hover { background: var(--sel); }
+.pastcard .n { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--green); }
+.pastcard .t { font-weight: 700; color: var(--brand); font-size: .9rem; }
+.pastcard .chips { margin-top: .1rem; }
+.pastcard .chip-f { font-size: .7rem; }
+.mini-v { font-size: 1.15rem; font-weight: 700; } .mini-v.red { color: var(--red); } .mini-v.amber { color: var(--amber); }
+.mini-s { font-size: .75rem; color: var(--mute); }
+.mini-l { margin: 0; padding-left: 1rem; font-size: .76rem; color: var(--text-2); } .mini-l li.urgent { color: var(--red); }
+.noticed { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: .6rem; }
+.noticed .nh { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); margin-bottom: .4rem; }
+.noticed p { font-size: .9rem; margin: .4rem 0; }
+.pipeline > button.later { opacity: .45; }
+@keyframes slidein { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes shrinkin { from { opacity: .3; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@media (max-width: 1100px) { .walk { grid-template-columns: 1fr; } }

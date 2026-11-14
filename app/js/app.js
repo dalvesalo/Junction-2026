@@ -8,7 +8,7 @@
   const cite = k => S[k] ? `<button class="cite" data-src="${k}">${S[k].short}</button>` : "";
 
   const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
-  const VIEWS = ["worklist", "behind", "gap", "county", "impact", "sources", "brief"];
+  const VIEWS = ["worklist", "behind", "gap", "county", "impact", "sources"];
 
   /* ---------------- views ---------------- */
   function show(view) {
@@ -129,7 +129,7 @@
   const STATUS = { red: "Act now", amber: "Check soon", green: "No action" };
   const CANCER = { lung: "Lung", colorectal: "Bowel", prostate: "Prostate", lymphoma: "Lymphoma", several: "Several", other: "Other" };
   const levelText = x => x.r.action.key === "emergency" ? "Emergency · today" : x.queued ? "No CT slot free · X-ray now, CT next week" : x.r.action.level === 0 ? `Already due${x.r.action.overdue ? " · " + x.r.action.overdue + " d overdue" : ""}` : x.r.action.level === 2 ? (x.slot ? "Urgent · CT slot this week" : "Urgent referral") : x.r.action.level === 1 ? "Simple test" : x.r.action.key === "safety_net" ? "Check-in in 3 weeks" : "Checked · agent stays silent";
-  let current = null, cancerFilter = "all";
+  let current = null, cancerFilter = "all", binOpen = false;
   const orders = {};                       // per patient: { status: "draft" | "sent" | "review" | "dismissed", reason }
   const find = id => assessed.find(x => x.c.id === id);
   const pctS = p => p >= 0.3 ? "> 30 %" : pct(p, p < 0.01 ? 2 : 1);
@@ -180,7 +180,9 @@
   /* ---------- left: the list ---------- */
   function renderList() {
     const vis = assessed.filter(x => cancerFilter === "all" || x.r.cancer === cancerFilter);
-    const grp = col => vis.filter(x => colour(x.r) === col);
+    const done = x => ["sent", "review", "dismissed"].includes((orders[x.c.id] || {}).status);
+    const grp = col => vis.filter(x => colour(x.r) === col && !done(x));
+    const binned = vis.filter(done);
     const row = x => { const { c, r } = x, o = orders[c.id] || {}, col = colour(r);
       const lvl = o.status === "sent" ? `<span class="lvl sent">✓ Sent · clock running</span>` : o.status === "review" ? `<span class="lvl sent">✓ Review booked</span>` : o.status === "dismissed" ? `<span class="lvl">Dismissed · archived</span>` : `<span class="lvl${x.queued ? " wait" : ""}">${levelText(x)}</span>`;
       return `<button class="prow" aria-pressed="${current === c.id}" data-case="${c.id}"><span class="sbar ${col}"></span><span class="pc">
@@ -192,8 +194,10 @@
       <div class="cfilter" role="group" aria-label="Filter by cancer">${["all", "lung", "colorectal", "prostate", "lymphoma"].map(k => { const n = k === "all" ? assessed.length : assessed.filter(x => x.r.cancer === k).length; return `<button class="chip" data-cf="${k}" aria-pressed="${cancerFilter === k}">${k === "all" ? "All" : CANCER[k]} <b>${n}</b></button>`; }).join("")}</div>
       <button class="newpt" id="newpt">${customOn ? "✎ Edit your test patient" : "+ Create a test patient"}<small>Write your own note and details — the same rules run live</small></button>
       ${section("red", "Act now")}${section("amber", "Check soon")}${section("green", "Checked, not flagged")}
+      ${binned.length ? `<details class="bin" id="bin" ${binOpen ? "open" : ""}><summary><span>Out of your hands</span><small>sent on · awaiting scan, result or review</small><b>${binned.length}</b></summary>${binned.map(row).join("")}</details>` : ""}
       <label class="slots">CT slots free this week <input type="number" id="ct-slots" min="0" max="9" value="${ctSlots}"><small>Set by the county. Follow-ups already due go first, then the strongest signals; the agent never asks for more.</small></label>`;
     document.querySelectorAll(".prow").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
+    const bin = $("#bin"); if (bin) bin.addEventListener("toggle", () => { binOpen = bin.open; });
     $("#newpt").addEventListener("click", () => { if (!customOn) { customOn = true; rebuild(); } selectCase("custom"); });
     document.querySelectorAll(".cfilter .chip").forEach(b => b.addEventListener("click", () => { cancerFilter = b.dataset.cf; renderList(); }));
     $("#ct-slots").addEventListener("change", e => { ctSlots = Math.max(0, +e.target.value || 0); rebuild(); renderList(); if (current) selectCase(current); });
@@ -352,7 +356,7 @@
       ${r.action.clock.length ? `<div class="clock" id="clock">${r.action.clock.map((s, i) => `<div class="${st.status === "sent" ? (i === 0 ? "now" : "") : ""}">${s}</div>`).join("")}</div>
       <div class="clockcap">Pathway clock · target for the first step: ${x.r.action.target ? x.r.action.target + " days" : "today"}${st.status === "sent" ? " · started" : " · starts when signed"}</div>` : ""}
     </div>${toBehind}`;
-    const set = (s, reason) => { orders[c.id] = { status: s, reason }; renderRight(c, r); renderList(); };
+    const set = (s, reason) => { orders[c.id] = { status: s, reason }; if (s !== "draft") binOpen = true; renderRight(c, r); renderList(); };
     const b = id => $("#" + id);
     if (b("o-sign")) b("o-sign").addEventListener("click", () => set("sent"));
     if (b("o-review")) b("o-review").addEventListener("click", () => set("review"));
@@ -403,6 +407,14 @@
     }
     return null;
   }
+  function symptomChips(r) {
+    const fs = r.extraction.findings;
+    return `<div class="chips">${fs.map(x => `<span class="chip-f ${x.negated ? "neg" : (A.LUNG_LR[x.concept] || ["lymph", "nightsweats", "pruritus", "bowelchange", "rectalbleed", "anaemia"].includes(x.concept) ? "" : "calm")}">${x.label}${x.weeks ? ` · ${Math.round(x.weeks * 10) / 10} wk` : ""}${x.via === "ai" ? " · AI, confirm" : ""}</span>`).join("") || `<span class="chip-f calm">No symptom words found</span>`}</div>`;
+  }
+  function dataChips(r) {
+    const s = (r.signals || []).filter(x => x.id !== "NOT_FLAGGED");
+    return `<div class="chips">${s.map(x => `<span class="chip-f data" title="${esc(x.text)}">${esc((x.text.includes(":") ? x.text.split(":")[0] : x.text.split(/ \(|;| — /)[0]))}</span>`).join("") || `<span class="chip-f calm">Nothing in the record</span>`}</div>`;
+  }
   function chipsFor(r) {
     const fs = r.extraction.findings;
     const f = fs.map(x => `<span class="chip-f ${x.negated ? "neg" : (A.LUNG_LR[x.concept] || ["lymph", "nightsweats", "pruritus", "bowelchange", "rectalbleed", "anaemia"].includes(x.concept) ? "" : "calm")}">${x.label}${x.weeks ? ` · ${Math.round(x.weeks * 10) / 10} wk` : ""}${x.via === "ai" ? " · AI, confirm" : ""}</span>`).join("");
@@ -410,7 +422,7 @@
     return `<div class="chips">${f || `<span class="chip-f calm">No symptom words found</span>`}</div>${s ? `<div class="chips">${s}</div>` : ""}
       <p class="legend-s">Red = cancer symptom used · struck through = negated in the note ("ei veriyskää" = no blood) · blue = read from the record, not the note.</p>`;
   }
-  function calcView(c, r) {
+  function calcPart(c, r) {
     const steps = r.risk.steps, lungish = r.lungRelevant && steps.length > 1;
     let html = "";
     if (lungish) {
@@ -430,7 +442,10 @@
         html += `<div class="calc" style="margin-top:.5rem"><div class="calc-row"><div class="lab"><b>Time since ${esc(res.test.split(" (")[0])}</b> · follow-up window ${T.window} d ${cite(T.src)}</div><div class="bar"><span class="${ratio > 1 && !/not flagged/i.test(JSON.stringify(r.signals)) ? "hot" : ""}" style="width:${Math.min(100, ratio * 50)}%"></span><i style="left:50%"></i></div><div class="v">${res.daysAgo} d</div></div></div>`; });
       html += `<p class="scale-note">${r.cancer && r.cancer !== "lung" ? `No risk percentage for ${(CANCER[r.cancer] || "").toLowerCase()}: no risk model is validated for Finnish primary care, so the agent uses the published rule instead of inventing one.` : "Black line = the threshold or the end of the follow-up window."} ${(c.results || []).length ? `Follow-up windows are those of the randomised trial this design copies ${cite("murphy2015")}.` : ""}</p>`;
     }
-    const col = colour(r);
+    return html;
+  }
+  function calcView(c, r) {
+    const html = calcPart(c, r), col = colour(r);
     const rules = r.hits.length ? `<h3>4 · Rules met</h3><ul class="rules">${r.hits.map(h => `<li class="${h.level === "urgent" ? "urgent" : ""}"><span>${esc(h.text)}</span>${cite(h.src)}</li>`).join("")}</ul>` : "";
     const x = find(c.id) || { r, c };
     return html + rules + `<h3>5 · Proposed to the nurse</h3><div class="verdict ${col}"><b>${esc(r.action.title)}</b>${r.action.key !== "none" && x.c.id !== "custom" ? `<br><span style="font-size:.84rem">${capLine(x)}</span>` : ""}</div>`;
@@ -440,7 +455,7 @@
     const calc = r.lungRelevant && r.risk.steps.length > 1 ? `Lung risk ${pctS(r.risk.prior)} → ${pctS(r.risk.posterior)}` : r.cancer === "lymphoma" ? "Nothing to calculate — explicit rule" : r.cancer && r.cancer !== "lung" ? "Value vs published limit" : "Nothing to weigh";
     const items = [["Read the note", `${fs.length - neg} finding(s), ${neg} negated`], ["Check the record", sig ? `${sig} signal(s) from results, codes, weights` : "Nothing in results, codes or weights"], ["Calculate", calc], ["Match rules", r.hits.length ? `${r.hits.length} rule(s) met` : "No rule met"], ["Propose", r.action.key === "none" ? "Stay silent" : (orderFor(find(c.id) || { r }) || {}).exam || r.action.title]];
     const hitI = r.action.key === "none" ? -1 : r.action.key === "result_followup" ? 1 : r.lungRelevant && r.risk.posterior >= A.THRESHOLDS.urgent ? 2 : 3;
-    return `<div class="pipeline">${items.map(([t, d], i) => `<button data-i="${i}" class="${i === hitI ? "hit" : ""} ${bhStep === i ? "sel" : ""} ${bhStep == null ? "" : "on"}" aria-expanded="${bhStep === i}"><div class="n">Step ${i + 1}</div><div class="t">${t}</div><div class="d">${esc(d)}</div><div class="more">${bhStep === i ? "▲ hide detail" : "▼ what it noticed"}</div></button>`).join("")}</div>`;
+    return `<div class="pipeline">${items.map(([t, d], i) => `<button data-i="${i}" class="${i === hitI ? "hit" : ""} ${bhStep === i ? "sel" : ""} ${bhStep == null ? "" : i <= bhStep ? "on" : "later"}" aria-expanded="${bhStep === i}"><div class="n">Step ${i + 1}</div><div class="t">${t}</div><div class="d">${esc(d)}</div><div class="more">${bhStep === i ? "● showing" : bhStep != null && i < bhStep ? "✓ done" : "▶ show this step"}</div></button>`).join("")}</div>`;
   }
   let bhStep = null;
   function stepDetail(c, r, i) {
@@ -469,23 +484,55 @@
         ${r.action.clock.length ? `<p>Pathway clock: ${r.action.clock.join(" → ")} · first step within ${r.action.target ? r.action.target + " days" : "today"}; if late, back to the top of the list.</p>` : ""}
         ${r.action.also && r.action.also.length ? `<p>Also on this record: ${r.action.also.map(esc).join("; ")}.</p>` : ""}
         ${x.tier != null ? `<p class="scale-note">Position on today's list: ${assessed.findIndex(y => y.c.id === c.id) + 1} of ${assessed.length}. Order: emergencies → follow-ups already due (longest overdue first) → urgent rules → risk ≥ 3 % → simple tests → check-ins. A clinician can always override.</p>` : ""}`; }
-    return `<div class="panel stepd"><h3><span>Step ${i + 1} · ${head} — what it noticed</span><button class="btn ghost" id="bh-close" style="padding:.1rem .5rem;font-size:.75rem">Close</button></h3>${body}</div>`;
+    return body;
+  }
+  const STEPS = ["Read the note", "Check the record", "Calculate", "Match rules", "Propose"];
+  function stepMain(c, r, i) {
+    if (i === 0) return `<div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div>${symptomChips(r)}<p class="legend-s">Red = cancer symptom used · struck through = negated in the note ("ei veriyskää" = no blood) · grey = noted, not a lung-cancer symptom.</p>
+      <div class="live-only" style="margin-top:.6rem"><button class="btn ghost" id="ai-read">Second reading by AI (quotes checked)</button></div>`;
+    if (i === 1) { const rec = recordRows(c); return `${dataChips(r)}${rec.length ? `<table class="tbl" style="margin-top:.6rem"><thead><tr><th style="width:6.5rem">When</th><th>In the record</th><th>Note</th></tr></thead><tbody>${rec.map(([d, t, f]) => `<tr><td class="num">${d ? d + " d ago" : "Today"}</td><td>${t}</td><td class="flag-cell">${f}</td></tr>`).join("")}</tbody></table>` : ""}`; }
+    if (i === 2) return calcPart(c, r);
+    if (i === 3) return "";
+    const x = find(c.id) || { r, c }, ef = c.id === "custom" ? null : earliestFlag(c);
+    return `<div class="verdict ${colour(r)}"><b>${esc(r.action.title)}</b>${r.action.key !== "none" ? `<br><span style="font-size:.84rem">${capLine(x)}</span>` : ""}</div>
+      ${ef ? `<div class="compare" style="margin-top:.8rem"><p><b>Could this have been caught earlier?</b> Re-running the same rules on the earlier visits: flagged <b>${ef.daysAgo} days ago</b>.</p>${compareSvg(ef.daysAgo)}</div>` : ""}`;
+  }
+  function stepMini(c, r, i) {
+    if (i === 0) return symptomChips(r);
+    if (i === 1) return dataChips(r);
+    if (i === 2) { if (r.lungRelevant && r.risk.steps.length > 1) return `<div class="mini-v ${colour(r)}">${pctS(r.risk.prior)} → <b>${pctS(r.risk.posterior)}</b></div><div class="mini-s">lung risk · threshold 3 %</div>`;
+      const row = cancerRows(c, r).find(x => x.cls === "red" && x.val !== "Rule") || cancerRows(c, r).find(x => x.cls !== "green" && x.cls !== "grey");
+      return row ? `<div class="mini-v ${row.cls}"><b>${row.val}</b></div><div class="mini-s">${row.cn}${row.sub ? " · " + row.sub : ""}</div>` : `<div class="mini-s">Nothing to calculate</div>`; }
+    if (i === 3) return r.hits.length ? `<ul class="mini-l">${r.hits.map(h => `<li class="${h.level === "urgent" ? "urgent" : ""}">${esc(h.text.length > 70 ? h.text.slice(0, 68) + "…" : h.text)}</li>`).join("")}</ul>` : `<div class="mini-s">No rule met</div>`;
+    return "";
   }
   function renderBehind(c, r) {
     const custom = c.id === "custom";
-    $("#behindbar").innerHTML = `<div><h2>Behind the flag — ${custom ? "your own note" : c.name}</h2><p>${custom ? "Your test patient, edited on the worklist. The same rules run live." : `This is what ran overnight to produce the flag for ${c.name} on the nurse's worklist (step 1).`} <b>Click any step to see exactly what it noticed.</b> The nurse never needs this page; it exists so anyone can check the reasoning. Same record in → same result out.</p></div>
+    $("#behindbar").innerHTML = `<div><h2>Behind the flag — ${custom ? "your own note" : c.name}</h2><p>${custom ? "Your test patient, edited on the worklist. The same rules run live." : `This is what ran overnight to produce the flag for ${c.name} on the nurse's worklist (step 1).`} <b>Walk through the five steps to see exactly what it noticed at each one.</b> The nurse never needs this page; it exists so anyone can check the reasoning. Same record in → same result out.</p></div>
       <div class="ctl"><select id="bh-pick" aria-label="Patient">${assessed.map(x => `<option value="${x.c.id}" ${x.c.id === c.id ? "selected" : ""}>${x.c.name} — ${STATUS[colour(x.r)]}</option>`).join("")}${customOn ? "" : `<option value="new">+ Create a test patient…</option>`}</select>
         <button class="btn ghost" data-goto="worklist">← Back to worklist</button></div>`;
     $("#bh-pick").addEventListener("change", e => { if (e.target.value === "new") { customOn = true; rebuild(); selectCase("custom"); show("worklist"); } else selectCase(e.target.value); });
     $("#pipeline").innerHTML = pipelineHtml(c, r);
-    $("#bh-step").innerHTML = bhStep == null ? "" : stepDetail(c, r, bhStep);
+    const walk = bhStep != null;
+    $("#view-behind").classList.toggle("walking", walk);
+    $("#bh-step").innerHTML = !walk ? `<div class="walkhint"><button class="btn" id="bh-start">▶ Walk through it step by step</button><span>or click any step above. Below: all five steps at once.</span></div>` : `<div class="walk">
+      ${bhStep > 0 ? `<div class="past">${Array.from({ length: bhStep }, (_, k) => `<button class="pastcard" data-i="${k}"><span class="n">Step ${k + 1} ✓</span><span class="t">${STEPS[k]}</span>${stepMini(c, r, k)}</button>`).join("")}</div>` : ""}
+      <div class="panel cur" key="${bhStep}"><h3><span>Step ${bhStep + 1} of 5 · ${STEPS[bhStep]}</span><span class="btnrow">${bhStep > 0 ? `<button class="btn ghost sm" id="bh-prev">← Previous</button>` : ""}${bhStep < 4 ? `<button class="btn sm" id="bh-next">Next step →</button>` : ""}<button class="btn ghost sm" id="bh-close">Show all</button></span></h3>
+        ${stepMain(c, r, bhStep)}
+        <div class="noticed"><div class="nh">What it noticed</div>${stepDetail(c, r, bhStep)}</div></div></div>`;
+    const go = i => { bhStep = i; renderBehind(c, r); };
+    if ($("#bh-start")) $("#bh-start").addEventListener("click", () => go(0));
+    if ($("#bh-next")) $("#bh-next").addEventListener("click", () => go(bhStep + 1));
+    if ($("#bh-prev")) $("#bh-prev").addEventListener("click", () => go(bhStep - 1));
+    document.querySelectorAll(".pastcard").forEach(b => b.addEventListener("click", () => go(+b.dataset.i)));
     document.querySelectorAll(".pipeline > button").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.i; bhStep = bhStep === i ? null : i; renderBehind(c, r); }));
-    $("#bh-left").innerHTML = `<div class="panel"><h3><span>1 · What it read · 2 · what the record added</span><span class="synthetic-tag">synthetic</span></h3>
+    if (walk) { $("#bh-left").innerHTML = $("#bh-right").innerHTML = $("#bh-earlier").innerHTML = ""; }
+    else $("#bh-left").innerHTML = `<div class="panel"><h3><span>1 · What it read · 2 · what the record added</span><span class="synthetic-tag">synthetic</span></h3>
         <div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div>${c.noteEn ? `<div class="gloss">${esc(c.noteEn)}</div>` : ""}${chipsFor(r)}
         <div class="live-only" style="margin-top:.6rem"><button class="btn ghost" id="ai-read">Second reading by AI (quotes checked)</button></div></div>`;
-    $("#bh-right").innerHTML = `<div class="panel"><h3><span>3 · The calculation</span><span class="model-tag">deterministic</span></h3>${calcView(c, r)}</div>`;
-    const ef = custom ? null : earliestFlag(c);
-    $("#bh-earlier").innerHTML = ef ? `<div class="panel compare"><h3><span>Could this have been caught earlier?</span></h3><p>Re-running the same rules on ${c.name.split(" ")[0]}'s earlier visits, with only what was known then: the agent would have flagged ${c.patient.sex === "M" ? "him" : "her"} <b>${ef.daysAgo} days ago</b>, at the visit noted "${esc(c.history.find(h => h.daysAgo === ef.daysAgo).text)}".</p>${compareSvg(ef.daysAgo)}</div>` : "";
+    if (!walk) $("#bh-right").innerHTML = `<div class="panel"><h3><span>3 · The calculation</span><span class="model-tag">deterministic</span></h3>${calcView(c, r)}</div>`;
+    const ef = custom || walk ? null : earliestFlag(c);
+    if (!walk) $("#bh-earlier").innerHTML = ef ? `<div class="panel compare"><h3><span>Could this have been caught earlier?</span></h3><p>Re-running the same rules on ${c.name.split(" ")[0]}'s earlier visits, with only what was known then: the agent would have flagged ${c.patient.sex === "M" ? "him" : "her"} <b>${ef.daysAgo} days ago</b>, at the visit noted "${esc(c.history.find(h => h.daysAgo === ef.daysAgo).text)}".</p>${compareSvg(ef.daysAgo)}</div>` : "";
     const ar = $("#ai-read"); if (ar) ar.addEventListener("click", () => aiRead(c, ar));
     const bc = $("#bh-close"); if (bc) bc.addEventListener("click", () => { bhStep = null; renderBehind(c, r); });
     if ($("#view-behind").classList.contains("active") && bhStep == null) animatePipeline();
@@ -635,38 +682,6 @@
       $("#" + id).addEventListener("change", e => { SV[k] = +e.target.value; computeImpact(); }));
   }
 
-  /* ================= BRIEFING ================= */
-  const BRIEF = [
-    { t: "Where the gap is", s: `Lymphoma patients who enter through public primary care wait a median of 127 days from symptom to treatment, versus 76 days through occupational or private care — and the gap opens before they ever see a specialist. The delay is born in primary care.`, c: ["kuitunen2026"] },
-    { t: "Why it matters for Goal 3", s: `Finland has the Nordics' lowest lung-cancer survival. The strategy asks for +14 percentage points by 2035, and only 27 % of lung-cancer patients now reach curative treatment.`, c: ["actaonc2025_surv", "strategy2026", "lungreg2026"] },
-    { t: "The mechanism", s: `A Finnish GP appointment takes about two weeks, adults are only guaranteed one within three months, and according to a Nordic expert survey few health centres can order a CT directly. Patients come back again and again: service use rises three to four months before a colorectal diagnosis.`, c: ["ihe2026", "careguarantee2025", "hermio2023"] },
-    { t: "What we propose", s: `Ajoissa: a safety-net agent that reads the county's own records overnight, puts patients with stalled cancer signals on a named nurse's list with the reason, and runs a clock until they are diagnosed or cleared. A professional decides every action.`, c: ["he159"] },
-    { t: "Why we believe it works", s: `In a randomised trial the same pattern — automatic trigger plus human review of abnormal results — cut time to colorectal work-up from 200 to 104 days. And in April 2026 Parliament approved letting counties use their own records to find health problems early.`, c: ["murphy2015", "he159"] },
-    { t: "What we ask", s: `Päijät-Häme, where the same list-to-nurse-to-doctor model already runs for kidney disease: three health centres, six months, about 28,000 euros. Track flags acted on within 7 days, days from flag to imaging, and the share of cancers diagnosed from a tracked route. The clocks also produce the step-by-step waiting data the strategy says is missing.`, c: ["strategy2026", "aino2026"] }
-  ];
-  let speaking = false;
-  function renderBrief() {
-    $("#brief-card").innerHTML = `<p class="kicker">Briefing for: wellbeing services county director · 2 minutes</p>
-      <h2>Close the front-door gap in public primary care</h2>
-      <ol>${BRIEF.map((b, i) => `<li id="b-${i}"><b>${b.t}.</b> ${b.s} ${b.c.map(cite).join(" ")}</li>`).join("")}</ol>`;
-    $("#brief-controls").innerHTML = `<h3>Present it</h3><div class="timer num" id="timer">2:00</div>
-      <p style="color:var(--frost);font-size:.9rem">The analyst reads the briefing aloud and keeps to two minutes. Text is generated from the same data shown in the other views — nothing extra is invented.</p>
-      <div class="btnrow"><button class="btn" id="speak">Read it aloud</button><button class="btn ghost" id="stop">Stop</button></div>`;
-    $("#speak").addEventListener("click", speak); $("#stop").addEventListener("click", stopSpeak);
-  }
-  let tick;
-  function speak() {
-    stopSpeak(); speaking = true;
-    let left = 120; $("#timer").textContent = "2:00";
-    tick = setInterval(() => { left--; $("#timer").textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`; if (left <= 0) clearInterval(tick); }, 1000);
-    if (!("speechSynthesis" in window)) { stepThrough(); return; }
-    const voices = speechSynthesis.getVoices(); const v = voices.find(x => /en-GB|en-US/.test(x.lang));
-    BRIEF.forEach((b, i) => { const u = new SpeechSynthesisUtterance(`${b.t}. ${b.s}`); if (v) u.voice = v; u.rate = 1.02; u.onstart = () => mark(i); u.onend = () => { if (i === BRIEF.length - 1) stopSpeak(); }; speechSynthesis.speak(u); });
-  }
-  function stepThrough() { BRIEF.forEach((_, i) => setTimeout(() => speaking && mark(i), i * 18000)); }
-  function mark(i) { document.querySelectorAll(".brief-card li").forEach(li => li.classList.remove("speaking")); const li = $("#b-" + i); if (li) li.classList.add("speaking"); }
-  function stopSpeak() { speaking = false; if ("speechSynthesis" in window) speechSynthesis.cancel(); clearInterval(tick); document.querySelectorAll(".brief-card li").forEach(li => li.classList.remove("speaking")); }
-
   /* ================= SOURCES ================= */
   function renderTests() {
     const T = window.AJOISSA_TEST_RESULTS; if (!T) return "";
@@ -698,22 +713,6 @@
     if (!samplePromise) samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
     return samplePromise;
   }
-  const GUARD = "Rules: use ONLY the facts and numbers in the DATA block. Never invent a number, study or name. After each factual sentence put the source key in square brackets, e.g. [murphy2015]. If the data does not answer the question, say so plainly. Plain language for a non-technical decision-maker. No markdown headings.";
-  function dataBlock() {
-    const src = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, `${v.short}: ${v.title}. ${v.note || ""} (evidence ${v.grade}; shows ${v.measure})`]));
-    const cases = assessed.map(({ c, r }) => ({ name: c.name, synthetic: true, age: c.patient.age, headline: c.headline, risk_prior_pct: +(r.risk.prior * 100).toFixed(2), risk_post_pct: +(r.risk.posterior * 100).toFixed(1), rules: r.hits.map(h => h.text), action: r.action.title }));
-    return JSON.stringify({ sources: src, dlbcl: D.dlbcl, impact_defaults: P, synthetic_cases: cases, briefing: BRIEF.map(b => b.t + ": " + b.s) });
-  }
-  async function askAnalyst(q, out, btn) {
-    const sample = await getSample(); if (!sample) return;
-    btn.disabled = true; out.textContent = "Thinking…";
-    try {
-      const prompt = `You are the Ajoissa analyst for a Finnish wellbeing services county. ${GUARD}\n\nDATA:\n${dataBlock()}\n\nQUESTION: ${q}\n\nAnswer in at most 120 words.`;
-      const r = await sample(prompt, { modelTier: "default", cache: false, onText: ({ text }) => { out.textContent = text; } });
-      out.innerHTML = esc(r.text).replace(/\[([a-z0-9_]+)\]/gi, (m, k) => S[k] ? `<button class="cite" data-src="${k}">${S[k].short}</button>` : m);
-    } catch (e) { out.textContent = e && e.code === "rate_limited" ? "The analyst is busy — try again in a minute." : "The live analyst is not available here. The briefing on the left is generated from the same data."; }
-    btn.disabled = false;
-  }
   async function aiRead(c, btn) {
     const sample = await getSample(); if (!sample) return;
     btn.disabled = true; btn.textContent = "Reading…";
@@ -734,29 +733,12 @@
     btn.disabled = false;
   }
 
-  getSample().then(sample => {
-    if (!sample) return;
-    document.body.classList.add("live-ai");
-    const box = el("div", { class: "panel", id: "analyst" }, `<h3><span>Ask the analyst</span><span class="model-tag">live AI</span></h3>
-      <p style="color:var(--text-2);font-size:.88rem;margin:0 0 .6rem">Answers only from the data in this app, with sources. Try: “Why lung cancer?”, “What would we measure in the pilot?”, “Is this legal?”</p>
-      <textarea id="aq" rows="3" placeholder="Ask a question about the gap or the proposal"></textarea>
-      <div class="btnrow" style="margin-top:.5rem"><button class="btn" id="ask">Ask</button></div>
-      <div id="aout" style="margin-top:.8rem;font-size:1rem;line-height:1.55;white-space:pre-wrap"></div>`);
-    $("#brief-controls").after(box);
-    $("#ask").addEventListener("click", () => { const q = $("#aq").value.trim(); if (q) askAnalyst(q, $("#aout"), $("#ask")); });
-  });
-
-  /* ---------------- palette (preview only) ---------------- */
-  const pal = $("#palette");
-  if (pal) {
-    pal.value = document.documentElement.dataset.palette || "a";
-    pal.addEventListener("change", () => { document.documentElement.dataset.palette = pal.value; try { localStorage.setItem("ajoissa-palette", pal.value); } catch (e) {} if ($("#view-gap").classList.contains("active")) drawRiver(false); });
-  }
+  getSample().then(sample => { if (sample) document.body.classList.add("live-ai"); });
 
   /* ---------------- boot ---------------- */
   const flaggedN = assessed.filter(x => x.r.action.key !== "none").length;
   $("#runstat").innerHTML = `Last overnight run 03:12 · 1,284 contacts · 911 notes · 2,307 lab results read · ${flaggedN} flagged <span class="synthetic-tag">synthetic</span>`;
-  renderEvidence(); renderKeynums(); selectCase(assessed[0].c.id); renderCounty(); renderImpact(); renderBrief(); renderSources();
+  renderEvidence(); renderKeynums(); selectCase(assessed[0].c.id); renderCounty(); renderImpact(); renderSources();
   const start = (location.hash || "#worklist").slice(1);
   show(VIEWS.includes(start) ? start : "worklist");
 })();
