@@ -130,6 +130,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
 .prow .lvl { font-size: .74rem; color: var(--mute); }
 .prow .lvl.sent { color: var(--green); font-weight: 700; }
 .prow .lvl.wait { color: var(--amber); }
+.prow .lvl.over { color: var(--red); font-weight: 700; }
 .ctag { font-size: .66rem; font-weight: 700; padding: 0 .3rem; border: 1px solid var(--line); color: var(--text-2); background: var(--inset); text-transform: uppercase; letter-spacing: .03em; }
 .slots { display: grid; grid-template-columns: 1fr auto; gap: .15rem .5rem; align-items: center; font-size: .82rem; color: var(--text-2); margin-top: .8rem; padding-top: .6rem; border-top: 1px solid var(--line-soft); }
 .slots input { width: 3.2rem; }
@@ -201,6 +202,7 @@ td.flag-cell { color: var(--red); font-weight: 600; }
 .dismissbox { padding: .6rem .9rem; border-top: 1px solid var(--line-soft); background: var(--inset); font-size: .86rem; display: grid; gap: .4rem; }
 .olog { padding: .55rem .9rem; border-top: 1px solid var(--line-soft); font-size: .84rem; background: var(--green-soft); color: var(--green); }
 .olog.grey { background: var(--inset); color: var(--text-2); }
+.olog.over { color: var(--red); background: var(--red-soft); border-color: var(--red-line); }
 .olog.amber { background: var(--amber-soft); color: var(--amber); }
 .clock { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: .6rem .9rem .8rem; border-top: 1px solid var(--line-soft); }
 .clock div { font-size: .72rem; color: var(--mute); padding-top: .35rem; border-top: 5px solid var(--line-soft); }

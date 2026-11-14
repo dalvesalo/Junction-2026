@@ -126,6 +126,19 @@
       note: "Tulosyy: vuosikontrolli.\nEsitiedot: verenpainetauti, tyypin 2 diabetes. PSA otettu 140 vrk sitten muiden kokeiden yhteydessä.\nNykytila: Vointi hyvä, ei virtsaamisvaivoja.\nStatus: RR 132/80. Jalkojen tunto normaali.\nArvio: hoitotasapaino hyvä.\nSuunnitelma: Lääkitys jatkuu. Seuraava kontrolli 12 kk.",
       noteEn: "Reason for visit: annual check.\nHistory: high blood pressure, type 2 diabetes. PSA taken 140 days ago with other tests.\nNow: Feels well, no urinary symptoms.\nExamination: BP 132/80. Normal sensation in the feet.\nAssessment: good control.\nPlan: Medication continues. Next check in 12 months.",
       headline: "Raised PSA at 74 — the agent stays silent"
+    },
+    {
+      id: "c12", name: "Raili K.", synthetic: true, centre: "Health centre B (urban)",
+      patient: { age: 71, sex: "F", smoking: { ever: false } },
+      labs: {},
+      results: [{ type: "fhb", test: "Stool test (F-hHb)", daysAgo: 95, value: 41, followedUp: false }],
+      history: [{ daysAgo: 100, related: false, text: "Kolesterolikontrolli. F-hHb pyydetty." }],
+      record: {"gp": "Dr. S. Nieminen", "dx": ["E78 High cholesterol"], "meds": ["Atorvastatin 20 mg"]},
+      note: "Tulosyy: kolesterolilääkityksen kontrolli.\nEsitiedot: kohonnut kolesteroli. F-hHb pyydetty 100 vrk sitten.\nNykytila: Ei muuta asiaa.\nStatus: RR 134/82.\nArvio: lipiditasot tavoitteessa.\nSuunnitelma: Lääkitys jatkuu.",
+      noteEn: "Reason for visit: cholesterol medication check.\nHistory: high cholesterol. Stool test (F-hHb) requested 100 days ago.\nNow: Nothing else.\nExamination: BP 134/82.\nAssessment: lipids at target.\nPlan: Medication continues.",
+      headline: "Colonoscopy referral sent 21 days ago, still not booked",
+      // Demo state: the nurse signed this Level 0 referral 21 days ago; the colonoscopy is still not booked, so the clock is overdue and escalated.
+      signed: { daysAgo: 21, by: "Dr. S. Nieminen", step: "Colonoscopy referral", escalatedTo: "Dr. S. Nieminen (responsible GP)" }
     }
   ];
 })(typeof window !== "undefined" ? window : globalThis);

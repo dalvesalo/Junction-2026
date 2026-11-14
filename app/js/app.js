@@ -132,6 +132,7 @@
   const levelText = x => x.r.action.key === "emergency" ? "Emergency · today" : x.queued ? "No CT slot free · X-ray now, CT next week" : x.r.action.level === 0 ? `Already due${x.r.action.overdue ? " · " + x.r.action.overdue + " d overdue" : ""}` : x.r.action.level === 2 ? (x.slot ? "Urgent · CT slot this week" : "Urgent referral") : x.r.action.level === 1 ? "Simple test" : x.r.action.key === "safety_net" ? "Check-in in 3 weeks" : "Checked · agent stays silent";
   let current = null, cancerFilter = "all", binOpen = false;
   const orders = {};                       // per patient: { status: "draft" | "sent" | "review" | "dismissed", reason }
+  CASES.forEach(c => { if (c.signed) orders[c.id] = { status: "sent", ...c.signed }; });   // demo cases signed before today (synthetic)
   const find = id => assessed.find(x => x.c.id === id);
   const pctS = p => p >= 0.3 ? "> 30 %" : pct(p, p < 0.01 ? 2 : 1);
 
@@ -185,7 +186,8 @@
     const grp = col => vis.filter(x => colour(x.r) === col && !done(x));
     const binned = vis.filter(done);
     const row = x => { const { c, r } = x, o = orders[c.id] || {}, col = colour(r);
-      const lvl = o.status === "sent" ? `<span class="lvl sent">✓ Sent · clock running</span>` : o.status === "review" ? `<span class="lvl sent">✓ Review booked</span>` : o.status === "dismissed" ? `<span class="lvl">Dismissed · archived</span>` : `<span class="lvl${x.queued ? " wait" : ""}">${levelText(x)}</span>`;
+      const late = o.status === "sent" && o.daysAgo > r.action.target;
+      const lvl = late ? `<span class="lvl over">Overdue · day ${o.daysAgo} of ${r.action.target} · escalated</span>` : o.status === "sent" ? `<span class="lvl sent">✓ Sent · clock running</span>` : o.status === "review" ? `<span class="lvl sent">✓ Review booked</span>` : o.status === "dismissed" ? `<span class="lvl">Dismissed · archived</span>` : `<span class="lvl${x.queued ? " wait" : ""}">${levelText(x)}</span>`;
       return `<button class="prow" aria-pressed="${current === c.id}" data-case="${c.id}"><span class="sbar ${col}"></span><span class="pc">
         <span class="who"><span>${c.name}</span><small>${c.patient.age} ${c.patient.sex === "M" ? "M" : "F"}${r.cancer ? ` · <span class="ctag">${CANCER[r.cancer]}</span>` : ""}</small></span>
         <span class="why">${esc(c.headline)}</span>${lvl}</span></button>`; };
@@ -344,7 +346,7 @@
         <div>Clinical details</div><div id="o-details">${esc(details)}.</div>
         <div>Capacity</div><div>${capLine(x)}</div>
         <div>Drafted by</div><div>Ajoissa · overnight run 03:12</div>
-        <div>Signed by</div><div>${st.status === "sent" ? "Dr. A. Virtanen · today 08:14" : "— (a clinician signs before anything is sent)"}</div>
+        <div>Signed by</div><div>${st.status === "sent" ? (st.daysAgo ? `${st.by} · ${st.daysAgo} days ago` : "Dr. A. Virtanen · today 08:14") : "— (a clinician signs before anything is sent)"}</div>
       </div>
       ${open ? `<div class="oacts">
         <button class="btn" id="o-sign">Sign and send</button>
@@ -352,7 +354,7 @@
         <button class="btn ghost danger" id="o-dismiss">Dismiss with reason</button>
         <div class="live-only"><button class="btn ghost" id="o-draft" style="width:100%;justify-content:center">Write the referral in Finnish (AI draft)</button><div id="draft-out" style="margin-top:.5rem;white-space:pre-wrap;font-size:.9rem"></div></div>
       </div><div id="o-dbox"></div>`
-      : `<div class="olog ${st.status === "dismissed" ? "grey" : ""}">${st.status === "sent" ? "Sent. The pathway clock is running; if the first step is late, the patient returns to the top of the list." : st.status === "review" ? "Review booked in 14 days. If it is missed, the patient returns to the top of the list." : `Dismissed: ${esc(st.reason || "")}. Archived — the patient comes back if there is a new visit or result.`}</div>
+      : `<div class="olog ${st.status === "dismissed" ? "grey" : st.status === "sent" && st.daysAgo > x.r.action.target ? "over" : ""}">${st.status === "sent" && st.daysAgo > x.r.action.target ? `Sent ${st.daysAgo} days ago. ${st.step || "First step"} still not booked: clock day ${st.daysAgo}, target ${x.r.action.target} days. Overdue, escalated to ${st.escalatedTo}.` : st.status === "sent" ? "Sent. The pathway clock is running; if the first step is late, the patient returns to the top of the list." : st.status === "review" ? "Review booked in 14 days. If it is missed, the patient returns to the top of the list." : `Dismissed: ${esc(st.reason || "")}. Archived — the patient comes back if there is a new visit or result.`}</div>
         <div class="oacts"><button class="btn ghost" id="o-undo">Undo (demo)</button></div>`}
       ${r.action.clock.length ? `<div class="clock" id="clock">${r.action.clock.map((s, i) => `<div class="${st.status === "sent" ? (i === 0 ? "now" : "") : ""}">${s}</div>`).join("")}</div>
       <div class="clockcap">Pathway clock · target for the first step: ${x.r.action.target ? x.r.action.target + " days" : "today"}${st.status === "sent" ? " · started" : " · starts when signed"}</div>` : ""}
@@ -610,14 +612,14 @@
       <table class="tbl"><thead><tr><th>Patient</th><th>Next step</th><th class="r">Day</th><th class="r">Target</th><th>Status</th></tr></thead><tbody>
       ${flagged.filter(x => (orders[x.c.id] || {}).status !== "dismissed").map(x => {
         /* County view follows the worklist (source of truth): flags were raised overnight (day 0); a clock starts when the nurse signs. */
-        const status = (orders[x.c.id] || {}).status || "draft", a = x.r.action, signed = status === "sent";
+        const o = orders[x.c.id] || {}, status = o.status || "draft", a = x.r.action, signed = status === "sent";
         const next = status === "review" ? "Review booked"
-          : a.level === 0 ? (signed ? a.clock[0] : "Flag open")
+          : a.level === 0 ? (signed ? (o.step || a.clock[0]) : "Flag open")
           : x.slot ? (signed ? "CT booked" : "CT slot this week")
           : x.queued ? (signed ? "X-ray ordered, CT next week" : "X-ray now, CT next week")
           : a.key === "safety_net" ? "Check-in in 3 weeks"
           : signed ? a.clock[0] : "Flag open";
-        const day = 0, target = a.target, over = day > target;
+        const day = signed && o.daysAgo ? o.daysAgo : 0, target = a.target, over = day > target;
         return `<tr><td>${x.c.name}</td><td>${next}</td><td class="r num">${day}</td><td class="r num">${target}</td><td><span class="pill ${over ? "over" : day > target * .7 ? "risk" : "ontime"}">${over ? "overdue — escalated" : day > target * .7 ? "at risk" : "on time"}</span></td></tr>`;
       }).join("")}
       </tbody></table>`;
