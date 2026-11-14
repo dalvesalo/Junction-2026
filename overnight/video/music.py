@@ -1,4 +1,4 @@
-"""Generated soundtrack (no samples, no licences): soft chord intro with a piano-like line until the Ajoissa title (39 s), soft clicks on demo clicks,
+"""Generated soundtrack (no samples, no licences): soft major-chord intro until the Ajoissa title (39 s), soft clicks on demo clicks,
 then a warm pad + soft arpeggio under the demo, lifting at the evidence and resolving at the close.
 python3 music.py out.wav [duration]"""
 import sys, numpy as np, wave
@@ -36,7 +36,7 @@ def piano(m, d=2.4):
     x = np.arange(int(d * SR)) / SR
     s = sum(a * np.sin(2 * np.pi * hz(m) * h * x) * np.exp(-x * (2.2 + h)) for h, a in [(1, 1), (2, .45), (3, .2), (4, .1)])
     return s * np.minimum(1, x * 300)
-ICH = [[57, 60, 64], [53, 57, 60], [48, 55, 64], [52, 55, 59]]          # Am – F – C – Em
+ICH = [[60, 64, 67], [55, 59, 62, 67], [57, 60, 64, 69], [53, 57, 60, 65]]  # C – G – Am – F (brighter)
 MEL = [[69, 72, 76, 72], [69, 72, 77, 72], [67, 72, 76, 79], [71, 67, 64, 67]]
 ib = 4.8
 for k in range(8):                                                     # 8 bars × 4.8 s = 38.4 s
@@ -46,17 +46,13 @@ for k in range(8):                                                     # 8 bars 
         for det in (-.002, .002): p += tone(mm, ib + 1.2, harm=(1, .4, .15), det=det)[:n]
     add(p * env(n, 1.2, 1.4), t0i, gain=0.010 + 0.002 * (k >= 6))
     add(tone(ch[0] - 12, ib + 1.0, harm=(1, .25)) * env(int((ib + 1.0) * SR), .8, 1.2), t0i, gain=0.03)
-    if k >= 1:                                                         # melody enters after the first bar
-        for q, mm in enumerate(MEL[k % 4]):
-            if k % 2 == 1 and q == 3: continue
-            add(piano(mm), t0i + q * 1.2 + (0.3 if q == 2 else 0), pan=-.2 + .13 * q, gain=0.05)
 # 3) reveal chime at 39
 def bell(m, d=4.0):
     x = np.arange(int(d * SR)) / SR
     return sum(a * np.sin(2 * np.pi * hz(m) * r * x) * np.exp(-x * dk) for r, a, dk in [(1, 1, 1.2), (2.01, .5, 2), (3.0, .25, 3), (4.2, .12, 4)])
-for m, dt in [(69, 0), (76, .12), (81, .24)]: add(bell(m), 39.05 + dt, pan=(dt * 2 - .25), gain=0.09)
+for m, dt in [(72, 0), (76, .12), (79, .24)]: add(bell(m), 39.05 + dt, pan=(dt * 2 - .25), gain=0.09)
 # 4) pad progression from 39.5: Am – F – C – G (each 3.6 s)
-CH = [[57, 60, 64], [53, 57, 60], [48, 55, 60, 64], [55, 59, 62]]
+CH = [[48, 55, 60, 64], [55, 59, 62], [57, 60, 64], [53, 57, 60]]   # C – G – Am – F
 bar = 3.6; t0 = 39.5; tend = 114.4
 def pad(notes, d, g):
     n = int(d * SR); s = np.zeros(n)
@@ -93,8 +89,8 @@ def halo(notes, d):
         k = int(dl * SR); out[k:] += s[:-k] * e[:-k] * g
     return out
 hd = DUR - 114.9
-add(halo([57, 64, 69, 73, 76], hd), 114.9, gain=0.0065)                # A major "aah"
-for m_, dt in [(81, 0.0), (85, .18), (88, .36), (93, .6)]:             # high shimmer
+add(halo([48, 60, 64, 67, 72], hd), 114.9, gain=0.0065)               # C major "aah"
+for m_, dt in [(84, 0.0), (88, .18), (91, .36), (96, .6)]:             # high shimmer
     add(bell(m_, 5), 115.1 + dt, pan=(dt - .3), gain=0.035)
 # master: gentle fade-in/out, normalise
 mix = np.stack([L, Rr], 1)

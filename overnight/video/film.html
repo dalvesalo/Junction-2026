@@ -106,7 +106,7 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
 
 <!-- E · title -->
 <div class="scene blue c" id="E">
-  <div class="word" data-in="0.2">Ajoissa<span style="color:#8FB8E0">.</span></div>
+  <div class="word" data-in="0.2">Ajoissa.</div>
   <p class="lead" data-in="1.1" style="color:#fff;font-size:60px;margin-top:40px">Finnish for “in time”.</p>
   <p class="lead" data-in="2.0" style="color:#D6E0EA;font-size:40px;margin-top:18px">A safety-net agent for public primary care.</p>
 </div>
@@ -131,9 +131,9 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
 <div class="scene light" id="K">
   <h1 data-in="0.2">Proven. Approved. Already running.</h1>
   <div class="row">
-    <div class="panel" data-in="1.0"><div class="strip">Randomised trial</div><div class="bd"><div class="big" style="font-size:76px">200 → 104</div><div class="body">days to bowel-cancer work-up when result triggers meet a human reviewer.</div><div class="ps">Murphy et al., J Clin Oncol 2015</div></div></div>
+    <div class="panel" data-in="1.0"><div class="strip">Randomised trial</div><div class="bd"><div class="big" style="font-size:66px;white-space:nowrap">200 d → 104 d</div><div class="body">to bowel-cancer work-up when result triggers meet a human reviewer.</div><div class="ps">Murphy et al., J Clin Oncol 2015</div></div></div>
     <div class="panel" data-in="2.6"><div class="strip">Law</div><div class="bd"><div class="big" style="font-size:76px">April 2026</div><div class="body">Parliament: counties may use county patient records to find health problems early.</div><div class="ps">HE 159/2025 · EV 38/2026</div></div></div>
-    <div class="panel" data-in="4.6" style="border-top:8px solid var(--primary)"><div class="strip">Already running</div><div class="bd"><div class="big" style="font-size:76px">Päijät-Häme</div><div class="body">The same list → nurse → doctor model runs there today, for kidney disease.</div><div class="ps">AINO: Mehiläinen's tool, run by Harjun terveys; AstraZeneca supports the project work · county press release 12.3.2026</div></div></div>
+    <div class="panel" data-in="4.6" style="border-top:8px solid var(--primary)"><div class="strip">Already running</div><div class="bd"><div class="big" style="font-size:76px">Päijät-Häme</div><div class="body">The same list → nurse → doctor model runs there today — for <b style="text-decoration:underline;text-underline-offset:6px;color:var(--text)">kidney disease</b>, not yet for cancer.</div><div class="ps">AINO: Mehiläinen's tool, run by Harjun terveys; AstraZeneca supports the project work · county press release 12.3.2026</div></div></div>
   </div>
 </div>
 
@@ -157,7 +157,7 @@ h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;l
 
 <!-- M · end card: the last thing on screen -->
 <div class="scene blue c" id="M">
-  <div class="word" data-in="0.1">Ajoissa<span style="color:#8FB8E0">.</span></div>
+  <div class="word" data-in="0.1">Ajoissa.</div>
   <p class="lead" data-in="0.7" style="color:#fff;font-size:56px;margin-top:44px">Same symptom, same speed — whichever door you walk in.</p>
   <p class="lead" data-in="1.4" style="color:#D6E0EA;font-size:28px;margin-top:60px">Brainwave Bandits · Junction 2026 · AstraZeneca challenge · all demo patients are synthetic</p>
 </div>
@@ -198,7 +198,7 @@ const pad=(b,p=8)=>[b[0]-p,b[1]-p,b[2]+2*p,b[3]+2*p];
 const SPOT=[[48.6,49.8,box('st_list','kalevi')],[49.9,51.2,box('st_list','eero')],[51.3,52.9,box('st_list','aino')],
   [54.4,58.8,pad(box('st_aino','why'))],[62.4,65.0,pad(box('st_matti','veri'),6)],[65.9,68.4,pad([box('st_matti','thr')[0],box('st_matti','thr')[1]+36,box('st_matti','thr')[2],100])],
   [69.2,71.8,pad([1041,182,380,300])],[75.0,78.7,pad([1041,box('st_signed','olog')[1]-46,380,230])],
-  [82.5,83.3,[26,352,770,128]],[89.4,90.8,pad([332,410,1090,170])],[94.0,96.5,pad([775,445,646,170])]];
+  [82.4,83.3,pad(box('st_w1','notebox'),6)],[89.4,90.8,pad([box('st_w5','ordbox')[0],box('st_w5','ordbox')[1],box('st_w5','ordbox')[2],box('st_w5','timeline')[1]+box('st_w5','timeline')[3]-box('st_w5','ordbox')[1]],8)],[94.0,96.5,pad([775,445,646,box('st_countyD','why')[1]+box('st_countyD','why')[3]-445],6)]];
 const CAPS=[[44,47.4,'Every night, Ajoissa reads the county’s own records.','Notes, lab results, visit history — already in the system.'],
   [47.4,53.6,'First: results nobody followed up.','A raised PSA · a positive stool test · a suspicious chest X-ray.'],
   [53.6,59.6,'Already due. No new scanners.','Each morning a named nurse reviews the list, with the reason and the source.'],
@@ -240,7 +240,7 @@ function drawDemo(t){
   cu.style.transform=`translate(${sx-4}px,${sy-4}px) scale(${1-0.18*press})`;
   const rp=$('ripple'); rp.style.left=sx+'px'; rp.style.top=sy+'px'; rp.style.opacity=rip<0?0:(1-rip); rp.style.transform=`scale(${0.3+rip*0.9})`;
   // captions
-  CAPS.forEach((c,i)=>{const o=Math.min(clamp((t-c[0])/0.3),clamp((c[1]-t)/0.3)); capEls[i].style.opacity=(i===0?Math.min(1,clamp((c[1]-t)/0.3)):o); capEls[i].style.transform=`translateY(${(1-ease((t-c[0])/0.4))*14}px)`;});
+  CAPS.forEach((c,i)=>{const o=Math.min(clamp((t-c[0])/0.25),clamp((c[1]-t)/0.2)); capEls[i].style.opacity=(i===0?Math.min(1,clamp((c[1]-t)/0.3)):o); });
   let sl=''; for(const [a,txt] of STEPLAB) if(t>=a) sl=txt; $('steplab').textContent=sl;
 }
 

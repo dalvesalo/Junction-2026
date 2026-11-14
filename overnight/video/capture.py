@@ -13,8 +13,8 @@ async def box(pg, sel, i=0):
 async def textbox(pg, sel, text):
     return await pg.evaluate("""([s,t])=>{const e=[...document.querySelectorAll(s)].find(e=>e.textContent.includes(t)&&e.offsetParent!==null);if(!e)return null;
       const r=e.getBoundingClientRect();return [r.left+scrollX,r.top+scrollY,r.width,r.height]}""", [sel, text])
-async def deepest(pg, text):
-    return await pg.evaluate("""t=>{let best=null;for(const e of document.querySelectorAll('body *')){if(e.offsetParent===null||!e.textContent.includes(t))continue;if(!best||best.contains(e))best=e;}
+async def deepest(pg, text):  # deepest visible element containing the text (or all texts of a list)
+    return await pg.evaluate("""t=>{const ts=Array.isArray(t)?t:[t];let best=null;for(const e of document.querySelectorAll('body *')){if(e.offsetParent===null||!ts.every(x=>e.textContent.includes(x)))continue;if(!best||best.contains(e))best=e;}
       if(!best)return null;const r=best.getBoundingClientRect();return [r.left+scrollX,r.top+scrollY,r.width,r.height]}""", text)
 # Video wording rule (14.11): no personal pronouns on screen. The app's panel title
 # "Why he/she is on your list" is shown in the film as "Why on your list".
@@ -65,13 +65,14 @@ async def main():
         await shot(pg, "st_behind", {"start": ("#bh-start", 0), "pipeline": ("#pipeline", 0), "bar": ("#behindbar", 0)})
         await click(pg, "#bh-start")
         for i in range(5):
-            await shot(pg, f"st_w{i+1}", {"cur": (".walk .panel.cur", 0), "next": ("#bh-next", 0), "walk": (".walk", 0), "earlier": ("TEXT", "35 days earlier")})
+            await shot(pg, f"st_w{i+1}", {"cur": (".walk .panel.cur", 0), "next": ("#bh-next", 0), "walk": (".walk", 0), "earlier": ("TEXT", "35 days earlier"), "notebox": ("TEXT", ["Tulosyy", "Suunnitelma"]),
+                                      "ordbox": ("TEXT", ["Order thorax CT directly", "Level 2"]), "timeline": ("TEXT", ["Agent flag", "35 days earlier"])})
             if i < 4: await click(pg, "#bh-next")
         boxes["st_w5"]["countytab"] = await textbox(pg, ".menubar button", "County view")
         await click(pg, ".menubar button", "County view")
         await shot(pg, "st_county", {"rowD": ("[data-centre]", 3), "steps": ("#centre-steps", 0), "flow": ("#ehr-flow", 0)})
         await click(pg, "[data-centre='3']")
-        await shot(pg, "st_countyD", {"rowD": ("[data-centre]", 3), "steps": ("#centre-steps", 0)})
+        await shot(pg, "st_countyD", {"rowD": ("[data-centre]", 3), "steps": ("#centre-steps", 0), "why": ("TEXT", ["Why per health centre?", "Two-thirds"])})
         await b.close()
     d = {"vw": VW, "vh": VH, "dpr": DPR, "states": boxes}
     json.dump(d, open(f"{HERE}/assets/boxes.json", "w"), indent=1)
