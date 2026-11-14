@@ -64,12 +64,11 @@
     svg += `<text x="${x0}" y="335" fill="#7d90a3" font-size="12">Gap by step (days):</text>`;
     deltas.forEach((g, i) => { if (!i || i === 5) return; svg += `<text x="${X(d.public[i])}" y="335" fill="${i < 5 ? "#ff9aaa" : "#7d90a3"}" font-size="13" font-weight="700" text-anchor="middle">+${g}</text>`; });
     svg += `</svg>`;
-    const gap = d.public[5] - d.occupational[5];
     $("#river").innerHTML = `<div class="river-head">
-        <div><div class="gapnum num">+${gap} days<small>later to treatment on the public route</small></div></div>
-        <div style="max-width:40ch;color:var(--frost);font-size:.95rem">Diffuse large B-cell lymphoma, North Ostrobothnia. The gap is already <b style="color:var(--snow)">+86 days at the specialist visit</b> — from there to treatment both routes take 3–5 days. The delay is born in primary care. <br>${cite("kuitunen2026")} <span class="real-tag">real</span></div>
+        <div><div class="gapnum num">+${D.dlbcl.median.public - D.dlbcl.median.occupational} days<small>median, later to treatment on the public route</small></div></div>
+        <div style="max-width:44ch;color:var(--frost);font-size:.95rem">Diffuse large B-cell lymphoma, 7 Finnish hospitals, n = 160: median <b style="color:var(--snow)">${D.dlbcl.median.public} vs ${D.dlbcl.median.occupational} days</b> from symptom to treatment (p = 0.027). The chart shows the paper's cumulative step times: the gap is already <b style="color:var(--snow)">+86 days at the specialist</b>; from there both routes take 3–5 days. The delay is born in primary care. <br>${cite("kuitunen2026")} <span class="real-tag">real</span></div>
       </div>${svg}
-      <div class="legend"><span><i style="background:#a9b8c6"></i>Occupational / private</span><span><i style="background:#d0435a"></i>Public primary care</span><span>A symptom-to-diagnosis interval over 7 weeks is linked to worse progression-free survival ${cite("tokola2025")}</span></div>`;
+      <div class="legend"><span><i style="background:#a9b8c6"></i>Occupational / private</span><span><i style="background:#d0435a"></i>Public primary care</span><span>Cumulative step times, Fig. 1 of the paper. A symptom-to-diagnosis interval over 7 weeks is linked to worse progression-free survival ${cite("tokola2025")}</span></div>`;
     if (animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.querySelectorAll("#river .lane").forEach((l, i) => {
         l.style.strokeDasharray = "1"; l.style.strokeDashoffset = "1";
@@ -93,8 +92,8 @@
         <footer>${cite("actaonc2025_surv")} ${cite("khalife2025")} ${cite("strategy2026")} <span class="real-tag">real</span></footer></article>
       <article class="ev"><h3>The front door is narrower in Finland</h3>
         <div class="big num">${D.frontDoor.ctOrderingFinland}</div>
-        <p>of Finnish primary-care units can order a CT scan directly — versus <b>${D.frontDoor.ctOrderingNordics}</b> in the other Nordic countries. A GP appointment takes about <b>${D.frontDoor.gpWaitFinland} days</b> here, ${D.frontDoor.gpWaitNordics} days there.</p>
-        <footer>${cite("ihe2026")} <span class="real-tag">real · expert survey</span></footer></article>
+        <p>of Finnish primary-care units can order a CT directly, according to a Nordic expert survey — versus <b>${D.frontDoor.ctOrderingNordics}</b> elsewhere. A GP appointment takes about <b>${D.frontDoor.gpWaitFinland} days</b> here, ${D.frontDoor.gpWaitNordics} days there. And since 2025, adults are only guaranteed non-urgent primary care within <b>3 months</b>.</p>
+        <footer>${cite("ihe2026")} ${cite("careguarantee2025")} <span class="real-tag">expert survey · weak–moderate</span></footer></article>
       <article class="ev"><h3>Who you are changes your odds</h3>
         <div class="bars">
           <div class="bar hl"><span>Basic education · men</span><span class="track"><span class="fill" style="width:${D.ses.men[0]}%"></span></span><span class="num">${D.ses.men[0]}%</span></div>
@@ -342,11 +341,11 @@
 
   /* ================= BRIEFING ================= */
   const BRIEF = [
-    { t: "Where the gap is", s: `Patients who enter through public primary care reach lymphoma treatment 84 days later than occupational-care patients — and 86 days of difference already exist when they first see a specialist. The delay is born in primary care.`, c: ["kuitunen2026"] },
+    { t: "Where the gap is", s: `Lymphoma patients who enter through public primary care wait a median of 127 days from symptom to treatment, versus 76 days through occupational or private care — and the gap opens before they ever see a specialist. The delay is born in primary care.`, c: ["kuitunen2026"] },
     { t: "Why it matters for Goal 3", s: `Finland has the Nordics' lowest lung-cancer survival. The strategy asks for +14 percentage points by 2035, and only 27 % of lung-cancer patients now reach curative treatment.`, c: ["actaonc2025_surv", "strategy2026", "lungreg2026"] },
-    { t: "The mechanism", s: `A Finnish GP appointment takes about two weeks, and fewer than one in ten health centres can order a CT directly. Patients come back again and again: service use rises three to four months before a colorectal diagnosis.`, c: ["ihe2026", "hermio2023"] },
+    { t: "The mechanism", s: `A Finnish GP appointment takes about two weeks, adults are only guaranteed one within three months, and according to a Nordic expert survey few health centres can order a CT directly. Patients come back again and again: service use rises three to four months before a colorectal diagnosis.`, c: ["ihe2026", "careguarantee2025", "hermio2023"] },
     { t: "What we propose", s: `Ajoissa: a safety-net agent that reads the county's own records overnight, puts patients with stalled cancer signals on a named nurse's list with the reason, and runs a clock until they are diagnosed or cleared. A professional decides every action.`, c: ["he159"] },
-    { t: "Why we believe it works", s: `In a randomised trial the same pattern — automatic trigger plus human review — cut time to colorectal work-up from 200 to 104 days. It is legal now: Parliament has allowed counties to use their own records to find health problems early.`, c: ["murphy2015", "he159"] },
+    { t: "Why we believe it works", s: `In a randomised trial the same pattern — automatic trigger plus human review of abnormal results — cut time to colorectal work-up from 200 to 104 days. And in April 2026 Parliament approved letting counties use their own records to find health problems early.`, c: ["murphy2015", "he159"] },
     { t: "What we ask", s: `One county, three health centres, six months. Track flags acted on within 7 days, days from flag to imaging, and the share of cancers diagnosed from a tracked route. The clocks also produce the step-by-step waiting data the strategy says is missing.`, c: ["strategy2026", "aino2026"] }
   ];
   let speaking = false;

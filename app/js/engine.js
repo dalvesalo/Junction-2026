@@ -34,8 +34,10 @@
     bowelchange: { label: "Change in bowel habit", fi: "suolen toiminnan muutos", forms: ["suolen toiminnan muutos", "ulostamistottumu", "change in bowel", "bowel habit"] }
   };
 
-  const NEGATORS = ["ei ", "eikä", "ei ole", "kiistää", "kieltää", "negat", "no ", "denies", "without", "not ", "ilman "];
+  const NEGATORS = [" ei ", " eikä ", "kiistää", "kieltää", " no ", "denies", "without", " not ", " ilman ", " never "];
+  // Sentence boundaries (for durations) and clause boundaries (for negation scope)
   const STOP = [".", ";", "\n", " mutta ", " but ", " however "];
+  const CLAUSE = STOP.concat([",", " ja ", " and ", " reports ", " kertoo "]);
 
   // Published positive likelihood ratios in primary care (lung cancer).
   // Source keys resolve in sources.js
@@ -58,9 +60,9 @@
   /* ---------- helpers ------------------------------------------------ */
   function norm(s) { return " " + s.toLowerCase().replace(/\s+/g, " ") + " "; }
 
-  function clauseAround(text, idx) {
+  function clauseAround(text, idx, stops = STOP) {
     let start = 0, end = text.length;
-    for (const s of STOP) {
+    for (const s of stops) {
       const b = text.lastIndexOf(s, idx); if (b >= 0 && b + s.length > start) start = b + s.length;
       const a = text.indexOf(s, idx); if (a >= 0 && a < end) end = a;
     }
@@ -68,15 +70,18 @@
   }
 
   function isNegated(text, idx) {
-    const c = clauseAround(text, idx);
-    const before = text.slice(Math.max(c.start, idx - 28), idx);
+    // Negation reaches only within the same clause (stops at commas, "ja", "and", "but")
+    const c = clauseAround(text, idx, CLAUSE);
+    const before = " " + text.slice(Math.max(c.start, idx - 30), idx);
     return NEGATORS.some(n => before.includes(n));
   }
 
+  const WORDNUM = { yksi: 1, yhden: 1, kaksi: 2, kahden: 2, kahdessa: 2, kolme: 3, kolmen: 3, neljä: 4, neljän: 4, viisi: 5, viiden: 5, kuusi: 6, kuuden: 6, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, eight: 8, ten: 10 };
   function durationWeeks(clause) {
-    const m = clause.match(/(\d+)\s*(viik|vk|week|wk|kuukau|kk|month|päiv|pv|day)/);
+    const m = clause.match(/(\d+|yksi|yhden|kaksi|kahden|kahdessa|kolme|kolmen|neljä|neljän|viisi|viiden|kuusi|kuuden|one|two|three|four|five|six|eight|ten)\s*(viik|vk|week|wk|kuukau|kk|month|päiv|pv|day|vuo|year)/);
     if (!m) return null;
-    const n = parseInt(m[1], 10); const u = m[2];
+    const n = /\d/.test(m[1]) ? parseInt(m[1], 10) : WORDNUM[m[1]]; const u = m[2];
+    if (/vuo|year/.test(u)) return n * 52;
     if (/kuukau|kk|month/.test(u)) return Math.round(n * 4.3);
     if (/päiv|pv|day/.test(u)) return Math.round(n / 7 * 10) / 10;
     return n;
@@ -95,6 +100,7 @@
       let from = 0, idx;
       while ((idx = t.indexOf(f, from)) >= 0) {
         from = idx + f.length;
+        if (/[a-zåäö0-9]/.test(t[idx - 1] || " ")) continue; // must start a word ("retired" is not "tired")
         if (taken.some(([a, b]) => idx < b && idx + f.length > a)) continue;
         taken.push([idx, idx + f.length]);
         const clause = clauseAround(t, idx);
@@ -123,9 +129,12 @@
   /* ---------- 2. WEIGH ----------------------------------------------- */
   // PLCOm2012 (Tammemägi et al., NEJM 2013) — 6-year lung cancer risk, ever-smokers.
   function plcom2012(p) {
-    const s = p.smoking || {};
-    if (!s.ever) return null;
-    const lo = 0.0778868 * (p.age - 62)
+    const s0 = p.smoking || {};
+    if (!s0.ever) return null;
+    const age = Number.isFinite(p.age) ? p.age : 60;
+    // Missing smoking details: conservative defaults, flagged in the output
+    const s = { ...s0, cigsPerDay: Number.isFinite(s0.cigsPerDay) && s0.cigsPerDay > 0 ? s0.cigsPerDay : 10, years: Number.isFinite(s0.years) ? s0.years : Math.max(1, Math.min(40, age - 18)), quitYears: Number.isFinite(s0.quitYears) ? s0.quitYears : 0 };
+    const lo = 0.0778868 * (age - 62)
       - 0.0812744 * ((p.education ?? 4) - 4)
       - 0.0274194 * ((p.bmi ?? 27) - 27)
       + 0.3553063 * (p.copd ? 1 : 0)
@@ -194,9 +203,9 @@
 
   /* ---------- 4. ACT ------------------------------------------------- */
   const ACTIONS = {
-    lung_urgent: { title: "Order thorax CT directly — urgent cancer-suspicion slot", target: 7, clock: ["CT done", "CT reported", "Specialist decision", "Diagnosis", "Treatment start"], why: "Primary-care CT access is the Nordic norm (90–100 % of units) but < 10 % in Finland." },
+    lung_urgent: { title: "Order thorax CT directly — urgent cancer-suspicion slot", target: 7, clock: ["CT done", "CT reported", "Specialist decision", "Diagnosis", "Treatment start"], why: "Direct CT from primary care is routine elsewhere in the Nordics but rare in Finland (expert survey) — reserved urgent slots close that gap." },
     lung_imaging: { title: "Order chest imaging now and book a 2-week safety-net review", target: 14, clock: ["Imaging done", "Result reviewed", "Safety-net review"], why: "Persistent symptoms in a high-risk patient: investigate now rather than at the next visit." },
-    lymphoma_urgent: { title: "Urgent neck ultrasound + needle biopsy referral (lymphoma suspicion)", target: 7, clock: ["Ultrasound", "Biopsy", "Specialist visit", "Diagnosis", "Treatment start"], why: "DLBCL: the public route reaches treatment ~84 days later than the occupational route; the gap builds up before the specialist." },
+    lymphoma_urgent: { title: "Urgent neck ultrasound + needle biopsy referral (lymphoma suspicion)", target: 7, clock: ["Ultrasound", "Biopsy", "Specialist visit", "Diagnosis", "Treatment start"], why: "DLBCL in Finland: median 127 days from symptom to treatment via public primary care vs 76 via private/occupational care — the gap builds up before the specialist." },
     colorectal_test: { title: "Send FIT (faecal haemoglobin) test today", target: 14, clock: ["FIT returned", "Result acted on"], why: "FIT triage is already rolling out in Finland; the agent makes sure the result is acted on." },
     any_urgent: { title: "Raised platelets: review for occult cancer — chest imaging + targeted work-up", target: 14, clock: ["Repeat FBC", "Imaging", "Review"], why: "One-third of patients with thrombocytosis and lung or colorectal cancer had no other symptom." },
     safety_net: { title: "No referral now — automatic safety-net check-in in 3 weeks", target: 21, clock: ["Check-in"], why: "If the cough has not resolved in 3 weeks, the agent re-opens the case." },
@@ -211,7 +220,8 @@
     if (hits.some(h => h.track === "lymphoma")) return { key: "lymphoma_urgent", ...ACTIONS.lymphoma_urgent };
     if (lungPost >= THRESHOLDS.urgent || hits.some(h => h.id === "NG12-lung-1")) return { key: "lung_urgent", ...ACTIONS.lung_urgent };
     if (hits.some(h => h.id === "PLT")) return { key: "any_urgent", ...ACTIONS.any_urgent };
-    if (hits.some(h => h.track === "lung" || h.track === "pattern") && lungPost >= THRESHOLDS.watch) return { key: "lung_imaging", ...ACTIONS.lung_imaging };
+    // Explicit rules always lead to at least chest imaging; the risk score can only escalate, never veto.
+    if (hits.some(h => h.track === "lung" || h.track === "pattern")) return { key: "lung_imaging", ...ACTIONS.lung_imaging };
     if (hits.some(h => h.track === "colorectal")) return { key: "colorectal_test", ...ACTIONS.colorectal_test };
     if (findings.some(f => !f.negated && LUNG_LR[f.concept])) return { key: "safety_net", ...ACTIONS.safety_net };
     return { key: "none", ...ACTIONS.none };

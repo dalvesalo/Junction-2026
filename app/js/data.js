@@ -5,6 +5,8 @@
     // Kuitunen et al. 2026 — DLBCL, days from symptom onset (read from keynote slide)
     dlbcl: {
       src: "kuitunen2026",
+      median: { public: 127, occupational: 76 }, // tested result, p = 0.027
+      // step values below = cumulative step times from the paper's Fig. 1 (provider labels as in the AstraZeneca keynote)
       steps: ["Symptom onset", "First contact", "Physician visit", "Referral", "Specialist visit", "Treatment start"],
       occupational: [0, 42, 43, 77, 118, 123],
       public: [0, 72, 94, 147, 204, 207]

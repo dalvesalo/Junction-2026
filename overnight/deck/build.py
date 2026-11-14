@@ -1,5 +1,5 @@
 import json, datetime, os
-IMG = dict(river="/_blob/6836499a35f2303112e97707b82ccd59", agent="/_blob/7af55f19ad64b0a2e876fd29c2815258",
+IMG = dict(river="/_blob/6d256670c532ab156209cc6c6d6ae41a", agent="/_blob/7af55f19ad64b0a2e876fd29c2815258",
   reason="/_blob/47a18937f47f82799df5f72368ef2a43", note="/_blob/7e000f0718199d9c05dee215ed65e121",
   county="/_blob/c5f90bc3f53d4ad70ee9fe6fe7317d80", ctable="/_blob/382d74eea6a70fa026197170f900082c",
   impact="/_blob/0d8ccec171839fc03498967c56cd73a4", runbar="/_blob/2a308f08ffb93bce1c088eeb44fa5081")
@@ -19,11 +19,11 @@ slide("cover","dark cover",'''<div class="cover-wrap">
 <p class="meta">A safety-net agent for Finland’s public primary care · Brainwave Bandits</p>
 </div>''', "STAGE. (5 s) Ajoissa means ‘in time’. Hold a beat on the title before speaking.")
 
-slide("hook","dark",'''<p class="eyebrow berry">Diffuse large B-cell lymphoma, North Ostrobothnia</p>
-<h2>Two patients. Same lymphoma. Twelve weeks apart.</h2>
-<img class="shot" src="%s" alt="Timeline: public primary care route reaches treatment at day 207, occupational route at day 123 — 84 days later." style="width:1240px;height:618px;object-fit:contain">''' % IMG["river"],
-"STAGE (25 s). Two Finns notice the same lump. One has occupational health care, one doesn’t. The first starts treatment on day 123. The second on day 207 — 84 days later. Look where the gap opens: it is already 86 days by the time the specialist sees them. From there, both routes take three to five days. The delay is born in primary care.",
-src="Kuitunen et al., Cancer Medicine 2026;15:e71920 (values from AstraZeneca keynote slide) · moderate evidence · waiting time")
+slide("hook","dark",'''<p class="eyebrow berry">Diffuse large B-cell lymphoma · 7 Finnish hospitals · n = 160</p>
+<h2>Two patients. Same lymphoma. Seven weeks apart.</h2>
+<img class="shot" src="%s" alt="Cumulative step times: public primary care route reaches treatment at day 207, occupational route at day 123; median gap 51 days." style="width:1240px;height:618px;object-fit:contain">''' % IMG["river"],
+"STAGE (25 s). Two Finns notice the same lump. One has occupational health care, one doesn’t. Across seven Finnish hospitals, the median wait from symptom to treatment was 76 days through occupational or private care — and 127 through public primary care. Seven weeks. And look where the gap opens: by the specialist visit it is already there; from there both routes take three to five days. The delay is born in primary care.",
+src="Kuitunen et al., Cancer Medicine 2026;15(5):e71920 — median 127 vs 76 days, p = 0.027; chart = cumulative step times (Fig. 1) · moderate · waiting time")
 
 slide("born","light",'''<p class="eyebrow berryd">Where the gap emerges</p>
 <h2>The delay is born before the specialist</h2>
@@ -34,19 +34,19 @@ slide("born","light",'''<p class="eyebrow berryd">Where the gap emerges</p>
 <div class="step hot"><p class="num">+86</p><p class="lbl">specialist visit</p></div>
 <div class="step calm"><p class="num">+84</p><p class="lbl">treatment start</p></div>
 </div>
-<p class="body serif">Extra days on the public route at each step. After the specialist, the gap stops growing: hospitals are not the bottleneck. The public front door is. The national roadmap reports the same pattern: public-route lymphoma patients take twice as long to diagnosis.</p>''',
-"APPENDIX / Q&A. Gap per step from the same study. Specialist → treatment is equal on both routes.",
-src="Kuitunen et al. 2026 · National Cancer Strategy roadmap 2026–2031, p. 12 · moderate · waiting time")
+<p class="body serif">Extra days on the public route at each step (cumulative step times, Fig. 1). After the specialist the gap stops growing: hospitals are not the bottleneck — the public front door is. The national roadmap describes the same pattern from another, unpublished lymphoma study.</p>''',
+"APPENDIX / Q&A. Gap per step from the paper’s Fig. 1 (cumulative step times; values close to the means 201 vs 126). Tested result: medians 127 vs 76 days, p = 0.027. Small n (160).",
+src="Kuitunen et al. 2026 (Fig. 1) · National Cancer Strategy roadmap 2026–2031, p. 12 · moderate · waiting time")
 
 slide("who","light",'''<p class="eyebrow berryd">Who pays for the slow door</p>
 <h2>It lands on those who can’t skip the queue</h2>
 <div class="cols2">
 <div><p class="huge2 berryd">64 % vs 77 %</p><p class="body">5-year cancer survival, men with basic vs higher education (women: 65 % vs 78 %).</p></div>
 <div><ul class="facts">
-<li>Less-educated patients: <b>more stage IV</b>, <b>less surgery</b>, <b>13–14 % higher cancer mortality</b> — after adjusting for stage, treatment and region.</li>
+<li>Less-educated patients: <b>more stage IV</b>, <b>less surgery</b>, <b>13–14 % higher cancer-specific mortality</b> in a national register study.</li>
 <li>Occupational care covers <b>92 % of wage earners</b>. Retired, unemployed and low-income people use the public door.</li>
 </ul></div></div>''',
-"STAGE (15 s). And this isn’t random. Occupational care covers 92% of wage earners. The people left at the public door are older, poorer, less educated — and their survival is 13 points lower. That is Goal 3’s equity problem in one number.",
+"STAGE (15 s). And it isn’t random who uses which door. Occupational care covers 92% of wage earners — so the public door serves the retired, the unemployed, the low-paid. Separately, Finnish registry data shows survival 13 points lower for less-educated patients, with more late-stage diagnoses. Two findings, one direction: Goal 3’s equity problem.",
 src="OECD/EC Country Cancer Profile Finland 2025 (FCR data) · Zai et al., BMJ Public Health 2025 (n = 469,522) — strong · Kela 2026")
 
 slide("stakes","dark",'''<p class="eyebrow mint">Goal 3 · lung cancer</p>
@@ -64,14 +64,14 @@ slide("mechanism","light",'''<p class="eyebrow berryd">Why the door is narrow</p
 <div class="grid4">
 <div class="card"><p class="num2">3 months</p><p class="body">legal wait for non-urgent adult primary care since 1.1.2025</p></div>
 <div class="card"><p class="num2">14 d vs 2–7</p><p class="body">to a GP in Finland vs other Nordic countries</p></div>
-<div class="card"><p class="num2">&lt; 10 %</p><p class="body">of Finnish primary-care units can order a CT (Nordics: 90–100 %)</p></div>
+<div class="card"><p class="num2">&lt; 10 %</p><p class="body">of Finnish primary-care units can order a CT, per a Nordic expert survey (elsewhere: 90–100 %)</p></div>
 <div class="card"><p class="num2">3–4 months</p><p class="body">of rising visits before a colorectal diagnosis; 65 % of hospital stays start as emergencies</p></div>
 </div>''',
-"STAGE (15 s). Since January 2025, an adult’s legal right is a primary-care visit within three months. A GP visit takes two weeks. Fewer than one in ten health centres can order a CT. So patients come back, again and again — Finnish data shows visits rising for months before a cancer is found.",
-src="HE 134/2024 (strong) · IHE Cancer Dashboard Finland 2026 / Khalife 2025 expert survey (moderate) · Hermiö et al., BMC HSR 2023 (strong)")
+"STAGE (15 s). Since January 2025, an adult’s legal right is a primary-care visit within three months. A GP visit takes two weeks. According to Nordic experts, few health centres can order a CT. So patients come back, again and again — Finnish data shows visits rising for months before a cancer is found.",
+src="HE 134/2024 (strong) · IHE Cancer Dashboard Finland 2026 / Khalife 2025 expert survey, 42 clinicians (weak–moderate) · Hermiö et al., BMC HSR 2023 (strong)")
 
 slide("invisible","berry",'''<h2 class="statement">Nobody measures the wait between a symptom and a cancer diagnosis.</h2>
-<p class="body light-soft">The strategy says this data “is not collected systematically”. Stage is missing for 61 % of recent cancers. Cancer target times are not published by county — Denmark publishes them by region every quarter.</p>''',
+<p class="body light-soft">The strategy says this data “is not collected systematically”. Stage is missing for 61 % of cancers diagnosed in 2019–2023. Cancer target times are not published by county — Denmark publishes them by region every quarter.</p>''',
 "STAGE (10 s). And here’s the real problem: none of this is measured. You cannot shorten a wait you do not see.",
 src="National Cancer Strategy 2026–2035, 2.5 · Finnish Cancer Registry · Sundhedsstyrelsen 2025")
 
@@ -120,11 +120,11 @@ src="Health-centre data shown are synthetic")
 slide("evidence","light",'''<p class="eyebrow berryd">Why we believe it works — and why now</p>
 <h2>Proven pattern. Legal now. Already done once.</h2>
 <div class="grid3">
-<div class="card"><p class="num2">200 → 104 d</p><p class="body">Randomised trial: an EHR trigger + human review halved time to colorectal work-up; completed evaluations 52 % → 73 %.</p><p class="tag">Murphy et al., JCO 2015 · strong · time</p></div>
-<div class="card"><p class="num2">Legal since 2026</p><p class="body">Parliament now lets a county use its own records to find health problems early. The professional decides; the patient may refuse.</p><p class="tag">HE 159/2025 → EV 38/2026</p></div>
+<div class="card"><p class="num2">200 → 104 d</p><p class="body">Randomised trial: EHR triggers for un-followed abnormal results + a human reviewer halved time to colorectal work-up; completed evaluations 52 % → 73 %. (Lung arm too small to show an effect.)</p><p class="tag">Murphy et al., JCO 2015 · strong · time</p></div>
+<div class="card"><p class="num2">Approved 2026</p><p class="body">Parliament approved (April 2026) letting a county use its own records to find health problems early. The professional decides; the patient may refuse.</p><p class="tag">HE 159/2025 → EV 38/2026 · in-force date to confirm</p></div>
 <div class="card"><p class="num2">Done before</p><p class="body">Päijät-Häme’s AINO tool already finds kidney-disease risk patients this way — list → nurse → doctor — with AstraZeneca’s support.</p><p class="tag">Päijät-Häme 12.3.2026</p></div>
 </div>''',
-"STAGE (20 s). Does it work? In a randomised trial, the same pattern — automatic trigger, human review — halved the time to diagnostic work-up. Is it allowed? Since this year, yes: counties may use their own records to find problems early. Has it been done? Päijät-Häme already runs this model for kidney disease — with AstraZeneca.")
+"STAGE (20 s). Does it work? In a randomised trial, the same pattern — automatic trigger on un-followed results, human review — halved the time to colorectal work-up. Is it allowed? Parliament approved it this April: counties may use their own records to find problems early. Has it been done? Päijät-Häme already runs this model for kidney disease — with AstraZeneca’s support.")
 
 slide("impact","dark",'''<p class="eyebrow mint">One county, year one — a model, every assumption adjustable in the demo</p>
 <h2>What it buys, and what it costs</h2>
@@ -135,7 +135,7 @@ slide("impact","dark",'''<p class="eyebrow mint">One county, year one — a mode
 </div>
 <p class="body soft">We do <b>not</b> claim a stage or survival effect: the UK trial built to test that has not reported. The pilot measures it.</p>''',
 "APPENDIX / Q&A. Model for a 420,000-person county: national incidence rate; 60 % flagged (Schut 2025); 50 % cut of a 41-day interval (Murphy 2015; 41 d is an unpublished Finnish figure). Ranges in the app.",
-src="Model · Schut et al., BJGP 2025 (moderate) · Murphy et al. 2015 · Yle MOT 2025 (unpublished, weak)")
+src="Model · Schut et al., BJGP 2025 (moderate) · Murphy et al. 2015 (colorectal) · Yle MOT 12.10.2026 (unpublished study, weak)")
 
 slide("recs","light",'''<p class="eyebrow berryd">Recommendations</p>
 <h2>What a county can do on Monday</h2>
