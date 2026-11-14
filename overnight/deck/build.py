@@ -20,10 +20,75 @@ NOTES = {
  "recs": "APPENDIX / Q&A (not on stage). 1 Level 0 in 3 health centres (county alone) · 2 fixed existing CT slots · 3 publish step times monthly · 4 phase-2 risk scoring (needs QMS) · 5 national referral criteria (national decision).",
  "ask": "STAGE (18 s). Our ask: Päijät-Häme. AINO — Mehiläinen's tool, run by Harjun terveys, the county's joint venture with Mehiläinen, with AstraZeneca supporting the project work — already runs list, nurse, doctor there for kidney disease. We add cancer: about 28,000 euros, one nurse, 45 minutes a day. Päijät-Häme. Three health centres. Six months.",
  "honest": "APPENDIX / Q&A (not on stage). Real vs modelled vs synthetic. UK-derived likelihood ratios and PLCOm2012 need recalibration on Finnish data.",
- "close": "STAGE (3 s). Same symptom, same speed — whichever door you walk in. Thank you.",
+ "close": "STAGE (3 s). Same symptom, same speed, whichever door you walk in. Thank you.",
  "matti": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live on the Worklist). Then Matti: smoker, third visit, same cough. Ajoissa read his Finnish note — weight loss, poor appetite — and understood \"no blood\" as a no. His risk is well over the 3 % referral line, so he gets one of the CT slots the county already has. The nurse signs; the clock starts.",
  "behind": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan."
 }
+# --- Native charts (Kuitunen et al. 2026, Fig. 1 cumulative step times, days from first symptom) ---
+STEPS = ["First contact", "Physician visit", "Referral", "Specialist visit", "Treatment start"]
+OCC = [42, 43, 77, 118, 123]     # occupational / private care
+PUB = [72, 94, 147, 204, 207]    # public primary care
+FONT = "font-family=\"Source Sans 3, Source Sans Pro, Arial, sans-serif\""
+
+def svg_gap():
+    W, H, x0, k = 1664, 560, 24, 7.3
+    X = lambda d: round(x0 + d * k, 1)
+    o = [f'<svg width="1606" height="540" viewBox="0 0 {W} {H}" aria-label="Cumulative days from first symptom on two routes (Kuitunen et al. 2026, Fig. 1). Occupational or private care: first contact day 42, physician 43, referral 77, specialist 118, treatment 123. Public primary care: first contact 72, physician 94, referral 147, specialist 204, treatment 207. The public route reaches treatment 84 days later in cumulative step times; median 51 days later." {FONT}>']
+    for d in range(0, 211, 30):
+        o.append(f'<line x1="{X(d)}" y1="130" x2="{X(d)}" y2="490" stroke="#3D5578" stroke-width="1"/>')
+        o.append(f'<text x="{X(d)}" y="530" fill="#A8B9CC" font-size="24" text-anchor="middle">{d} d</text>')
+    o.append(f'<rect x="{X(123)}" y="292" width="{X(207)-X(123)}" height="130" fill="#B42318" fill-opacity="0.22" stroke="#E07A6F" stroke-width="2" stroke-dasharray="8 6"/>')
+    o.append(f'<text x="{(X(123)+X(195))/2}" y="334" fill="#F6D5D2" font-size="30" font-weight="800" text-anchor="middle">+84 d</text>')
+    o.append(f'<text x="{(X(123)+X(195))/2}" y="364" fill="#F6D5D2" font-size="22" text-anchor="middle">cumulative step times</text>')
+    for occ, name, vals, y, col, lab in [(True, "Occupational / private care", OCC, 196, "#A8C8EA", "#DCE6F1"), (False, "Public primary care", PUB, 392, "#E5484D", "#F6D5D2")]:
+        o.append(f'<text x="{x0}" y="{y-40}" fill="{lab}" font-size="30" font-weight="700">{name}</text>')
+        o.append(f'<line x1="{X(0)}" y1="{y}" x2="{X(vals[-1])}" y2="{y}" stroke="{col}" stroke-width="12"/>')
+        for i, d in enumerate(vals):
+            o.append(f'<circle cx="{X(d)}" cy="{y}" r="{16 if i == 4 else 11}" fill="#23395B" stroke="{col}" stroke-width="6"/>')
+        for i in range(4):
+            if occ and i == 1: continue
+            txt = "First contact, physician" if (occ and i == 0) else STEPS[i]
+            day = "day 42–43" if (occ and i == 0) else f"day {vals[i]}"
+            anchor = "end" if i == 3 else "middle"
+            xx = X(vals[i]) + (-12 if i == 3 else 0)
+            o.append(f'<text x="{xx}" y="{y+48}" fill="{lab}" font-size="22" text-anchor="{anchor}">{txt}</text>')
+            o.append(f'<text x="{xx}" y="{y+76}" fill="{lab}" font-size="24" font-weight="700" text-anchor="{anchor}">{day}</text>')
+        if occ:
+            o.append(f'<text x="{X(123)+30}" y="{y-6}" fill="{lab}" font-size="22">Treatment start</text>')
+            o.append(f'<text x="{X(123)+30}" y="{y+22}" fill="{lab}" font-size="26" font-weight="700">day 123</text>')
+        else:
+            o.append(f'<text x="{X(207)-26}" y="{y-56}" fill="{lab}" font-size="22" text-anchor="end">Treatment start</text>')
+            o.append(f'<text x="{X(207)-26}" y="{y-28}" fill="{lab}" font-size="26" font-weight="700" text-anchor="end">day 207</text>')
+    o.append(f'<text x="{W}" y="58" fill="#E5484D" font-size="64" font-weight="800" text-anchor="end">+51 days</text>')
+    o.append(f'<text x="{W}" y="94" fill="#DCE6F1" font-size="24" text-anchor="end">median, later to treatment on the public route</text>')
+    o.append('</svg>')
+    return "".join(o)
+
+def svg_born():
+    W, H = 1664, 330
+    k = W / 207
+    X = lambda d: round(d * k, 1)
+    gaps = [p - q for p, q in zip(PUB, OCC)]          # +30 +51 +70 +86 +84
+    cols = ["#2B5D8C", "#8FB3D9"]
+    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Public primary-care route drawn to scale in days from first symptom: first contact day 72 (+30 days vs occupational care), physician visit 94 (+51), referral 147 (+70), specialist visit 204 (+86), treatment start 207 (+84). Occupational or private care reaches treatment at day 123." {FONT}>']
+    prev = 0
+    centers = []
+    for i, d in enumerate(PUB):
+        o.append(f'<rect x="{X(prev)}" y="96" width="{max(X(d)-X(prev)-3, 3)}" height="64" fill="{cols[i % 2]}"/>')
+        centers.append((X(prev) + X(d)) / 2); prev = d
+    # gap numbers above, step labels below; the 3-day last step is right-aligned at the end
+    pos = [(centers[0], "middle"), (centers[1], "middle"), (centers[2], "middle"), (centers[3], "middle"), (W, "end")]
+    for i, (x, a) in enumerate(pos):
+        red = "#B42318"
+        o.append(f'<text x="{x}" y="72" fill="{red}" font-size="60" font-weight="800" text-anchor="{a}">+{gaps[i]}</text>')
+        row = 204 if i != 4 else 252
+        o.append(f'<text x="{x}" y="{row}" fill="#1B2A3F" font-size="26" font-weight="700" text-anchor="{a}">{STEPS[i]}</text>')
+        o.append(f'<text x="{x}" y="{row+30}" fill="#4F5F72" font-size="24" text-anchor="{a}">day {PUB[i]}</text>')
+    o.append(f'<rect x="0" y="300" width="{X(123)}" height="14" fill="#C3CDD8"/>')
+    o.append(f'<text x="{X(123)+16}" y="314" fill="#4F5F72" font-size="24">occupational / private care: treatment at day 123</text>')
+    o.append('</svg>')
+    return "".join(o)
+
 S = []
 FILL={"born","who","stakes","mechanism","local","solution","evidence","impact","recs","honest","ask"}
 def slide(id, cls, body, notes, src=None, trans="fade"):
@@ -37,26 +102,20 @@ def slide(id, cls, body, notes, src=None, trans="fade"):
 slide("cover","dark cover",'''<div class="cover-wrap">
 <p class="eyebrow">Junction 2026 · AstraZeneca challenge · Goal 3</p>
 <h1 class="wordmark">Ajoissa<span class="hi">.</span></h1>
-<p class="lead">Same symptom, same speed — whichever door you walk in.</p>
+<p class="lead">Same symptom, same speed, whichever door you walk in.</p>
 <p class="meta">A safety-net agent for Finland’s public primary care · Brainwave Bandits</p>
 </div>''', "STAGE. (5 s) Ajoissa means ‘in time’. Hold a beat on the title before speaking.")
 
 slide("hook","dark",'''<p class="eyebrow">Diffuse large B-cell lymphoma · 7 Finnish hospitals · n = 160</p>
 <h2>Two patients. Same lymphoma. Seven weeks apart.</h2>
-<div class="shotrow"><img class="shot" src="%s" alt="Cumulative step times (Kuitunen et al. 2026, Fig. 1): occupational or private route reaches treatment at day 123, public primary care at day 207; the gap is already +86 days at the specialist visit; median 51 days later to treatment on the public route." style="width:998px;height:500px;object-fit:contain"></div>''' % IMG["gap"],
+<div class="chart">''' + svg_gap() + '''</div>''',
 "STAGE (25 s). Two Finns notice the same lump. One has occupational health care, one doesn’t. Across seven Finnish hospitals, the median wait from symptom to treatment was 76 days through occupational or private care — and 127 through public primary care. Seven weeks. And look where the gap opens: by the specialist visit it is already there; from there both routes take three to five days. The delay is born in primary care.",
-src="Kuitunen et al., Cancer Medicine 2026;15(5):e71920 — median 127 vs 76 days, p = 0.027; chart = cumulative step times (Fig. 1) · moderate · waiting time")
+src="Kuitunen et al., Cancer Medicine 2026;15(5):e71920 · median 127 vs 76 days, p = 0.027; chart = cumulative step times (Fig. 1) · moderate · waiting time")
 
 slide("born","light",'''<p class="eyebrow">Where the gap emerges</p>
 <h2>The delay is born before the specialist</h2>
-<div class="steps">
-<div class="step"><p class="num">+30</p><p class="lbl">first contact</p></div>
-<div class="step"><p class="num">+51</p><p class="lbl">physician visit</p></div>
-<div class="step"><p class="num">+70</p><p class="lbl">referral</p></div>
-<div class="step hot"><p class="num">+86</p><p class="lbl">specialist visit</p></div>
-<div class="step calm"><p class="num">+84</p><p class="lbl">treatment start</p></div>
-</div>
-<p class="body">Extra days on the public route at each step (cumulative step times, Fig. 1). After the specialist the gap stops growing: hospitals are not the bottleneck — the public front door is. The national roadmap describes the same pattern from another, unpublished lymphoma study.</p>''',
+<div class="chart">''' + svg_born() + '''</div>
+<p class="body">Public primary-care route drawn to scale, in days from the first symptom. Red: extra days compared with occupational or private care at each step (cumulative step times, Fig. 1). After the specialist visit the gap stops growing, so the delay comes from the public front door. The national roadmap describes the same pattern from another, unpublished lymphoma study.</p>''',
 "APPENDIX / Q&A. Gap per step from the paper’s Fig. 1 (cumulative step times; values close to the means 201 vs 126). Tested result: medians 127 vs 76 days, p = 0.027. Small n (160).",
 src="Kuitunen et al. 2026 (Fig. 1) · National Cancer Strategy roadmap 2026–2031, p. 12 · moderate · waiting time")
 
@@ -69,58 +128,61 @@ slide("who","light",'''<p class="eyebrow">Who pays for the slow door</p>
 <li>Occupational care covers <b>92 % of wage earners</b>. Retired, unemployed and low-income people use the public door.</li>
 </ul></div></div>''',
 "STAGE (15 s). And it isn’t random who uses which door. Occupational care covers 92% of wage earners — so the public door serves the retired, the unemployed, the low-paid. Separately, Finnish registry data shows survival 13 points lower for less-educated patients, with more late-stage diagnoses. Two findings, one direction: Goal 3’s equity problem.",
-src="OECD/EC Country Cancer Profile Finland 2025 (FCR data) · Zai et al., BMJ Public Health 2025 (n = 469,522) — strong · Kela 2026")
+src="OECD/EC Country Cancer Profile Finland 2025 (FCR data) · Zai et al., BMJ Public Health 2025 (n = 469,522) · strong · Kela 2026")
 
 slide("stakes","dark",'''<p class="eyebrow">Goal 3 · lung cancer</p>
 <h2>Finland has the Nordics’ lowest lung-cancer survival. It is fixable.</h2>
 <div class="cols2">
 <div class="kpi"><p class="huge2">16.4 %</p><p class="body">Finland, men, 5-year survival<br>Norway: 26.6 % · strategy target: +14 pp</p></div>
-<div class="kpi"><p class="huge2 hi">8.9 → 26.2 %</p><p class="body">Denmark’s men in 20 years — from below Finland (9.7 → 16.7 %)</p></div>
+<div class="kpi"><p class="huge2 hi">8.9 → 26.2 %</p><p class="body">Denmark’s men in 20 years, starting below Finland (Finland: 9.7 → 16.7 %)</p></div>
 </div>
 <p class="body serif soft">Only 27 % of Finnish lung-cancer patients reach curative treatment. Stage I: 19.7 % in Finland vs 30.6 % in Norway.</p>''',
 "STAGE (15 s). The strategy’s Goal 3 asks for 14 more percentage points of lung-cancer survival. Denmark did more than that in twenty years. It started below us.",
-src="Tichanek et al., Clin Epidemiol 2023 (NORDCAN) · Khalife et al., Acta Oncol 2025 — strong · FCR lung report 2026; Paappanen 2025 — moderate")
+src="Tichanek et al., Clin Epidemiol 2023 (NORDCAN) · Khalife et al., Acta Oncol 2025 · strong · FCR lung report 2026; Paappanen 2025 · moderate")
 
 slide("mechanism","light",'''<p class="eyebrow">Why the door is narrow</p>
 <h2>Four facts about the public front door</h2>
 <div class="grid4">
 <div class="card"><p class="num2">3 months</p><p class="body">legal wait for non-urgent adult primary care since 1.1.2025</p></div>
-<div class="card"><p class="num2">14 d vs 2–7</p><p class="body">to a GP in Finland vs other Nordic countries</p></div>
+<div class="card"><p class="num2">14 d vs 2–7 d</p><p class="body">to a GP in Finland vs other Nordic countries</p></div>
 <div class="card"><p class="num2">&lt; 10 %</p><p class="body">of Finnish primary-care units can order a CT, per a Nordic expert survey (elsewhere: 90–100 %)</p></div>
 <div class="card"><p class="num2">3–4 months</p><p class="body">of rising visits before a colorectal diagnosis; 65 % of hospital stays start as emergencies</p></div>
 </div>''',
 "STAGE (15 s). Since January 2025, an adult’s legal right is a primary-care visit within three months. A GP visit takes two weeks. According to Nordic experts, few health centres can order a CT. So patients come back, again and again — Finnish data shows visits rising for months before a cancer is found.",
 src="HE 134/2024 (strong) · IHE Cancer Dashboard Finland 2026 / Khalife 2025 expert survey, 42 clinicians (weak–moderate) · Hermiö et al., BMC HSR 2023 (strong)")
 
-slide("invisible","accent",'''<h2 class="statement">Nobody measures the wait between a symptom and a cancer diagnosis.</h2>
-<p class="body on-accent">The strategy says this data “is not collected systematically”. Stage is missing for 61 % of cancers diagnosed in 2019–2023. Cancer target times are not published by county — Denmark publishes them by region every quarter.</p>''',
+slide("invisible","alert",'''<h2 class="statement">Nobody measures the wait between a symptom and a cancer diagnosis.</h2>
+<p class="body on-accent">The strategy says this data “is not collected systematically”. Stage is missing for 61 % of cancers diagnosed in 2019–2023. Cancer target times are not published by county. Denmark publishes them by region every quarter.</p>''',
 "STAGE (10 s). And here’s the real problem: none of this is measured. You cannot shorten a wait you do not see.",
 src="National Cancer Strategy 2026–2035, 2.5 · Finnish Cancer Registry · Sundhedsstyrelsen 2025")
 
 slide("local","light",'''<p class="eyebrow">Where a county can act</p>
-<h2>The variation is local — at the health-centre level</h2>
+<h2>The variation is local, at the health-centre level</h2>
 <div class="cols2">
 <div><p class="huge red">67 %</p><p class="body">of the variation in cancer survival between Finnish municipalities lies <b>inside</b> hospital districts, not between them.</p></div>
-<div><p class="body">Survival differences between counties are mostly not statistically significant. The differences that matter sit closer to the patient: in which health centre, which door, which week.</p><p class="body"><b>So the fix belongs to the county — per health centre — not to a national reform that is years away.</b></p></div>
+<div><p class="body">Survival differences between counties are mostly not statistically significant. The differences that matter sit closer to the patient: in which health centre, which door, which week.</p><p class="body"><b>So the county can act, health centre by health centre, without waiting years for a national reform.</b></p></div>
 </div>''',
 "APPENDIX / Q&A. Why we target health centres not counties. Honest point: county survival gaps are small; within-district variation dominates.",
-src="Seppä et al., Acta Oncol 2020 — strong · Finnish Cancer Registry, Cancer in Finland 2023; OECD 2025")
+src="Seppä et al., Acta Oncol 2020 · strong · Finnish Cancer Registry, Cancer in Finland 2023; OECD 2025")
 
 slide("solution","dark",'''<p class="eyebrow">Our solution</p>
-<h2>Ajoissa: a safety net for public primary care</h2>
+<h2>Ajoissa. – a safety net for public primary care</h2>
 <div class="flow">
 <div class="fstep"><p class="fn">1</p><p class="fh">Read</p><p class="fb">Overnight, the visit notes (FI/EN): symptoms, how long, what was ruled out</p></div>
-<div class="fstep"><p class="fn">2</p><p class="fh">Check the record</p><p class="fb">Results nobody followed up, weights, labs, repeat visits — the county’s own records</p></div>
+<div class="fstep"><p class="fn">2</p><p class="fh">Check the record</p><p class="fb">Results nobody followed up, weights, labs and repeat visits in the county’s own records</p></div>
 <div class="fstep"><p class="fn">3</p><p class="fh">Calculate</p><p class="fb">Each value against its published limit; for lung, smoking-history prior × symptom likelihood ratios</p></div>
-<div class="fstep"><p class="fn">4</p><p class="fh">Match rules</p><p class="fb">Explicit referral rules (3 % threshold) — the criteria roadmap 2.5.2 will standardise</p></div>
+<div class="fstep"><p class="fn">4</p><p class="fh">Match rules</p><p class="fb">Explicit referral rules (3 % threshold), the criteria that roadmap 2.5.2 will standardise</p></div>
 <div class="fstep last"><p class="fn">5</p><p class="fh">Propose</p><p class="fb">One drafted order on a named nurse’s list, and a clock until diagnosis or all-clear</p></div>
 </div>
-<div class="levelbar"><p class="lv">Level 0 first</p><p>Results nobody followed up — lung, bowel, prostate. Already due, so no new capacity.</p></div>
+<div class="levelbar"><p class="lv">Level 0 first</p><p>Results that fell through the cracks.</p></div>
 <p class="body soft">Deterministic: same record, same answer. A professional decides every action. Nothing is sent to a patient automatically.</p>''',
 "STAGE (20 s). So we built Ajoissa — ‘in time’. Every night it reads the health centre’s own records in five steps: read the notes, check the record, calculate against published limits, match explicit referral rules, and propose one action to a named nurse — with the reason and the source. It starts with Level 0: results that were already due and nobody followed up. Then it runs a clock until each patient is diagnosed or cleared. A human decides every step.")
 
+slide("how","accent center",'''<h2 class="statement">How It Works?</h2>''',
+"TRANSITION (1 s). Switch to the live demo here. Click path: PITCH-SCRIPT.md.")
+
 slide("demo","dark",'''<p class="eyebrow">Live demo · Level 0 · synthetic patients</p>
-<h2>Monday, 08:00: first, results nobody followed up</h2>
+<h2>Monday 8 am</h2>
 <div class="shotrow"><img class="shot" src="%s" alt="Ajoissa worklist with Kalevi N. selected: a raised PSA of 6.8 µg/l 128 days ago that was never repeated, already due and 38 days overdue." style="width:1079px;height:580px;object-fit:contain"></div>''' % IMG["level0"],
 "STAGE (20 s) — switch to the LIVE DEMO here if possible. Monday, 08:00. Overnight Ajoissa read the centre’s own records. At the top: results nobody followed up — Level 0. Kalevi, 63: a raised PSA 128 days ago, never repeated, now 38 days overdue. No new capacity needed — this follow-up was already due; the agent makes sure it happens. A clinician signs before anything is sent.",
 src="All patients synthetic · Level 0 windows and exclusions after Murphy et al., JCO 2015 · PSA limits: Käypä hoito 2025")
@@ -142,32 +204,32 @@ src="Tammemägi et al., NEJM 2013 (PLCOm2012) · Hamilton et al., Thorax 2005 ·
 
 slide("earlier","light",'''<p class="eyebrow">Re-running the same rules on his past visits</p>
 <p class="huge red">35 days earlier.</p>
-<p class="body">At Matti’s second visit — “cough continues, antibiotics” — Ajoissa would already have put him on the list. Nobody did anything wrong. Nobody had the whole picture.</p>
+<p class="body">At Matti’s second visit (“cough continues, antibiotics”), Ajoissa would already have put him on the list. Nobody did anything wrong, but nobody had the whole picture.</p>
 <div class="shotrow"><img class="shot" src="%s" alt="Matti's visit note in Finnish with cough, weight loss and loss of appetite highlighted and ‘ei veriyskää’ (no coughing up blood) struck through as negated." style="width:1300px;height:467px;object-fit:contain"></div>''' % IMG["note"],
 "STAGE (15 s). And this is the moment that matters: run the same rules on his history, and he would have been on the list 35 days earlier. Nobody did anything wrong. Nobody had the whole picture.")
 
 slide("county","page",'''<p class="eyebrow">For the county’s cancer lead</p>
 <div class="cols2 wide">
-<div style="display:flex;flex-direction:column;gap:36px"><h2>The clocks become the missing data</h2><p class="body">Every tracked patient leaves timestamps. Added up: median days per step, per health centre, every week — the measurement the strategy says does not exist.</p><p class="body"><b>Overdue clocks escalate automatically.</b></p></div>
+<div style="display:flex;flex-direction:column;gap:36px"><h2>The clocks become the missing data</h2><p class="body">Every patient leaves timestamps: the missing data that nobody else collects. Median days spent on each step, measured in every health centre.</p><p class="body"><b>Overdue clocks escalate automatically.</b></p></div>
 <img class="shot" src="%s" alt="County view (synthetic): health centre A median days per step, a table of six health centres, and open pathway clocks with on-time, at-risk and overdue statuses." style="width:545px;height:760px;object-fit:contain">
 </div>''' % IMG["county"],
 "STAGE (10 s). Every clock leaves timestamps. Together they are the data Finland doesn’t have: how many days each step takes, in each health centre, this week.",
 src="Health-centre data shown are synthetic")
 
-slide("evidence","light",'''<p class="eyebrow">Why we believe it works — and why now</p>
+slide("evidence","light",'''<p class="eyebrow">Why we believe it works, and why now</p>
 <h2>Proven pattern. Legal now. Already done once.</h2>
 <div class="grid3">
-<div class="card"><p class="num2">200 → 104 d</p><p class="body">Randomised trial: EHR triggers for un-followed abnormal results + a human reviewer halved time to colorectal work-up; completed evaluations 52 % → 73 %. (Lung arm too small to show an effect.)</p><p class="tag">Murphy et al., JCO 2015 · strong · time</p></div>
+<div class="card"><p class="num2">200 d → 104 d</p><p class="tag2">median time to bowel-cancer work-up</p><p class="body">Randomised trial: EHR triggers for un-followed abnormal results + a human reviewer halved time to colorectal work-up; completed evaluations 52 % → 73 %. (Lung arm too small to show an effect.)</p><p class="tag">Murphy et al., JCO 2015 · strong · time</p></div>
 <div class="card"><p class="num2">Approved 2026</p><p class="body">Parliament approved (April 2026) letting a county use its own records to find health problems early. The professional decides; the patient may refuse.</p><p class="tag">HE 159/2025 → EV 38/2026 · in-force date to confirm</p></div>
-<div class="card"><p class="num2">Done before</p><p class="body">Päijät-Häme’s AINO tool already finds kidney-disease risk patients this way — list → nurse → doctor — with AstraZeneca’s support.</p><p class="tag">Päijät-Häme 12.3.2026</p></div>
+<div class="card"><p class="num2">Done before</p><p class="body">Päijät-Häme already finds kidney-disease risk patients this way (list → nurse → doctor) with AINO, run by Harjun terveys, supported by AstraZeneca.</p><p class="tag">Päijät-Häme 12.3.2026</p></div>
 </div>''',
 "STAGE (20 s). Does it work? In a randomised trial, the same pattern — automatic trigger on un-followed results, human review — halved the time to colorectal work-up. Is it allowed? Parliament approved it this April: counties may use their own records to find problems early. Has it been done? Päijät-Häme already runs this model for kidney disease — with AstraZeneca’s support.")
 
-slide("impact","dark",'''<p class="eyebrow">Päijät-Häme, year one — a model, every assumption adjustable in the demo</p>
+slide("impact","dark",'''<p class="eyebrow">Päijät-Häme, year one · a model, every assumption adjustable in the demo</p>
 <h2>What it buys, and what it costs</h2>
 <div class="grid3">
-<div class="kpi"><p class="huge hi">≈ 66</p><p class="body">lung-cancer patients a year on a faster route (of ≈ 110), if every flag gets a slot</p></div>
-<div class="kpi"><p class="huge hi">≈ 21 d</p><p class="body">earlier to diagnostic imaging per flagged patient</p></div>
+<div class="kpi"><p class="huge hi"><span class="thin">≈</span> 66</p><p class="body">lung-cancer patients a year on a faster route (of ≈ 110), if every flag gets a slot</p></div>
+<div class="kpi"><p class="huge hi"><span class="thin">≈</span> 21 d</p><p class="body">earlier to diagnostic imaging per flagged patient</p></div>
 <div class="kpi"><p class="huge amber">0–42</p><p class="body">imaging slots a week: 0 for follow-ups already due; the region sets the rest</p></div>
 </div>
 <p class="body soft">We do <b>not</b> claim a stage or survival effect: the UK trial built to test that has not reported. The pilot measures it.</p>''',
@@ -182,15 +244,16 @@ slide("recs","light",'''<p class="eyebrow">Recommendations</p>
 <tr><td>Name a fixed number of existing CT slots for the agent’s strongest symptom flags</td><td>Imaging lead</td><td>Weak–moderate</td><td>Yes, no new capacity</td></tr>
 <tr><td>Publish step times per health centre monthly</td><td>County cancer lead</td><td>Moderate</td><td>Yes</td></tr>
 <tr><td>Phase 2: calibrated risk scoring (MDR route)</td><td>County + FICAN</td><td>Moderate (detection)</td><td>Needs QMS</td></tr>
-<tr><td>National referral criteria + published pathway times</td><td>STM, FICAN, THL</td><td>Moderate</td><td>No — national</td></tr>
+<tr><td>National referral criteria + published pathway times</td><td>STM, FICAN, THL</td><td>Moderate</td><td>No, national decision</td></tr>
 </table>''',
 "APPENDIX / Q&A. Tracker-only phase 1 likely not a medical device (our reading of MDCG 2019-11, not legal advice); risk scoring = class IIa.")
 
-slide("ask","accent",'''<h2 class="statement">Päijät-Häme. Three health centres. Six months.</h2>
+slide("ask","accent",'''<h2 class="statement"><span class="pre">Implementation</span><br>Päijät-Häme. Three health centres. Six months.</h2>
+<p class="goals">Goals</p>
 <div class="big-ask">
 <div><p class="num3">≤ 7 days</p><p class="body">from flag to a decision, for every flag</p></div>
 <div><p class="num3">Days</p><p class="body">from flag to imaging, per health centre</p></div>
-<div><p class="num3">Share</p><p class="body">of cancers diagnosed via a tracked route</p></div>
+<div><p class="num3">Standardize</p><p class="body">diagnose cancers via a tracked route</p></div>
 </div>
 <p class="body on-accent">Where the same list → nurse → doctor model already runs for kidney disease (AINO, Harjun terveys, supported by AstraZeneca) · about €28,000 · one nurse, 45 minutes a day, per health centre · no new scanners</p>''',
 "STAGE (15 s). Our ask: Päijät-Häme. The same list → nurse → doctor model already runs there for kidney disease — AINO, run by Harjun terveys and supported by AstraZeneca: a list from the county’s own records, a nurse, a doctor. We extend it to cancer: three health centres, six months, about 28,000 euros, one nurse, 45 minutes a day. We measure three things. And at the end, Finland has its first real numbers for the wait between a symptom and a diagnosis.")
@@ -198,18 +261,18 @@ slide("ask","accent",'''<h2 class="statement">Päijät-Häme. Three health centr
 slide("honest","light",'''<p class="eyebrow">Data quality and transparency</p>
 <h2>What is real, what is modelled, what is invented</h2>
 <div class="grid3">
-<div class="card"><p class="num2 tealtxt">Real</p><p class="body">Nordic survival, education gap, DLBCL route timing, county access (THL, March 2024), legal changes — each with source and grade.</p></div>
-<div class="card"><p class="num2 bluetxt">Modelled</p><p class="body">Impact numbers. Risk estimates use UK likelihood ratios and PLCOm2012 — both need recalibration on Finnish data.</p></div>
+<div class="card"><p class="num2 tealtxt">Real</p><p class="body">Nordic survival, education gap, DLBCL route timing, county access (THL, March 2024), legal changes, each with source and grade.</p></div>
+<div class="card"><p class="num2 bluetxt">Modelled</p><p class="body">Impact numbers. Risk estimates use UK likelihood ratios and PLCOm2012; both need recalibration on Finnish data.</p></div>
 <div class="card"><p class="num2 ambertxt">Synthetic</p><p class="body">All patients, health centres and timestamps in the demo. Tagged on every screen.</p></div>
 </div>''',
 "APPENDIX / Q&A. Limitations: DLBCL values read from a slide; county access data is pre-2025; 41-day lung interval unpublished.")
 
 slide("close","dark cover",'''<div class="cover-wrap">
 <h1 class="wordmark">Ajoissa<span class="hi">.</span></h1>
-<p class="lead">In time — for everyone, whichever door they walk in.</p>
+<p class="lead">In time, for everyone, whichever door they walk in.</p>
 <p class="meta">Demo: claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 · Code: github.com/dalvesalo/Junction-2026</p>
 </div>''',
-"STAGE (5 s). Same symptom, same speed — whichever door you walk in. Thank you.")
+"STAGE (5 s). Same symptom, same speed, whichever door you walk in. Thank you.")
 
 slide("refs","light",'''<p class="eyebrow">Key sources</p>
 <div class="refs">

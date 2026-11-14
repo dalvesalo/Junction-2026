@@ -86,3 +86,14 @@ table.recs td { border-bottom: 1px solid #C3CDD8; padding: 16px 20px; line-heigh
 .flow .fstep:nth-child(4), .steps .step:nth-child(4) { animation-delay: .36s; }
 .flow .fstep:nth-child(5), .steps .step:nth-child(5) { animation-delay: .48s; }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+section.alert { background: #B42318; color: #FFFFFF; justify-content: center; }
+section.alert .on-accent { color: #FBE4E1; }
+section.alert .source { color: #F6D0CB; }
+section.center { align-items: center; text-align: center; }
+section.center .statement { font-size: 160px; letter-spacing: -3px; }
+.chart { display: flex; justify-content: center; }
+.chart svg { display: block; }
+.thin { font-weight: 300; }
+.statement .pre { font-weight: 400; color: #A8C8EA; font-size: 64px; letter-spacing: 0; }
+.goals { font-size: 26px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #A8C8EA; margin-bottom: -12px; }
+.card .tag2 { font-size: 24px; color: #4F5F72; margin-top: -10px; }
