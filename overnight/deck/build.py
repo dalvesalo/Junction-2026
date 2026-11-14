@@ -1,17 +1,17 @@
 import json, datetime, os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 IMG = {k: v[0] for k, v in json.load(open("assets.json")).items()}   # name -> /_blob/ id (files in img/)
-# Speaker notes copied from overnight/PITCH-SCRIPT.md (v2, 14.11); they replace the inline notes below.
+# Speaker notes copied from overnight/PITCH-SCRIPT.md (v2, 14.11; hook/born/mechanism/solution/how from v3); they replace the inline notes below.
 NOTES = {
  "cover": "STAGE (4 s). Ajoissa. Finnish for \"in time\". Hold a beat on the title.",
- "hook": "STAGE (24 s). Two Finns notice the same lump. One has occupational health care, one goes to the public health centre. Same lymphoma: 76 days to treatment through occupational or private care — 127 through public primary care. Seven weeks. And the gap is already there by the specialist visit; after that, both routes take three to five days. The delay is born at the front door.",
- "born": "APPENDIX / Q&A (not on stage). Gap per step from the paper's Fig. 1 (cumulative step times): +86 days by the specialist visit; specialist → treatment 3–5 days on both routes. Tested result: medians 127 vs 76 days, p = 0.027, n = 160 — moderate evidence.",
+ "hook": "STAGE (16 s). Two Finns notice the same lump. One has occupational health care, one goes to the public health centre. Same lymphoma: 76 days to treatment through occupational or private care — 127 through public primary care. Seven weeks.",
+ "born": "STAGE (10 s). Look where the gap opens: before the referral. By then the public route is already seventy days behind. After the specialist visit, both routes take three to five days. That first stretch is where Ajoissa acts.",
  "who": "STAGE (11 s). Who uses the public door? Occupational care covers 92 % of wage earners — so it's the retired, the unemployed, the low-paid. And less-educated patients' cancer survival is thirteen points lower.",
  "stakes": "STAGE (8 s). And Goal 3: Finland has the Nordics' lowest lung-cancer survival. Denmark started below us — and fixed it.",
- "mechanism": "STAGE (10 s). Why? A GP visit takes two weeks, the legal guarantee is three months, few health centres can order a CT. So patients come back, again and again.",
+ "mechanism": "STAGE (8 s). Why? A GP visit takes two weeks, few health centres can order a CT. So patients come back, again and again. (First cut if over time.)",
  "invisible": "STAGE (5 s). And nobody measures it. You can't shorten a wait you don't see.",
  "local": "APPENDIX / Q&A (not on stage). Why health centres, not counties: 67 % of municipal survival variation lies inside hospital districts (Seppä 2020). County survival gaps are mostly not significant.",
- "solution": "STAGE (18 s). So we built Ajoissa. Every night it reads the county's own records. First, what needs no new capacity: abnormal results nobody followed up — a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Then symptoms that keep coming back. → switch to the live demo.",
+ "solution": "STAGE (14 s). So we built Ajoissa. Every night it reads the county's own records. First, what needs no new capacity: abnormal results nobody followed up — a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Then symptoms that keep coming back.",
  "demo": "STAGE (56 s) — LIVE DEMO, click path below. Monday, eight a.m., the nurse's worklist. At the top: follow-ups that were already due. Aino's chest X-ray recommended a CT — nobody booked it. Eero's stool test was positive. Kalevi's PSA was never repeated. No new scans needed. Then Matti: smoker, third visit, same cough. Ajoissa read his Finnish note — weight loss, poor appetite — and understood \"no blood\" as a no. His risk is well over the 3 % referral line, so he gets one of the CT slots the county already has. The nurse signs; the clock starts. How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan. Same rules on his history: thirty-five days earlier. And every clock leaves timestamps: days per step, per health centre — the data Finland doesn't have. → back to slides at `evidence`.",
  "earlier": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). Run the same rules on Matti's history: he would have been on the list 35 days earlier. Nobody did anything wrong. Nobody had the whole picture.",
  "county": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in County view). Every clock leaves timestamps. Together they are the data Finland doesn't have: days per step, per health centre.",
@@ -22,7 +22,8 @@ NOTES = {
  "honest": "APPENDIX / Q&A (not on stage). Real vs modelled vs synthetic. UK-derived likelihood ratios and PLCOm2012 need recalibration on Finnish data.",
  "close": "STAGE (3 s). Same symptom, same speed, whichever door you walk in. Thank you.",
  "matti": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live on the Worklist). Then Matti: smoker, third visit, same cough. Ajoissa read his Finnish note — weight loss, poor appetite — and understood \"no blood\" as a no. His risk is well over the 3 % referral line, so he gets one of the CT slots the county already has. The nurse signs; the clock starts.",
- "behind": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan."
+ "behind": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan.",
+ "how": "STAGE (4 s). Here's how it works. → switch to the live demo."
 }
 # --- Native charts (Kuitunen et al. 2026, Fig. 1 cumulative step times, days from first symptom) ---
 STEPS = ["First contact", "Physician visit", "Referral", "Specialist visit", "Treatment start"]
@@ -65,19 +66,20 @@ def svg_gap():
     return "".join(o)
 
 def svg_born():
-    # Two routes to scale. Blue = symptom -> referral (where Ajoissa acts); grey = specialist visit and treatment.
+    # Two routes to scale. Light grey = before first contact; blue = first contact -> referral (where Ajoissa acts); grey = specialist visit and treatment.
     W, H, k = 1664, 440, 7.0
     X = lambda d: round(d * k, 1)
     blue, grey = ["#2B5D8C", "#4F7FAF"], ["#B7C3CF", "#D3DBE4"]
-    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Two routes drawn to scale in days from first symptom (Kuitunen et al. 2026, Fig. 1). Occupational or private care: referral by day 77, treatment at day 123. Public primary care: referral by day 147, treatment at day 207. Blue marks first symptom to referral, where Ajoissa acts; grey marks the specialist visit and treatment." {FONT}>']
+    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Two routes drawn to scale in days from first symptom (Kuitunen et al. 2026, Fig. 1). Occupational or private care: referral by day 77, treatment at day 123. Public primary care: referral by day 147, treatment at day 207. Light grey marks the time before first contact; blue marks first contact to referral, where Ajoissa acts; grey marks the specialist visit and treatment." {FONT}>']
     for occ, name, vals, y in [(True, "Occupational / private care", OCC, 52), (False, "Public primary care", PUB, 186)]:
         o.append(f'<text x="0" y="{y-14}" fill="#1B2A3F" font-size="28" font-weight="700">{name}</text>')
         prev = 0
         for i, d in enumerate(vals):
-            col = blue[i % 2] if i < 3 else grey[i % 2]
-            o.append(f'<rect x="{X(prev)}" y="{y}" width="{max(X(d) - X(prev) - 3, 2)}" height="72" fill="{col}"/>')
+            col = "#E4E9EF" if i == 0 else blue[i % 2] if i < 3 else grey[i % 2]
+            edge = ' stroke="#AEBBC9" stroke-width="2" stroke-dasharray="6 5"' if i == 0 else ""
+            o.append(f'<rect x="{X(prev) + (1 if i == 0 else 0)}" y="{y + (1 if i == 0 else 0)}" width="{max(X(d) - X(prev) - 3, 2) - (2 if i == 0 else 0)}" height="{70 if i == 0 else 72}" fill="{"#F0F3F6" if i == 0 else col}"{edge}/>')
             prev = d
-        o.append(f'<text x="24" y="{y + 48}" fill="#FFFFFF" font-size="36" font-weight="800">{vals[2]} days</text>')
+        o.append(f'<text x="{X(vals[0]) / 2}" y="{y + 44}" fill="#4F5F72" font-size="24" text-anchor="middle">before first contact</text>')
         o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 36}" fill="#1B2A3F" font-size="34" font-weight="800">{vals[-1]} days</text>')
         o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 64}" fill="#4F5F72" font-size="22">to treatment</text>')
     # milestones under the public bar (no day numbers: the scale carries them)
@@ -88,9 +90,9 @@ def svg_born():
         o.append(f'<text x="{xx}" y="{y + 38}" fill="#4F5F72" font-size="22" text-anchor="{a}">{t}</text>')
     # brackets
     yb = y + 78
-    for x1, x2, col, txt, w in [(0, X(147) - 3, "#2B5D8C", "Ajoissa acts here: first symptom to referral", "700"), (X(147) + 6, X(207) - 3, "#8A99AA", "Specialist and treatment: not our target", "400")]:
+    for x1, x2, col, txt, w in [(X(72), X(147) - 3, "#2B5D8C", "Ajoissa acts here: first contact to referral", "700"), (X(147) + 6, X(207) - 3, "#8A99AA", "Specialist, treatment: not our target", "400")]:
         o.append(f'<path d="M{x1} {yb - 14} V{yb} H{x2} V{yb - 14}" fill="none" stroke="{col}" stroke-width="4"/>')
-        o.append(f'<text x="{(x1 + x2) / 2}" y="{yb + 40}" fill="{col if w == "700" else "#4F5F72"}" font-size="28" font-weight="{w}" text-anchor="middle">{txt}</text>')
+        o.append(f'<text x="{(x1 + x2) / 2}" y="{yb + 40}" fill="{col if w == "700" else "#4F5F72"}" font-size="{26 if w == "700" else 24}" font-weight="{w}" text-anchor="middle">{txt}</text>')
     o.append('</svg>')
     return "".join(o)
 
@@ -255,7 +257,7 @@ slide("recs","light",'''<p class="eyebrow">Recommendations</p>
 slide("ask","accent",'''<h2 class="statement"><span class="pre">Implementation</span><br>Päijät-Häme. Three health centres. Six months.</h2>
 <p class="goals">Goals</p>
 <div class="big-ask">
-<div><p class="num3">≤ 7 days</p><p class="body">from flag to a decision, for every flag</p><p class="ourtag">pilot target (ours)</p></div>
+<div><p class="num3">≥ 80 %</p><p class="body">of flags decided within 7 days</p><p class="ourtag">pilot target (ours)</p></div>
 <div><p class="num3">Days</p><p class="body">from flag to imaging, per health centre</p></div>
 <div><p class="num3">Standardise</p><p class="body">diagnose cancers via a tracked route</p></div>
 </div>
