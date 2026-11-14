@@ -140,43 +140,8 @@ for i, (k, v) in enumerate(notes):
     ws.cell(r0 + i, 1, k).font = B
     c = ws.cell(r0 + i, 3, v); c.alignment = Alignment(wrap_text=True, vertical="top")
 
-# Impact_model
-ws = sheet("Impact_model")
-ws["A1"] = "Impact model — MODEL, not a measured result. Yellow = inputs (change them), green = formulas."; ws["A1"].font = Font(bold=True, size=12)
-inputs = [
-    ("County population", 420000, "people", "Example county size", "assumption"),
-    ("Lung-cancer cases per year, Finland", 3000, "cases/yr", "Finnish Cancer Registry, rounded (as used in the app; exact figure not re-verified)", "rounded"),
-    ("Finland population", 5600000, "people", "Rounded (as used in the app)", "rounded"),
-    ("Coverage: health centres using Ajoissa", 1.0, "share", "Full county roll-out; pilot starts with 3 centres", "assumption"),
-    ("Sensitivity: share of lung cancers flagged", 0.6, "share", "Schut et al., BJGP 2025 (≈62 % flagged ≈4 months earlier at 3 % PPV); doi:10.3399/BJGP.2023.0489", "moderate"),
-    ("Current primary-care interval", 41, "days", "Unpublished Finnish lung study via Yle MOT 12.10.2026, https://yle.fi/a/74-20251023", "weak — replace with county data"),
-    ("Cut in interval for flagged patients", 0.5, "share", "Team assumption; Murphy JCO 2015 RCT roughly halved colorectal time to work-up (200 -> 104 d); its lung arm (n = 19) was not significant", "assumption"),
-    ("Work-ups per earlier diagnosis", 33, "patients", "Schut et al., BJGP 2025", "moderate"),
-]
-table(ws, ["Input", "Value", "Unit", "Source / basis", "Status"], inputs, start=3, widths={1: 42, 2: 14, 3: 12, 4: 80, 5: 28}, wrap_cols=(4,))
-ws.freeze_panes = None
-for i in range(4, 4 + len(inputs)):
-    ws.cell(i, 2).fill = INP
-for a in ("B7", "B8", "B10"):
-    ws[a].number_format = "0%"
-ws["B4"].number_format = ws["B5"].number_format = ws["B6"].number_format = "#,##0"
-o = 4 + len(inputs) + 1
-ws.cell(o, 1, "Outputs").font = B
-outs = [
-    ("Expected lung cancers per year in county", "=B4*B5/B6", "cases/yr", "pop x 3000 / 5,600,000"),
-    ("Flagged per year", f"=B{o+1}*B7*B8", "patients/yr", "cases x coverage x sensitivity"),
-    ("Days earlier per flagged patient", "=B9*B10", "days", "interval x cut"),
-    ("Total patient-days earlier per year", f"=B{o+2}*B{o+3}", "days/yr", "flagged x days"),
-    ("Extra work-ups per year", f"=B{o+2}*B11", "work-ups/yr", "flagged x 33"),
-    ("Flagged, low display bound (x0.6)", f"=B{o+2}*0.6", "patients/yr", "app display convention, not a CI"),
-    ("Flagged, high display bound (x1.3)", f"=B{o+2}*1.3", "patients/yr", "app display convention, not a CI"),
-]
-for i, (k, f, u, n) in enumerate(outs, o + 1):
-    ws.cell(i, 1, k); c = ws.cell(i, 2, f); c.fill = OUTF; c.number_format = "#,##0.0"
-    ws.cell(i, 3, u); ws.cell(i, 4, n)
-w = o + len(outs) + 2
-ws.cell(w, 1, "What we do not claim").font = B
-ws.cell(w, 4, "No stage or survival effect (ERICA RCT has not reported). No reduction in imaging. No Finnish validation yet. The 41-day interval is not the county's own figure.").alignment = Alignment(wrap_text=True)
+# Impact_model: content lives in sheet_1411.IMPACT (rewritten 14.11: Päijät-Häme default, capped slots).
+sheet("Impact_model")
 
 # Synthetic_cases
 cases = json.load(open("/tmp/cases_out.json"))
@@ -221,6 +186,12 @@ extra = [
     ["gdpr22", "GDPR art. 22", "Regulation (EU) 2016/679, Article 22", "https://eur-lex.europa.eu/eli/reg/2016/679/oj", "strong", "Regulation", None],
 ]
 table(sheet("Sources"), ["Key", "Short name", "Citation", "URL", "Evidence grade", "Outcome type", "Note"], rows + extra, widths={1: 18, 2: 34, 3: 70, 4: 50, 5: 14, 6: 30, 7: 60}, wrap_cols=(3, 7))
+
+# 14.11.2026: Impact_model, Pilot cost, Pilot county choice, Level 0 triggers, Reader tests,
+# EXPERIMENTAL survival, README rows and sources added that day.
+sys.path.insert(0, __import__("os").path.dirname(__import__("os").path.abspath(__file__)))
+import sheet_1411
+sheet_1411.apply_all(wb)
 
 wb.save(OUT)
 print("saved", OUT, [ws.title for ws in wb.worksheets])

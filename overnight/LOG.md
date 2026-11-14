@@ -81,3 +81,9 @@ NOTE: Junction rules say team size 1–4; team-plan lists 5 roles → check team
 - Not updated: civic preview artifact — the design chat published a new version (14:47 UTC) in the meantime; it must merge main to get the switch.
 
 - 14.11 17:50 — UI v2 (classic look, Hospital blue, worklist first) rolled out: `ui-v2` fast-forwarded into `main`. The old demo artifact (WBcU1hw4dpagfNVUQ2Ec3x) is retired; the demo is now https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53. Team briefing: https://claude.ai/artifact/XPBNTQvh1Ynet9EMoJfDPH.
+
+## Sat 14.11 evening — Data workbook updated (Sheets artifact FrDamYM9Md26HhFQXXa9n4 + .xlsx)
+- New tabs: Pilot cost (Päijät-Häme) with live formulas (€27,242–28,242; €4,596/yr per centre; 2.5 % of roadmap 3.5.3), Pilot county choice (PH / PK / Pohjois-Pohjanmaa), Level 0 triggers (+ Murphy 2015 results), Reader tests (synthetic), EXPERIMENTAL survival (S_new = S^(1/h^(days/28)); lung 0.22 + bowel 0.87 extra 5-yr survivors/yr, inputs linked to Impact_model).
+- Impact_model: default population 205,000 (Päijät-Häme); slots input (10/wk) and capped-slots outputs: share = slots × 52 ÷ uncapped work-ups (24 %) → 15.8 flagged, 520 work-ups/yr.
+- Sources: 27 sources added on 14.11 with an "Added on" column; README lists the new tabs.
+- Builder: overnight/scripts/sheet_1411.py (tab data, shared by the xlsx and the live Sheet); patch_xlsx_1411.py applies it to an existing workbook; build_sheet.py now calls it.
