@@ -35,6 +35,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
   All patients and health centres in this video are synthetic.
   ```
+- **Thumbnail:** `overnight/deliverables/Ajoissa_thumbnail.png` (1280×720; Details → Thumbnail → Upload file; custom thumbnails need a phone-verified YouTube account).
 - Before pasting the link into the form: open it in a private window — plays without login, ≤ 2:00, HD finished processing.
 
 ## Checklist before 10:00
