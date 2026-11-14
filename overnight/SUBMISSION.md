@@ -23,7 +23,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
 **Demo link:** https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
 **Source code:** https://github.com/dalvesalo/Junction-2026 (must be accessible to organisers; MIT licence applies to submissions)
-**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:59.5, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip, pilot-plan slide, end card "Ajoissa." + slogan; music and soft click sounds, no voiceover) to YouTube as *Unlisted/Public* and paste the link.
+**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:57.6, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip, pilot-plan slide, end card "Ajoissa." + slogan; music and soft click sounds, no voiceover) to YouTube as *Unlisted/Public* and paste the link.
 **Pitch deck (PDF):** export from https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i (Share/Export → PDF), or use `overnight/deliverables/Ajoissa_pitch_deck.pdf`.
 
 ## Checklist before 10:00

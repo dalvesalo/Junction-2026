@@ -2,7 +2,7 @@
 then a warm pad + soft arpeggio under the demo, lifting at the evidence and resolving at the close.
 python3 music.py out.wav [duration]"""
 import sys, numpy as np, wave
-SR = 44100; DUR = float(sys.argv[2]) if len(sys.argv) > 2 else 119.5
+SR = 44100; DUR = float(sys.argv[2]) if len(sys.argv) > 2 else 117.6
 N = int(SR * DUR); t = np.arange(N) / SR
 L = np.zeros(N); Rr = np.zeros(N)
 def hz(m): return 440 * 2 ** ((m - 69) / 12)
@@ -53,7 +53,7 @@ def bell(m, d=4.0):
 for m, dt in [(72, 0), (76, .12), (79, .24)]: add(bell(m), 39.05 + dt, pan=(dt * 2 - .25), gain=0.09)
 # 4) pad progression from 39.5: Am – F – C – G (each 3.6 s)
 CH = [[48, 55, 60, 64], [55, 59, 62], [57, 60, 64], [53, 57, 60]]   # C – G – Am – F
-bar = 3.6; t0 = 39.5; tend = 114.4
+bar = 3.6; t0 = 39.5; tend = DUR - 4.4
 def pad(notes, d, g):
     n = int(d * SR); s = np.zeros(n)
     for m in notes:
@@ -69,7 +69,7 @@ while tt < tend:
     k += 1; tt += bar
 # 5) arpeggio under the demo and evidence (44–106), 8ths at 100 bpm
 step = 0.3; tt = 44.0; i = 0
-while tt < 105.6:
+while tt < 104.9:
     c = CH[int((tt - t0) // bar) % 4]; m = (c + [c[0] + 12, c[1] + 12])[[0, 1, 2, 4, 3, 2, 1, 2][i % 8]] + 12
     x = np.arange(int(0.9 * SR)) / SR
     pl = (np.sin(2 * np.pi * hz(m) * x) + .3 * np.sin(4 * np.pi * hz(m) * x)) * np.exp(-x * 6) * np.minimum(1, x * 400)
@@ -88,10 +88,11 @@ def halo(notes, d):
     for dl, g in [(0.11, .5), (0.23, .35), (0.37, .25), (0.53, .15)]:     # simple reverb tail
         k = int(dl * SR); out[k:] += s[:-k] * e[:-k] * g
     return out
-hd = DUR - 114.9
-add(halo([48, 60, 64, 67, 72], hd), 114.9, gain=0.0065)               # C major "aah"
+END = DUR - 4.0   # end card starts
+hd = DUR - (END - 0.1)
+add(halo([48, 60, 64, 67, 72], hd), END - 0.1, gain=0.0065)               # C major "aah"
 for m_, dt in [(84, 0.0), (88, .18), (91, .36), (96, .6)]:             # high shimmer
-    add(bell(m_, 5), 115.1 + dt, pan=(dt - .3), gain=0.035)
+    add(bell(m_, 5), END + 0.1 + dt, pan=(dt - .3), gain=0.035)
 # master: gentle fade-in/out, normalise
 mix = np.stack([L, Rr], 1)
 fi = np.minimum(1, t / 1.0); fo = np.clip((DUR - t) / 3.0, 0, 1)

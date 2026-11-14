@@ -170,7 +170,7 @@ const $=id=>document.getElementById(id);
 
 /* ---------- segments: [id, start, end] — render.py reads these ---------- */
 window.SEGMENTS=[["A",0,10],["B",10,22],["C",22,32],["D",32,39],["E",39,44],
-  ["F",44,59],["G",59,72],["H",72,79.5],["I",79.5,90.5],["J",90.5,96.5],["K",96.5,105.5],["L",105.5,115],["M",115,119.5]];
+  ["F",44,59],["G",59,72],["H",72,79.5],["I",79.5,90.5],["J",90.5,96.5],["K",96.5,104.9],["L",104.9,113.6],["M",113.6,117.6]];
 const SC={};for(const [id,s,e] of SEGMENTS){const el=$(id);if(el)SC[id]={el,s,e,items:[...el.querySelectorAll('[data-in]')]};}
 
 /* ---------- demo layer ---------- */
@@ -257,7 +257,7 @@ const fx={
 function draw(t){
   for(const id in SC){const sc=SC[id], lt=t-sc.s;
     if(t<sc.s-0.01||t>sc.e+0.01){sc.el.style.opacity=0;continue;}
-    const fin=sc.s===0?clamp(lt/0.6):clamp(lt/0.45), fout=sc.e>=119.4?clamp((sc.e-t)/1.2):clamp((sc.e-t)/0.45);
+    const fin=sc.s===0?clamp(lt/0.6):clamp(lt/0.45), fout=id==="M"?clamp((sc.e-t)/1.2):clamp((sc.e-t)/0.45);
     sc.el.style.opacity=Math.min(fin,fout);
     for(const it of sc.items){const k=ease((lt-(+it.dataset.in))/0.6);it.style.opacity=k;it.style.transform=`translateY(${(1-k)*20}px)`;}
     if(fx[id])fx[id](lt);}
