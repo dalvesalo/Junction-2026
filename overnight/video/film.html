@@ -1,195 +1,251 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
+<!-- Ajoissa pitch film, v2 (14.11): Hospital blue, classic boxy look, Source Sans 3.
+     Every number on screen is from overnight/BRIEF.md (source line under it).
+     Demo segment (F–J) uses real screenshots of app/ captured by capture.py; cursor, zoom and spotlight are drawn here. -->
 <style>
-@font-face{font-family:'Archivo';src:url(assets/archivo-latin-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%}
-@font-face{font-family:'Archivo';src:url(assets/archivo-latin-ext-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0100-024F}
-@font-face{font-family:'SS';src:url(assets/source-serif-4-latin-standard-normal.woff2);font-weight:200 900}
-@font-face{font-family:'SS';src:url(assets/source-serif-4-latin-standard-italic.woff2);font-weight:200 900;font-style:italic}
-html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#0d1620;font-family:Archivo,sans-serif;color:#EEF2F5}
-.scene{position:absolute;inset:0;opacity:0;display:flex;flex-direction:column;justify-content:center;padding:0 160px;box-sizing:border-box}
-.dark{background:radial-gradient(ellipse at 50% 40%,#1a2a3b 0%,#0d1620 70%)}
-.berrybg{background:#B3324A}
-.serif{font-family:SS,Georgia,serif}
+@font-face{font-family:'SS3';src:url(../../app/fonts/source-sans-3-latin-wght-normal.woff2);font-weight:200 900}
+@font-face{font-family:'SS3';src:url(../../app/fonts/source-sans-3-latin-ext-wght-normal.woff2);font-weight:200 900;unicode-range:U+0100-024F}
+@font-face{font-family:'SS3';src:url(../../app/fonts/source-sans-3-latin-wght-italic.woff2);font-weight:200 900;font-style:italic}
+:root{--brand:#23395B;--primary:#2B5D8C;--bg:#E9EDF1;--head:#DCE3EA;--line:#A8B3BE;--red:#B42318;--amber:#D98E04;--amber-t:#A35F00;--green:#2E7D32;--text:#1B1F23;--text2:#3E4851;--mute:#67717A}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg);font-family:SS3,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+.scene{position:absolute;inset:0;opacity:0;box-sizing:border-box;padding:0 150px;display:flex;flex-direction:column;justify-content:center}
+.light{background:var(--bg);border-top:16px solid var(--brand)}
+.blue{background:var(--brand);color:#fff}
+.redbg{background:var(--red);color:#fff}
 .c{text-align:center;align-items:center}
-.big{font-size:84px;font-weight:700;line-height:1.1;max-width:1500px}
-.mid{font-size:56px;line-height:1.25}
-.small{font-size:30px;color:#9fb0c0}
-.src{position:absolute;left:160px;bottom:60px;font-size:24px;color:#7d90a3}
-.berry{color:#e2556c}.mint{color:#5FD3B0}.amber{color:#F0B43C}.soft{color:#a9b8c6}
+h1{font-size:80px;line-height:1.08;margin:0;color:var(--brand);font-weight:700;letter-spacing:-.5px}
+.blue h1,.redbg h1{color:#fff}
+.lead{font-size:44px;line-height:1.3;color:var(--text2);margin:28px 0 0}
+.src{position:absolute;left:150px;right:150px;bottom:44px;font-size:24px;color:var(--mute);line-height:1.3}
+.blue .src,.redbg .src{color:rgba(255,255,255,.75)}
 [data-in]{opacity:0}
-.lane{position:absolute;left:200px;height:14px;border-radius:7px}
-.lab{position:absolute;font-size:34px;font-weight:600}
-.day{position:absolute;right:200px;top:150px;font-size:120px;font-weight:800;font-stretch:80%;font-variant-numeric:tabular-nums}
-.steps{display:flex;gap:40px;margin-top:60px}
-.step{width:270px;border-top:12px solid #3b5268;padding-top:24px}
-.step b{display:block;font-size:110px;font-weight:800;font-stretch:80%;color:#e2556c;line-height:1}
-.step span{font-size:30px;color:#a9b8c6}
-.barrow{display:grid;grid-template-columns:520px 1fr 170px;gap:30px;align-items:center;font-size:36px;margin:18px 0}
-.track{height:44px;background:#1f3144;border-radius:6px;overflow:hidden}
-.fill{height:100%;border-radius:6px;width:0}
-.shot{position:absolute;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
-.band{position:absolute;left:0;right:0;bottom:0;height:480px;background:linear-gradient(rgba(13,22,32,0),rgba(13,22,32,.94) 55%)}
-.cap{position:absolute;left:160px;bottom:120px;max-width:1300px;font-size:52px;font-weight:700;line-height:1.15;text-shadow:0 4px 30px rgba(0,0,0,.8)}
-.cap small{display:block;font-size:30px;font-weight:400;color:#c8d4de;margin-top:14px}
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:40px}
-.trio div{border-top:6px solid #5FD3B0;padding-top:28px}
-.trio b{display:block;font-size:72px;font-weight:800;font-stretch:85%;line-height:1.05;margin-bottom:16px}
-.trio span{font-size:32px;color:#c8d4de;line-height:1.35;display:block}
-.trio i{display:block;font-size:24px;color:#7d90a3;margin-top:14px;font-style:normal}
-.word{font-size:300px;font-weight:800;letter-spacing:-6px;line-height:.9}
-</style></head><body>
+.panel{background:#fff;border:1px solid var(--line)}
+.panel .strip{background:var(--head);border-bottom:1px solid var(--line);font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--brand);padding:12px 24px}
+.panel .bd{padding:26px 28px}
+.row{display:flex;gap:44px;margin-top:56px}
+.row>.panel{flex:1}
+.big{font-size:88px;font-weight:800;line-height:1;color:var(--brand);letter-spacing:-1px}
+.body{font-size:36px;line-height:1.3;color:var(--text2);margin-top:14px}
+.ps{font-size:22px;color:var(--mute);margin-top:18px}
+/* B lanes */
+.lane-l{position:absolute;left:150px;font-size:38px;font-weight:700}
+.lane{position:absolute;left:150px;height:34px;width:0}
+.lend{position:absolute;font-size:34px;font-weight:700;white-space:nowrap;opacity:0}
+.day{position:absolute;right:150px;top:150px;font-size:110px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--brand)}
+.axis{position:absolute;left:150px;right:150px;top:812px;height:2px;background:var(--line)}
+/* bars */
+.bar{display:grid;grid-template-columns:260px 1fr 150px;gap:22px;align-items:center;font-size:34px;margin:20px 0}
+.track{height:46px;background:#EEF1F4;border:1px solid var(--line)}
+.fill{height:100%;width:0}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+/* demo */
+#demo{position:absolute;inset:0;opacity:0;background:var(--bg);overflow:hidden}
+#stage{position:absolute;left:0;top:0;transform-origin:0 0}
+#stage img{position:absolute;left:0;top:0;width:1440px;opacity:0}
+#spot{position:absolute;opacity:0;outline:5px solid var(--amber);box-shadow:0 0 0 5px #fff,0 0 0 4000px rgba(20,32,50,.42);pointer-events:none}
+#cursor{position:absolute;left:0;top:0;width:44px;height:58px;opacity:0;transform-origin:4px 4px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+#ripple{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;border:5px solid var(--amber);opacity:0}
+#night{position:absolute;left:560px;top:180px;width:800px;opacity:0}
+#night .bd div{display:flex;justify-content:space-between;font-size:38px;padding:8px 0;border-bottom:1px solid #E3E7EB}
+#night .bd div b{font-variant-numeric:tabular-nums;color:var(--brand)}
+#night .bd .res{border:0;color:var(--red);font-weight:700;padding-top:16px}
+#capbar{position:absolute;left:0;right:0;bottom:0;height:200px;background:var(--brand);color:#fff;box-sizing:border-box;padding:28px 150px 0}
+#capbar .cap{position:absolute;left:150px;right:420px;top:26px;opacity:0}
+#capbar .m{font-size:56px;font-weight:700;line-height:1.08}
+#capbar .s{font-size:34px;color:#D6E0EA;margin-top:10px;line-height:1.2}
+#chip{position:absolute;right:60px;top:34px;font-size:22px;font-weight:700;letter-spacing:1.5px;color:#FFE3A8;border:2px solid #E7C98C;padding:8px 14px;text-align:center;line-height:1.3}
+#steplab{position:absolute;right:60px;top:110px;font-size:24px;color:#D6E0EA;text-align:right;width:330px}
+.word{font-size:250px;font-weight:800;letter-spacing:-6px;line-height:.9}
+</style>
+<script src="assets/boxes.js"></script>
+</head><body>
 
-<!-- A -->
-<div class="scene dark c" id="A" data-s="0" data-e="8.6">
-  <p class="big serif" data-in="0.5" style="font-weight:400">Two people in Finland notice<br>the same lump in their neck.</p>
+<!-- A · hook -->
+<div class="scene light" id="A">
+  <h1 data-in="0.4" style="font-size:92px;max-width:1500px">Two people in Finland notice<br>the same lump in their neck.</h1>
+  <div class="row">
+    <div class="panel" data-in="2.6"><div class="strip">Person 1</div><div class="bd"><div class="body" style="margin:0;font-size:46px">Has <b>occupational</b> health care.</div></div></div>
+    <div class="panel" data-in="4.6" style="border-left:10px solid var(--red)"><div class="strip">Person 2</div><div class="bd"><div class="body" style="margin:0;font-size:46px">Goes to the <b style="color:var(--red)">public</b> health centre.</div></div></div>
+  </div>
 </div>
 
-<!-- B: river -->
-<div class="scene dark" id="B" data-s="8.6" data-e="24.6">
+<!-- B · the two routes -->
+<div class="scene light" id="B">
+  <h1 data-in="0.2" style="position:absolute;top:120px;left:150px">Same lymphoma. Different door.</h1>
   <div class="day" id="daynum">day 0</div>
-  <div class="lab" style="left:200px;top:330px" data-in="0.3">One has <span class="soft">occupational health care.</span></div>
-  <div class="lane" id="laneO" style="top:410px;background:#a9b8c6;width:0"></div>
-  <div class="lab" id="doneO" style="top:445px;opacity:0;font-size:30px;color:#cfd8e0">Treatment · day 123</div>
-  <div class="lab" style="left:200px;top:600px" data-in="1.4">One goes to the <span class="berry">public health centre.</span></div>
-  <div class="lane" id="laneP" style="top:680px;background:#e2556c;width:0;height:20px"></div>
-  <div class="lab" id="doneP" style="top:720px;opacity:0;font-size:30px;color:#ffb3c0">Treatment · day 207</div>
-  <div class="src">Diffuse large B-cell lymphoma · 7 Finnish hospitals, n = 160 · cumulative step times (Fig. 1) · Kuitunen et al., Cancer Medicine 2026</div>
+  <div class="lane-l" style="top:330px" data-in="0.6">Occupational / private care</div>
+  <div class="lane" id="laneO" style="top:395px;background:#6F7A84"></div>
+  <div class="lend" id="endO" style="top:440px;color:var(--text2)">Treatment · day 76</div>
+  <div class="lane-l" style="top:540px;color:var(--red)" data-in="0.9">Public primary care</div>
+  <div class="lane" id="laneP" style="top:605px;background:var(--red)"></div>
+  <div class="lend" id="endP" style="top:650px;color:var(--red)">Treatment · day 127</div>
+  <div class="lead" data-in="8.4" style="position:absolute;top:760px;left:150px;right:150px;margin:0;font-size:46px;color:var(--text)"><b style="color:var(--red)">51 days — about 7 weeks.</b> And it opens <b>before</b> a specialist sees them:<br>specialist → treatment takes 3–5 days on both routes.</div>
+  <div class="src">Diffuse large B-cell lymphoma · 7 Finnish hospitals, n = 160 · median days from symptom to treatment, p = 0.027 · Kuitunen et al., Cancer Medicine 2026</div>
 </div>
 
-<!-- C -->
-<div class="scene dark c" id="C" data-s="24.6" data-e="32.6">
-  <p class="berry" data-in="0" style="font-size:260px;font-weight:800;font-stretch:78%;margin:0;line-height:1">7 weeks</p>
-  <p class="mid serif" data-in="1.2">Same lymphoma. Median 127 vs 76 days to treatment.</p>
-  <div class="src">Kuitunen et al., Cancer Medicine 2026 · median symptom-to-treatment, public vs occupational/private, p = 0.027</div>
-</div>
-
-<!-- D -->
-<div class="scene dark" id="D" data-s="32.6" data-e="42.6">
-  <p class="big" data-in="0.2">The delay is born <span class="berry">before</span> the specialist.</p>
-  <div class="steps">
-    <div class="step" data-in="1.2"><b>+30</b><span>first contact</span></div>
-    <div class="step" data-in="1.9"><b>+51</b><span>doctor’s visit</span></div>
-    <div class="step" data-in="2.6"><b>+70</b><span>referral</span></div>
-    <div class="step" data-in="3.3" style="border-top-color:#e2556c"><b>+86</b><span>specialist</span></div>
-    <div class="step" data-in="4.6"><b style="color:#7d90a3">+84</b><span>treatment</span></div>
+<!-- C · who + Goal 3 -->
+<div class="scene light" id="C">
+  <h1 data-in="0.2" style="font-size:72px">The public door serves the retired,<br>the unemployed, the low-paid.</h1>
+  <div class="row" style="margin-top:50px">
+    <div class="panel" data-in="1.4" style="flex:.8"><div class="strip">Who has the other door</div><div class="bd"><div class="big">92 %</div><div class="body">of wage earners are covered by occupational health care.</div><div class="ps">Kela 2026</div></div></div>
+    <div class="panel" data-in="4.2" style="flex:1.2"><div class="strip">Lung-cancer survival · lowest in the Nordics</div><div class="bd">
+      <div class="bar"><span>Norway</span><div class="track"><div class="fill" id="bNO" style="background:#6F7A84"></div></div><b>26.6 %</b></div>
+      <div class="bar"><span style="color:var(--red);font-weight:700">Finland</span><div class="track"><div class="fill" id="bFI" style="background:var(--red)"></div></div><b style="color:var(--red)">16.4 %</b></div>
+      <div class="ps">5-year survival, men, 2016–20 · Tichanek et al., Clin Epidemiol 2023 (NORDCAN)</div></div></div>
   </div>
-  <p class="small" data-in="5.4" style="margin-top:50px">Extra days on the public route, at each step.</p>
+  <div class="src">Occupational care: Kela 2026 · Lung survival: Tichanek et al., Clin Epidemiol 2023 · National Cancer Strategy Goal 3</div>
 </div>
 
-<!-- E1 -->
-<div class="scene dark" id="E1" data-s="42.6" data-e="49.6">
-  <p class="big" data-in="0.2">Inequality runs through the whole system.</p>
-  <div style="margin-top:60px">
-    <div class="barrow" data-in="0.9"><span>Basic education</span><div class="track"><div class="fill" id="b1" style="background:#e2556c"></div></div><b>64 %</b></div>
-    <div class="barrow" data-in="1.2"><span>Higher education</span><div class="track"><div class="fill" id="b2" style="background:#a9b8c6"></div></div><b>77 %</b></div>
-  </div>
-  <p class="small" data-in="2.2" style="margin-top:30px">Five-year cancer survival, Finnish men. Occupational care covers 92 % of wage earners — not the retired or unemployed.</p>
-  <div class="src">OECD/EC Country Cancer Profile Finland 2025 (Finnish Cancer Registry) · Kela 2026</div>
+<!-- D · invisible -->
+<div class="scene redbg" id="D">
+  <h1 data-in="0.2" style="font-size:96px;max-width:1550px">Nobody measures the wait between a symptom and a diagnosis.</h1>
+  <p class="lead" data-in="2.6" style="color:#FDE6E3;font-size:54px;margin-top:44px">You can't shorten a wait you don't see.</p>
+  <div class="src">National Cancer Strategy 2026–2035: symptom-to-diagnosis data is “not collected systematically”</div>
 </div>
 
-<!-- E2 -->
-<div class="scene dark" id="E2" data-s="49.6" data-e="55.6">
-  <p class="big" data-in="0.2">Finland has the Nordics’ lowest lung-cancer survival.</p>
-  <div style="margin-top:60px">
-    <div class="barrow" data-in="0.8"><span>Norway, men</span><div class="track"><div class="fill" id="b3" style="background:#a9b8c6"></div></div><b>26.6 %</b></div>
-    <div class="barrow" data-in="1.1"><span>Finland, men</span><div class="track"><div class="fill" id="b4" style="background:#e2556c"></div></div><b>16.4 %</b></div>
-  </div>
-  <p class="small" data-in="2.0" style="margin-top:30px">Denmark started below Finland twenty years ago. Today it is at 26 %. This is fixable.</p>
-  <div class="src">Tichanek et al., Clin Epidemiol 2023 · Khalife et al., Acta Oncol 2025</div>
+<!-- E · title -->
+<div class="scene blue c" id="E">
+  <div class="word" data-in="0.2">Ajoissa</div>
+  <p class="lead" data-in="1.1" style="color:#fff;font-size:60px;margin-top:40px">Finnish for “in time”.</p>
+  <p class="lead" data-in="2.0" style="color:#D6E0EA;font-size:40px;margin-top:18px">A safety-net agent for public primary care.</p>
 </div>
 
-<!-- F -->
-<div class="scene berrybg" id="F" data-s="55.6" data-e="63.2">
-  <p class="big" data-in="0.2" style="font-size:96px">Nobody measures the wait between a symptom and a cancer diagnosis.</p>
-  <p class="mid serif" data-in="2.0" style="color:#fde6ea;margin-top:40px">You cannot shorten a wait you do not see.</p>
-  <div class="src" style="color:#f7c9d1">National Cancer Strategy 2026–2035, sub-goal 2.5</div>
+<!-- F–J · live demo (one continuous layer) -->
+<div id="demo">
+  <div id="stage"></div>
+  <div id="spot"></div>
+  <div id="night" class="panel"><div class="strip">Ajoissa · overnight run 03:12</div><div class="bd">
+    <div><span>Contacts read</span><b id="n1">0</b></div>
+    <div><span>Visit notes read</span><b id="n2">0</b></div>
+    <div><span>Lab results read</span><b id="n3">0</b></div>
+    <div class="res" id="n4" style="opacity:0"><span>Put on the nurse's list</span><b style="color:var(--red)">9</b></div>
+    <div style="border:0;font-size:24px;color:var(--amber-t);padding-top:10px">Synthetic records · demo county</div>
+  </div></div>
+  <div id="ripple"></div>
+  <svg id="cursor" viewBox="0 0 22 29"><path d="M2 2 L2 23 L7.5 18 L11.5 27 L15 25.5 L11 16.8 L18.5 16.8 Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  <div id="capbar"><div id="chip">LIVE DEMO<br>SYNTHETIC PATIENTS</div><div id="steplab"></div></div>
 </div>
 
-<!-- G -->
-<div class="scene dark c" id="G" data-s="63.2" data-e="70.2">
-  <p class="word" data-in="0.3">Ajoissa<span class="mint">.</span></p>
-  <p class="mid serif" data-in="1.3" style="margin-top:30px">Finnish for <i>in time</i>.</p>
-  <p class="small" data-in="2.3" style="font-size:36px">A safety-net agent for public primary care.</p>
-</div>
-
-<!-- H -->
-<div class="scene dark" id="H" data-s="70.2" data-e="79.6">
-  <img class="shot" id="hshot" src="assets/agent.jpg" style="width:1600px;left:160px;top:240px">
-  <img class="shot" id="hrun" src="assets/runbar.jpg" style="width:1600px;left:160px;top:110px">
-  <div class="band"></div>
-  <div class="cap" data-in="0.6">Every night, it reads the health centre’s own records.<small>Notes, lab results, visit history. Synthetic patients in this demo.</small></div>
-</div>
-
-<!-- I -->
-<div class="scene dark" id="I" data-s="79.6" data-e="91.6">
-  <img class="shot" id="inote" src="assets/notepanel.jpg" style="width:940px;left:160px;top:120px">
-  <img class="shot" id="ireason" src="assets/reason.jpg" style="width:700px;left:1080px;top:120px">
-  <div class="band"></div>
-  <div class="cap" data-in="0.5" id="icap1">Third visit for the same cough.<small>It reads the Finnish note — and understands “no blood”.</small></div>
-  <div class="cap" id="icap2" style="opacity:0">Risk 0.9 % → 21.5 %. Proposed: a direct CT.<small>A named nurse decides. Then a clock runs until diagnosis or all-clear.</small></div>
-</div>
-
-<!-- J -->
-<div class="scene dark" id="J" data-s="91.6" data-e="99.6">
-  <p class="mint" data-in="0.2" style="font-size:220px;font-weight:800;font-stretch:78%;margin:0;line-height:1">35 days</p>
-  <p class="big" data-in="0.9" style="font-size:72px">earlier — at his second visit.</p>
-  <p class="mid serif soft" data-in="2.0" style="margin-top:30px">Nobody did anything wrong. Nobody had the whole picture.</p>
-</div>
-
-<!-- K -->
-<div class="scene dark" id="K" data-s="99.6" data-e="108.6">
-  <p class="big" data-in="0.2">Proven pattern. Approved by Parliament. Done before.</p>
-  <div class="trio">
-    <div data-in="1.0"><b>200 → 104 days</b><span>to colorectal work-up when an automatic trigger meets a human reviewer.</span><i>Randomised trial · Murphy et al., JCO 2015</i></div>
-    <div data-in="1.8"><b>Approved 2026</b><span>Parliament: counties may use their own records to find health problems early.</span><i>HE 159/2025 · EV 38/2026</i></div>
-    <div data-in="2.6"><b>Already running</b><span>in Päijät-Häme for kidney disease — list, nurse, doctor.</span><i>Päijät-Häme AINO, 2026</i></div>
+<!-- K · evidence -->
+<div class="scene light" id="K">
+  <h1 data-in="0.2">Proven. Approved. Already running.</h1>
+  <div class="row">
+    <div class="panel" data-in="1.0"><div class="strip">Randomised trial</div><div class="bd"><div class="big" style="font-size:76px">200 → 104</div><div class="body">days to bowel-cancer work-up when result triggers meet a human reviewer.</div><div class="ps">Murphy et al., J Clin Oncol 2015</div></div></div>
+    <div class="panel" data-in="2.6"><div class="strip">Law</div><div class="bd"><div class="big" style="font-size:76px">April 2026</div><div class="body">Parliament: counties may use their own records to find health problems early.</div><div class="ps">HE 159/2025 · EV 38/2026</div></div></div>
+    <div class="panel" data-in="4.6" style="border-top:8px solid var(--primary)"><div class="strip">Already running</div><div class="bd"><div class="big" style="font-size:76px">Päijät-Häme</div><div class="body">The same list → nurse → doctor model runs there today, for kidney disease.</div><div class="ps">AINO: Mehiläinen's tool, run by Harjun terveys; AstraZeneca supports the project work · county press release 12.3.2026</div></div></div>
   </div>
 </div>
 
-<!-- L -->
-<div class="scene dark c" id="L" data-s="108.6" data-e="117.8">
-  <p class="big" data-in="0.2" style="font-size:90px">One county. Three health centres.<br>Six months.</p>
-  <p class="mid serif" data-in="2.4" style="margin-top:50px">Same symptom, same speed — <span class="mint">whichever door you walk in.</span></p>
-  <p class="small" data-in="4.0" style="margin-top:60px;font-size:34px"><b style="color:#EEF2F5">Ajoissa</b> · Brainwave Bandits · Junction 2026 · AstraZeneca challenge</p>
+<!-- L · close -->
+<div class="scene blue c" id="L">
+  <h1 data-in="0.3" style="font-size:96px">Päijät-Häme. Three health centres.<br>Six months.</h1>
+  <p class="lead" data-in="3.0" style="color:#fff;font-size:52px;margin-top:60px"><b>Ajoissa</b> — same symptom, same speed,<br>whichever door you walk in.</p>
+  <p class="lead" data-in="5.0" style="color:#D6E0EA;font-size:30px;margin-top:70px">Brainwave Bandits · Junction 2026 · AstraZeneca challenge</p>
+  <div class="src" style="text-align:center" data-in="5.0">All demo patients and health centres are synthetic. Research prototype, not CE-marked.</div>
 </div>
 
 <script>
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const ease=x=>1-Math.pow(1-clamp(x),3);
-const io=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
-const scenes=[...document.querySelectorAll('.scene')].map(el=>({el,s:+el.dataset.s,e:+el.dataset.e,items:[...el.querySelectorAll('[data-in]')]}));
-function draw(t){
-  for(const sc of scenes){
-    const lt=t-sc.s, dur=sc.e-sc.s;
-    if(t<sc.s-0.01||t>sc.e+0.01){sc.el.style.opacity=0;continue;}
-    const fin=sc.s===0?clamp(lt/0.8):clamp(lt/0.5), fout=clamp((sc.e-t)/0.5);
-    sc.el.style.opacity=Math.min(fin,fout);
-    for(const it of sc.items){const k=ease((lt-(+it.dataset.in))/0.7);it.style.opacity=k;it.style.transform=`translateY(${(1-k)*24}px)`;}
-    const f=window['s_'+sc.el.id]; if(f) f(lt,dur);
-  }
+const io=x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const $=id=>document.getElementById(id);
+
+/* ---------- segments: [id, start, end] — render.py reads these ---------- */
+window.SEGMENTS=[["A",0,10],["B",10,22],["C",22,32],["D",32,39],["E",39,44],
+  ["F",44,59],["G",59,72],["H",72,79.5],["I",79.5,90.5],["J",90.5,96.5],["K",96.5,106],["L",106,116]];
+const SC={};for(const [id,s,e] of SEGMENTS){const el=$(id);if(el)SC[id]={el,s,e,items:[...el.querySelectorAll('[data-in]')]};}
+
+/* ---------- demo layer ---------- */
+const BX=BOXES.states, VW=BOXES.vw, D0=44, D1=96.5;
+const box=(st,k)=>BX[st][k], ctr=(st,k)=>{const b=box(st,k);return [b[0]+b[2]/2,b[1]+b[3]/2]};
+const IMG={};for(const k in BX){const im=document.createElement('img');im.src=`assets/${k}.jpg`;im.style.height=BX[k].h+'px';$('stage').appendChild(im);IMG[k]=im;}
+const S0=1920/VW, CY=440; // camera: page px → screen; centre of picture area above caption bar
+
+const STATES=[[44,'st_list'],[53.0,'st_aino'],[61.0,'st_matti'],[73.6,'st_signed'],[80.3,'st_behind'],[81.8,'st_w1'],
+  [83.8,'st_w2'],[85.6,'st_w3'],[87.2,'st_w4'],[88.5,'st_w5'],[91.7,'st_county'],[93.5,'st_countyD']];
+const CLICKS=STATES.slice(1).map(s=>s[0]-0.06);
+const CAM=[[44,720,330,1],[47.4,720,330,1],[48.7,430,470,1.45],[53.4,430,470,1.45],[54.6,680,330,1.55],[58.7,680,330,1.55],
+  [59.7,430,470,1.45],[61.2,430,470,1.45],[62.5,680,1235,1.55],[65.0,680,1235,1.55],[66.0,680,640,1.6],[68.3,680,640,1.6],
+  [69.3,1010,440,1.5],[71.6,1010,440,1.5],[72.6,1010,720,1.5],[74.2,1010,720,1.5],[75.0,1010,830,1.6],[78.6,1010,830,1.6],
+  [79.4,1010,900,1.35],[80.3,1010,900,1.35],[80.3,720,330,1],[81.8,720,330,1],[82.5,525,450,1.5],[83.0,525,450,1.5],[83.5,870,520,1.3],[88.9,870,520,1.3],
+  [89.5,800,500,1.55],[90.8,800,500,1.55],[91.3,720,330,1],[91.7,720,330,1],[92.5,860,690,1.2],[96.5,860,690,1.2]];
+const R=k=>{const c=ctr('st_list',k);return [c[0]+40,c[1]+6]};
+const CUR=[[47.4,760,640],[48.6,...R('kalevi')],[49.5,...R('kalevi')],[50.2,...R('eero')],[51.1,...R('eero')],[51.8,...R('aino')],[53.4,...R('aino')],
+  [54.6,560,330],[58.8,560,330],[60.4,...R('matti')],[61.6,...R('matti')],[62.6,690,1246],[65.0,690,1246],[66.0,560,555],[68.3,560,555],
+  [69.3,1150,260],[71.8,1150,260],[73.1,...ctr('st_matti','sign')],[74.0,...ctr('st_matti','sign')],[75.0,1240,882],[78.6,1240,882],
+  [79.7,...ctr('st_signed','tobehind')],[80.6,...ctr('st_signed','tobehind')],[81.4,...ctr('st_behind','start')],[81.9,...ctr('st_behind','start')],
+  [82.6,430,470],[83.1,430,470],[83.6,...ctr('st_w1','next')],[88.6,...ctr('st_w1','next')],[89.4,880,600],[90.8,880,600],[91.4,...ctr('st_w5','countytab')],[91.8,...ctr('st_w5','countytab')],
+  [93.0,...ctr('st_county','rowD')],[93.6,...ctr('st_county','rowD')],[94.6,1000,560],[96.5,1000,560]];
+const pad=(b,p=8)=>[b[0]-p,b[1]-p,b[2]+2*p,b[3]+2*p];
+const SPOT=[[48.6,49.8,box('st_list','kalevi')],[49.9,51.2,box('st_list','eero')],[51.3,52.9,box('st_list','aino')],
+  [54.4,58.8,pad(box('st_aino','why'))],[62.4,65.0,pad(box('st_matti','veri'),6)],[65.9,68.4,pad([box('st_matti','thr')[0],box('st_matti','thr')[1]+36,box('st_matti','thr')[2],100])],
+  [69.2,71.8,pad([1041,182,380,300])],[75.0,78.7,pad([1041,box('st_signed','olog')[1],380,184])],
+  [82.5,83.3,[26,352,770,128]],[89.4,90.8,pad([332,410,1090,170])],[94.0,96.5,pad([775,445,646,170])]];
+const CAPS=[[44,47.4,'Every night, Ajoissa reads the county’s own records.','Notes, lab results, visit history — already in the system.'],
+  [47.4,53.6,'First: results nobody followed up.','A raised PSA · a positive stool test · a suspicious chest X-ray.'],
+  [53.6,59.6,'Already due. No new scanners.','Each on a named nurse’s list, with the reason and its source.'],
+  [59.6,65.1,'Then Matti. Third visit, same cough.','It reads his Finnish note — even “Ei veriyskää”: no blood.'],
+  [65.1,68.6,'Today’s strongest signal.','Lung-cancer risk 21.5 % against a 3 % referral threshold.'],
+  [68.6,72.4,'So he gets one of the CT slots the county already has.','The agent ranks who goes first. It never asks for more.'],
+  [72.4,79.6,'A nurse decides. She signs — and a clock starts.','It runs until diagnosis or all-clear. A late step puts him back on top.'],
+  [79.6,89.1,'Behind every flag: each step, with its source.','Same record in → same result out. Every step can be checked.'],
+  [89.1,90.9,'Same rules on his history: 35 days earlier.','Re-run on his earlier visits.'],
+  [90.9,96.5,'The clocks add up to the data Finland is missing.','Days per pathway step, per health centre.']];
+const STEPLAB=[[81.8,'Step 1 · Read the note'],[83.8,'Step 2 · Check the record'],[85.6,'Step 3 · Calculate risk'],[87.2,'Step 4 · Match rules'],[88.5,'Step 5 · Propose'],[90.9,'']];
+const capEls=CAPS.map(c=>{const d=document.createElement('div');d.className='cap';d.innerHTML=`<div class="m">${c[2]}</div><div class="s">${c[3]}</div>`;$('capbar').appendChild(d);return d;});
+function interp(K,t){ // piecewise, eased between keyframes
+  if(t<=K[0][0])return K[0].slice(1); for(let i=0;i<K.length-1;i++){const a=K[i],b=K[i+1];if(t<=b[0]){const k=b[0]>a[0]?io((t-a[0])/(b[0]-a[0])):1;return a.slice(1).map((v,j)=>v+(b[j+1]-v)*k);}}
+  return K[K.length-1].slice(1);}
+function drawDemo(t){
+  const dm=$('demo'); if(t<D0-0.01||t>D1+0.01){dm.style.opacity=0;return;}
+  dm.style.opacity=Math.min(clamp((t-D0)/0.5),clamp((D1-t)/0.6));
+  const [cx,cy,z]=interp(CAM,t), s=S0*z, tx=960-cx*s, ty=CY-cy*s;
+  $('stage').style.transform=`translate(${tx}px,${ty}px) scale(${s})`;
+  const P=(x,y)=>[tx+x*s,ty+y*s];
+  // states with 0.18 s crossfade
+  let cur=0; for(let i=0;i<STATES.length;i++) if(t>=STATES[i][0]) cur=i;
+  for(const k in IMG) IMG[k].style.opacity=0;
+  const kf=clamp((t-STATES[cur][0])/0.18);
+  if(cur>0 && kf<1) IMG[STATES[cur-1][1]].style.opacity=1;
+  IMG[STATES[cur][1]].style.opacity=kf; IMG[STATES[cur][1]].style.zIndex=2; if(cur>0) IMG[STATES[cur-1][1]].style.zIndex=1;
+  // overnight run panel
+  const nk=ease((t-44.6)/2.0); $('n1').textContent=Math.round(1284*nk).toLocaleString('en-US'); $('n2').textContent=Math.round(911*nk); $('n3').textContent=Math.round(2307*nk).toLocaleString('en-US');
+  $('n4').style.opacity=clamp((t-46.5)/0.3); $('night').style.opacity=Math.min(clamp((t-44.3)/0.4),clamp((47.6-t)/0.4));
+  // spotlight
+  const sp=$('spot'); let so=0;
+  for(const [a,b,bx] of SPOT){ if(t>=a-0.3&&t<=b+0.3){ const o=Math.min(clamp((t-a+0.3)/0.3),clamp((b+0.3-t)/0.3)); if(o<=so) continue; so=Math.min(clamp((t-a+0.3)/0.3),clamp((b+0.3-t)/0.3)); const [x,y]=P(bx[0],bx[1]); sp.style.left=x+'px';sp.style.top=y+'px';sp.style.width=bx[2]*s+'px';sp.style.height=bx[3]*s+'px'; } }
+  sp.style.opacity=so;
+  // cursor + click
+  const [px,py]=interp(CUR,t), [sx,sy]=P(px,py), cu=$('cursor');
+  let press=0, rip=-1; for(const c of CLICKS){ const d=t-c; if(d>-0.12&&d<0.12) press=1-Math.abs(d)/0.12; if(d>=0&&d<0.5) rip=d/0.5; }
+  cu.style.opacity=Math.min(clamp((t-47.4)/0.3),clamp((96.1-t)/0.3));
+  cu.style.transform=`translate(${sx-4}px,${sy-4}px) scale(${1-0.18*press})`;
+  const rp=$('ripple'); rp.style.left=sx+'px'; rp.style.top=sy+'px'; rp.style.opacity=rip<0?0:(1-rip); rp.style.transform=`scale(${0.3+rip*0.9})`;
+  // captions
+  CAPS.forEach((c,i)=>{const o=Math.min(clamp((t-c[0])/0.3),clamp((c[1]-t)/0.3)); capEls[i].style.opacity=(i===0?Math.min(1,clamp((c[1]-t)/0.3)):o); capEls[i].style.transform=`translateY(${(1-ease((t-c[0])/0.4))*14}px)`;});
+  let sl=''; for(const [a,txt] of STEPLAB) if(t>=a) sl=txt; $('steplab').textContent=sl;
 }
-const X0=200,X1=1720,MAXD=210;
-window.s_B=(lt)=>{
-  const d=clamp((lt-2.2)/11,0,1)*207; // days run over 11 s
-  const dO=Math.min(d,123), dP=d;
-  document.getElementById('laneO').style.width=(dO/MAXD*(X1-X0))+'px';
-  document.getElementById('laneP').style.width=(dP/MAXD*(X1-X0))+'px';
-  document.getElementById('daynum').textContent='day '+Math.round(d);
-  const o=document.getElementById('doneO'); o.style.left=(X0+123/MAXD*(X1-X0)-10)+'px'; o.style.opacity=d>=123?clamp((d-123)/10):0;
-  const p=document.getElementById('doneP'); p.style.left=(X0+207/MAXD*(X1-X0)-330)+'px'; p.style.opacity=d>=206?clamp((lt-13.2)/0.5):0;
-  document.getElementById('daynum').style.color=d>123?'#e2556c':'#EEF2F5';
+
+/* ---------- scene-specific animation ---------- */
+const X0=150,X1=1770,MAXD=135;
+const fx={
+  B:lt=>{const d=clamp((lt-1.6)/6.2)*127, dO=Math.min(d,76);
+    $('laneO').style.width=dO/MAXD*(X1-X0)+'px'; $('laneP').style.width=d/MAXD*(X1-X0)+'px';
+    $('daynum').textContent='day '+Math.round(d); $('daynum').style.color=d>76?'var(--red)':'var(--brand)';
+    const eo=$('endO'); eo.style.left=(X0+76/MAXD*(X1-X0)+20)+'px'; eo.style.top='392px'; eo.style.opacity=d>=76?clamp((d-76)/6):0;
+    const ep=$('endP'); ep.style.left=(X0+127/MAXD*(X1-X0)-330)+'px'; ep.style.top='655px'; ep.style.opacity=d>=126.5?clamp((lt-7.8)/0.4):0;},
+  C:lt=>{$('bNO').style.width=ease((lt-4.8)/1.2)*26.6/30*100+'%'; $('bFI').style.width=ease((lt-5.2)/1.2)*16.4/30*100+'%';}
 };
-window.s_E1=(lt)=>{document.getElementById('b1').style.width=(ease((lt-1.1)/1.4)*64)+'%';document.getElementById('b2').style.width=(ease((lt-1.4)/1.4)*77)+'%';};
-window.s_E2=(lt)=>{document.getElementById('b3').style.width=(ease((lt-1.0)/1.2)*26.6/30*100)+'%';document.getElementById('b4').style.width=(ease((lt-1.3)/1.2)*16.4/30*100)+'%';};
-window.s_H=(lt,d)=>{const k=io(clamp(lt/d));const s=document.getElementById('hshot');s.style.transform=`translateY(${-k*260}px) scale(${1.02-k*0.02})`;s.style.transformOrigin='50% 0';};
-window.s_I=(lt,d)=>{
-  const n=document.getElementById('inote'), r=document.getElementById('ireason');
-  const k1=io(clamp(lt/6)); n.style.transform=`scale(${1.08-0.08*k1})`; n.style.transformOrigin='0 0';
-  const k2=io(clamp((lt-5.5)/5)); r.style.transform=`translateY(${-k2*520}px)`; r.style.opacity=0.35+0.65*clamp((lt-5)/1);
-  n.style.opacity=1-0.6*clamp((lt-5.5)/1);
-  document.getElementById('icap1').style.opacity=lt<5.6?ease(lt-0.5):clamp((6.2-lt)/0.6);
-  document.getElementById('icap2').style.opacity=clamp((lt-6.3)/0.6);
-};
+function draw(t){
+  for(const id in SC){const sc=SC[id], lt=t-sc.s;
+    if(t<sc.s-0.01||t>sc.e+0.01){sc.el.style.opacity=0;continue;}
+    const fin=sc.s===0?clamp(lt/0.6):clamp(lt/0.45), fout=sc.e>=115.9?clamp((sc.e-t)/1.0):clamp((sc.e-t)/0.45);
+    sc.el.style.opacity=Math.min(fin,fout);
+    for(const it of sc.items){const k=ease((lt-(+it.dataset.in))/0.6);it.style.opacity=k;it.style.transform=`translateY(${(1-k)*20}px)`;}
+    if(fx[id])fx[id](lt);}
+  drawDemo(t);
+}
 window.draw=draw; draw(0);
 </script>
 </body></html>

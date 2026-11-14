@@ -23,7 +23,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
 **Demo link:** https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
 **Source code:** https://github.com/dalvesalo/Junction-2026 (must be accessible to organisers; MIT licence applies to submissions)
-**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:57.8) to YouTube as *Unlisted/Public* and paste the link.
+**Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:56, rebuilt 14.11: Hospital blue, story Level 0 → Matti, cursor-driven demo clip) to YouTube as *Unlisted/Public* and paste the link.
 **Pitch deck (PDF):** export from https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i (Share/Export → PDF), or use `overnight/deliverables/Ajoissa_pitch_deck.pdf`.
 
 ## Checklist before 10:00
@@ -36,7 +36,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 - [ ] Set to FINAL.
 - [ ] Peer review 10:30–13:00: everyone present.
 
-## Optional voiceover for the video (≤ 1:55; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second
+## Optional voiceover for the video (≤ 1:56; record over the existing track, music stays under) — story of 14.11: Level 0 first, Matti second
 | Time | Scene | Line |
 |---|---|---|
 | 0:00 | Hook: two people, same lump | Two people in Finland notice the same lump in their neck. One has occupational health care. One goes to the public health centre. |
@@ -48,10 +48,10 @@ The agent never asks for more scans than the county gives it: follow-ups already
 | 0:59 | Matti | Then Matti — third visit, same cough. Ajoissa reads his Finnish note, even the "no blood". His signal is today's strongest, so he gets one of the CT slots the county already has. |
 | 1:12 | Sign and send | A nurse decides. She signs, and a clock runs until he's diagnosed or cleared. |
 | 1:19 | Behind the flag, step by step | Every step is shown, with its source. Same rules on his history: thirty-five days earlier. |
-| 1:28 | County view | The clocks add up to the data Finland is missing: days per step, per health centre. |
-| 1:35 | Evidence | The pattern is proven in a randomised trial. Parliament approved it this spring. And Päijät-Häme already runs it for kidney disease. |
-| 1:45 | Close | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
-| 1:54 | end | |
+| 1:30 | County view | The clocks add up to the data Finland is missing: days per step, per health centre. |
+| 1:36 | Evidence | The pattern is proven in a randomised trial. Parliament approved it this spring. And Päijät-Häme already runs it for kidney disease. |
+| 1:46 | Close | Päijät-Häme. Three health centres. Six months. Ajoissa — same symptom, same speed, whichever door you walk in. |
+| 1:56 | end | |
 
 ## 3-minute stage pitch (if top 5) — script in `overnight/PITCH-SCRIPT.md`
 Stage slides: cover → hook → who → stakes → mechanism → invisible → solution → **live demo** → evidence → ask → close (≈ 2:50). `earlier` and `county` are shown live in the demo; use them only if the demo fails. Full speaker notes, timings, driver cues and the numbers' sources are in `overnight/PITCH-SCRIPT.md` (the deck chat copies the notes from there). One speaker; second person drives the demo.
