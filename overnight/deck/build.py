@@ -1,9 +1,33 @@
 import json, datetime, os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 IMG = {k: v[0] for k, v in json.load(open("assets.json")).items()}   # name -> /_blob/ id (files in img/)
+# Speaker notes copied from overnight/PITCH-SCRIPT.md (v2, 14.11); they replace the inline notes below.
+NOTES = {
+ "cover": "STAGE (4 s). Ajoissa. Finnish for \"in time\". Hold a beat on the title.",
+ "hook": "STAGE (24 s). Two Finns notice the same lump. One has occupational health care, one goes to the public health centre. Same lymphoma: 76 days to treatment through occupational or private care — 127 through public primary care. Seven weeks. And the gap is already there by the specialist visit; after that, both routes take three to five days. The delay is born at the front door.",
+ "born": "APPENDIX / Q&A (not on stage). Gap per step from the paper's Fig. 1 (cumulative step times): +86 days by the specialist visit; specialist → treatment 3–5 days on both routes. Tested result: medians 127 vs 76 days, p = 0.027, n = 160 — moderate evidence.",
+ "who": "STAGE (11 s). Who uses the public door? Occupational care covers 92 % of wage earners — so it's the retired, the unemployed, the low-paid. And less-educated patients' cancer survival is thirteen points lower.",
+ "stakes": "STAGE (8 s). And Goal 3: Finland has the Nordics' lowest lung-cancer survival. Denmark started below us — and fixed it.",
+ "mechanism": "STAGE (10 s). Why? A GP visit takes two weeks, the legal guarantee is three months, few health centres can order a CT. So patients come back, again and again.",
+ "invisible": "STAGE (5 s). And nobody measures it. You can't shorten a wait you don't see.",
+ "local": "APPENDIX / Q&A (not on stage). Why health centres, not counties: 67 % of municipal survival variation lies inside hospital districts (Seppä 2020). County survival gaps are mostly not significant.",
+ "solution": "STAGE (18 s). So we built Ajoissa. Every night it reads the county's own records. First, what needs no new capacity: abnormal results nobody followed up — a suspicious chest X-ray, a positive stool test or iron-deficiency anaemia, a raised PSA. Then symptoms that keep coming back. → switch to the live demo.",
+ "demo": "STAGE (56 s) — LIVE DEMO, click path below. Monday, eight a.m., the nurse's worklist. At the top: follow-ups that were already due. Aino's chest X-ray recommended a CT — nobody booked it. Eero's stool test was positive. Kalevi's PSA was never repeated. No new scans needed. Then Matti: smoker, third visit, same cough. Ajoissa read his Finnish note — weight loss, poor appetite — and understood \"no blood\" as a no. His risk is well over the 3 % referral line, so he gets one of the CT slots the county already has. The nurse signs; the clock starts. How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan. Same rules on his history: thirty-five days earlier. And every clock leaves timestamps: days per step, per health centre — the data Finland doesn't have. → back to slides at `evidence`.",
+ "earlier": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). Run the same rules on Matti's history: he would have been on the list 35 days earlier. Nobody did anything wrong. Nobody had the whole picture.",
+ "county": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in County view). Every clock leaves timestamps. Together they are the data Finland doesn't have: days per step, per health centre.",
+ "evidence": "STAGE (13 s). Does it work? In a randomised trial, the same pattern cut time to bowel-cancer work-up from 200 to 104 days. In April, Parliament approved it: counties may use their own records to find problems early.",
+ "impact": "APPENDIX / Q&A (not on stage). Modelled, every assumption adjustable in the app. No stage or survival effect claimed. Honest cost: ≈ 33 work-ups per earlier diagnosis (Schut 2025).",
+ "recs": "APPENDIX / Q&A (not on stage). 1 Level 0 in 3 health centres (county alone) · 2 fixed existing CT slots · 3 publish step times monthly · 4 phase-2 risk scoring (needs QMS) · 5 national referral criteria (national decision).",
+ "ask": "STAGE (18 s). Our ask: Päijät-Häme. AINO — Mehiläinen's tool, run by Harjun terveys, the county's joint venture with Mehiläinen, with AstraZeneca supporting the project work — already runs list, nurse, doctor there for kidney disease. We add cancer: about 28,000 euros, one nurse, 45 minutes a day. Päijät-Häme. Three health centres. Six months.",
+ "honest": "APPENDIX / Q&A (not on stage). Real vs modelled vs synthetic. UK-derived likelihood ratios and PLCOm2012 need recalibration on Finnish data.",
+ "close": "STAGE (3 s). Same symptom, same speed — whichever door you walk in. Thank you.",
+ "matti": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live on the Worklist). Then Matti: smoker, third visit, same cough. Ajoissa read his Finnish note — weight loss, poor appetite — and understood \"no blood\" as a no. His risk is well over the 3 % referral line, so he gets one of the CT slots the county already has. The nurse signs; the clock starts.",
+ "behind": "BACKUP ONLY (if the live demo fails; otherwise skip — shown live in \"Behind the flag\"). How did it decide? Step by step: it read the note, checked the record — weight down over five percent — calculated the risk from published evidence, matched the referral rules, and proposed the scan."
+}
 S = []
 FILL={"born","who","stakes","mechanism","local","solution","evidence","impact","recs","honest","ask"}
 def slide(id, cls, body, notes, src=None, trans="fade"):
+    notes = NOTES.get(id, notes)
     if id in FILL and "</h2>" in body:
         a,b = body.split("</h2>",1); body = a+"</h2>\n<div class=\"fill\">"+b+"\n</div>"
     srcp = f'<p class="source">{src}</p>' if src else ''
