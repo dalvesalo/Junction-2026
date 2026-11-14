@@ -97,3 +97,4 @@ section.center .statement { font-size: 160px; letter-spacing: -3px; }
 .statement .pre { font-weight: 400; color: #A8C8EA; font-size: 64px; letter-spacing: 0; }
 .goals { font-size: 26px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #A8C8EA; margin-bottom: -12px; }
 .card .tag2 { font-size: 24px; color: #4F5F72; margin-top: -10px; }
+.big-ask .ourtag { font-size: 22px; color: #D5E0EB; font-style: italic; margin-top: 6px; }

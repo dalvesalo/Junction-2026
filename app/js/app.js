@@ -607,7 +607,7 @@
     const flagged = assessed.filter(x => x.r.action.target);
     $("#clocks").innerHTML = `<h3><span>Open pathway clocks</span><span class="synthetic-tag">synthetic</span></h3>
       <table class="tbl"><thead><tr><th>Patient</th><th>Next step</th><th class="r">Day</th><th class="r">Target</th><th>Status</th></tr></thead><tbody>
-      ${flagged.map((x, i) => { const day = [9, 2, 4, 16, 1][i % 5]; const over = day > x.r.action.target; return `<tr><td>${x.c.name}</td><td>${x.r.action.clock[0]}</td><td class="r num">${day}</td><td class="r num">${x.r.action.target}</td><td><span class="pill ${over ? "over" : day > x.r.action.target * .7 ? "risk" : "ontime"}">${over ? "overdue — escalated" : day > x.r.action.target * .7 ? "at risk" : "on time"}</span></td></tr>`; }).join("")}
+      ${flagged.map((x, i) => { const isMatti = /^Matti\b/.test(x.c.name); /* matches the worklist: CT slot this week, clock starts at signing */ const day = isMatti ? 0 : [9, 2, 4, 16, 1][i % 5]; const over = day > x.r.action.target; return `<tr><td>${x.c.name}</td><td>${isMatti ? "CT booked" : x.r.action.clock[0]}</td><td class="r num">${day}</td><td class="r num">${x.r.action.target}</td><td><span class="pill ${over ? "over" : day > x.r.action.target * .7 ? "risk" : "ontime"}">${over ? "overdue — escalated" : day > x.r.action.target * .7 ? "at risk" : "on time"}</span></td></tr>`; }).join("")}
       </tbody></table>`;
   }
 

@@ -65,19 +65,19 @@ def svg_gap():
     return "".join(o)
 
 def svg_born():
-    # Two routes to scale. Blue = symptom -> physician visit (where Ajoissa acts); grey = referral and hospital.
+    # Two routes to scale. Blue = symptom -> referral (where Ajoissa acts); grey = specialist visit and treatment.
     W, H, k = 1664, 440, 7.0
     X = lambda d: round(d * k, 1)
     blue, grey = ["#2B5D8C", "#4F7FAF"], ["#B7C3CF", "#D3DBE4"]
-    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Two routes drawn to scale in days from first symptom (Kuitunen et al. 2026, Fig. 1). Occupational or private care: physician visit by day 43, treatment at day 123. Public primary care: physician visit by day 94, treatment at day 207. Blue marks first symptom to physician visit, where Ajoissa acts; grey marks referral and hospital steps." {FONT}>']
+    o = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-label="Two routes drawn to scale in days from first symptom (Kuitunen et al. 2026, Fig. 1). Occupational or private care: referral by day 77, treatment at day 123. Public primary care: referral by day 147, treatment at day 207. Blue marks first symptom to referral, where Ajoissa acts; grey marks the specialist visit and treatment." {FONT}>']
     for occ, name, vals, y in [(True, "Occupational / private care", OCC, 52), (False, "Public primary care", PUB, 186)]:
         o.append(f'<text x="0" y="{y-14}" fill="#1B2A3F" font-size="28" font-weight="700">{name}</text>')
         prev = 0
         for i, d in enumerate(vals):
-            col = blue[i % 2] if i < 2 else grey[i % 2]
+            col = blue[i % 2] if i < 3 else grey[i % 2]
             o.append(f'<rect x="{X(prev)}" y="{y}" width="{max(X(d) - X(prev) - 3, 2)}" height="72" fill="{col}"/>')
             prev = d
-        o.append(f'<text x="{X(vals[1]) / 2}" y="{y + 48}" fill="#FFFFFF" font-size="36" font-weight="800" text-anchor="middle">{vals[1]} days</text>')
+        o.append(f'<text x="24" y="{y + 48}" fill="#FFFFFF" font-size="36" font-weight="800">{vals[2]} days</text>')
         o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 36}" fill="#1B2A3F" font-size="34" font-weight="800">{vals[-1]} days</text>')
         o.append(f'<text x="{X(vals[-1]) + 22}" y="{y + 64}" fill="#4F5F72" font-size="22">to treatment</text>')
     # milestones under the public bar (no day numbers: the scale carries them)
@@ -88,7 +88,7 @@ def svg_born():
         o.append(f'<text x="{xx}" y="{y + 38}" fill="#4F5F72" font-size="22" text-anchor="{a}">{t}</text>')
     # brackets
     yb = y + 78
-    for x1, x2, col, txt, w in [(0, X(94) - 3, "#2B5D8C", "Ajoissa acts here: first symptom to physician visit", "700"), (X(94) + 6, X(207) - 3, "#8A99AA", "Referral and hospital: not our target", "400")]:
+    for x1, x2, col, txt, w in [(0, X(147) - 3, "#2B5D8C", "Ajoissa acts here: first symptom to referral", "700"), (X(147) + 6, X(207) - 3, "#8A99AA", "Specialist and treatment: not our target", "400")]:
         o.append(f'<path d="M{x1} {yb - 14} V{yb} H{x2} V{yb - 14}" fill="none" stroke="{col}" stroke-width="4"/>')
         o.append(f'<text x="{(x1 + x2) / 2}" y="{yb + 40}" fill="{col if w == "700" else "#4F5F72"}" font-size="28" font-weight="{w}" text-anchor="middle">{txt}</text>')
     o.append('</svg>')
@@ -121,7 +121,7 @@ slide("born","light",'''<p class="eyebrow">Where the gap emerges</p>
 <h2>The delay is born before the specialist</h2>
 <div class="chart" style="flex:1;align-items:center">''' + svg_born() + '''</div>''',
 "APPENDIX / Q&A. Gap per step from the paper’s Fig. 1 (cumulative step times; values close to the means 201 vs 126). Tested result: medians 127 vs 76 days, p = 0.027. Small n (160).",
-src="Kuitunen et al. 2026 (Fig. 1) · National Cancer Strategy roadmap 2026–2031, p. 12 · moderate · waiting time")
+src="Kuitunen 2026, Fig. 1: cumulative step times; median total 127 vs 76 d (p = 0.027) · moderate · waiting time")
 
 slide("who","light",'''<p class="eyebrow">Who pays for the slow door</p>
 <h2>It lands on those who can’t skip the queue</h2>
@@ -170,7 +170,7 @@ slide("local","light",'''<p class="eyebrow">Where a county can act</p>
 src="Seppä et al., Acta Oncol 2020 · strong · Finnish Cancer Registry, Cancer in Finland 2023; OECD 2025")
 
 slide("solution","dark",'''<p class="eyebrow">Our solution</p>
-<h2>Ajoissa. – a safety net for public primary care</h2>
+<h2>Ajoissa. A safety net for public primary care</h2>
 <div class="flow">
 <div class="fstep"><p class="fn">1</p><p class="fh">Read</p><p class="fb">Overnight, the visit notes (FI/EN): symptoms, how long, what was ruled out</p></div>
 <div class="fstep"><p class="fn">2</p><p class="fh">Check the record</p><p class="fb">Results nobody followed up, weights, labs and repeat visits in the county’s own records</p></div>
@@ -225,7 +225,7 @@ slide("evidence","light",'''<p class="eyebrow">Why we believe it works, and why 
 <div class="grid3">
 <div class="card"><p class="num2">200 d → 104 d</p><p class="tag2">median time to bowel-cancer work-up</p><p class="body">Randomised trial: EHR triggers for un-followed abnormal results + a human reviewer halved time to colorectal work-up; completed evaluations 52 % → 73 %. (Lung arm too small to show an effect.)</p><p class="tag">Murphy et al., JCO 2015 · strong · time</p></div>
 <div class="card"><p class="num2">Approved 2026</p><p class="body">Parliament approved (April 2026) letting a county use its own records to find health problems early. The professional decides; the patient may refuse.</p><p class="tag">HE 159/2025 → EV 38/2026 · in-force date to confirm</p></div>
-<div class="card"><p class="num2">Done before</p><p class="body">Päijät-Häme already finds kidney-disease risk patients this way (list → nurse → doctor) with AINO, run by Harjun terveys, supported by AstraZeneca.</p><p class="tag">Päijät-Häme 12.3.2026</p></div>
+<div class="card"><p class="num2">Done before</p><p class="body">Päijät-Häme already finds kidney-disease risk patients this way (list → nurse → doctor) with AINO: Mehiläinen’s tool, run by Harjun terveys; AstraZeneca supports the project work.</p><p class="tag">Päijät-Häme 12.3.2026</p></div>
 </div>''',
 "STAGE (20 s). Does it work? In a randomised trial, the same pattern — automatic trigger on un-followed results, human review — halved the time to colorectal work-up. Is it allowed? Parliament approved it this April: counties may use their own records to find problems early. Has it been done? Päijät-Häme already runs this model for kidney disease — with AstraZeneca’s support.")
 
@@ -255,11 +255,11 @@ slide("recs","light",'''<p class="eyebrow">Recommendations</p>
 slide("ask","accent",'''<h2 class="statement"><span class="pre">Implementation</span><br>Päijät-Häme. Three health centres. Six months.</h2>
 <p class="goals">Goals</p>
 <div class="big-ask">
-<div><p class="num3">≤ 7 days</p><p class="body">from flag to a decision, for every flag</p></div>
+<div><p class="num3">≤ 7 days</p><p class="body">from flag to a decision, for every flag</p><p class="ourtag">pilot target (ours)</p></div>
 <div><p class="num3">Days</p><p class="body">from flag to imaging, per health centre</p></div>
-<div><p class="num3">Standardize</p><p class="body">diagnose cancers via a tracked route</p></div>
+<div><p class="num3">Standardise</p><p class="body">diagnose cancers via a tracked route</p></div>
 </div>
-<p class="body on-accent">Where the same list → nurse → doctor model already runs for kidney disease (AINO, Harjun terveys, supported by AstraZeneca) · about €28,000 · one nurse, 45 minutes a day, per health centre · no new scanners</p>''',
+<p class="body on-accent">Where the same list → nurse → doctor model already runs for kidney disease (AINO: Mehiläinen’s tool, run by Harjun terveys; AstraZeneca supports the project work) · about €28,000 · one nurse, 45 minutes a day, per health centre · no new scanners</p>''',
 "STAGE (15 s). Our ask: Päijät-Häme. The same list → nurse → doctor model already runs there for kidney disease — AINO, run by Harjun terveys and supported by AstraZeneca: a list from the county’s own records, a nurse, a doctor. We extend it to cancer: three health centres, six months, about 28,000 euros, one nurse, 45 minutes a day. We measure three things. And at the end, Finland has its first real numbers for the wait between a symptom and a diagnosis.")
 
 slide("honest","light",'''<p class="eyebrow">Data quality and transparency</p>
