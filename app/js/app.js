@@ -112,7 +112,18 @@
   /* ================= DEMO · 1 WORKLIST  ·  2 BEHIND THE FLAG =================
      Display only. Every decision, number and rule comes from engine.js (window.Ajoissa). */
   let ctSlots = 2;                         // CT slots the county gives the agent this week (it never asks for more)
-  let assessed = A.rankWorklist(CASES.map(c => ({ c, r: A.assess(c) })), { ctSlots });
+  const baseR = Object.fromEntries(CASES.map(c => [c.id, A.assess(c)]));
+  let customOn = false;
+  const custom = { id: "custom", name: "Test patient", centre: "Your test", synthetic: true, history: [], labs: {}, results: [],
+    record: { gp: "—", dx: [], meds: [] }, headline: "Your own synthetic patient",
+    patient: { age: 61, sex: "M", smoking: { ever: true, current: true, cigsPerDay: 15, years: 35 } },
+    note: "Tulosyy: yskä.\nNykytila: 61-v mies. Yskä 6 viikkoa, hengenahdistusta rasituksessa. Ei veriyskää. Ei kuumetta.\nStatus: Keuhkoissa ei rahinoita. SpO2 96 %.\nSuunnitelma: kontrolli tarvittaessa.", noteEn: "" };
+  function rebuild() {
+    const items = CASES.map(c => ({ c, r: baseR[c.id] }));
+    if (customOn) items.push({ c: custom, r: A.assess(custom) });
+    assessed = A.rankWorklist(items, { ctSlots });
+  }
+  let assessed; rebuild();
   const rank = r => ({ emergency: 6, lung_urgent: 5, lymphoma_urgent: 5, result_followup: 4, any_urgent: 4, lung_imaging: 3, colorectal_test: 2, safety_net: 1, none: 0 })[r.action.key];
   const colour = r => r.action.key === "none" ? "green" : rank(r) >= 4 ? "red" : "amber";
   const STATUS = { red: "Act now", amber: "Check soon", green: "No action" };
@@ -179,11 +190,13 @@
     const flagged = assessed.filter(x => x.r.action.key !== "none").length;
     $("#plist").innerHTML = `<h3><span>Flagged patients</span><span>${flagged} of ${assessed.length}</span></h3>
       <div class="cfilter" role="group" aria-label="Filter by cancer">${["all", "lung", "colorectal", "prostate", "lymphoma"].map(k => { const n = k === "all" ? assessed.length : assessed.filter(x => x.r.cancer === k).length; return `<button class="chip" data-cf="${k}" aria-pressed="${cancerFilter === k}">${k === "all" ? "All" : CANCER[k]} <b>${n}</b></button>`; }).join("")}</div>
+      <button class="newpt" id="newpt">${customOn ? "✎ Edit your test patient" : "+ Create a test patient"}<small>Write your own note and details — the same rules run live</small></button>
       ${section("red", "Act now")}${section("amber", "Check soon")}${section("green", "Checked, not flagged")}
       <label class="slots">CT slots free this week <input type="number" id="ct-slots" min="0" max="9" value="${ctSlots}"><small>Set by the county. Follow-ups already due go first, then the strongest signals; the agent never asks for more.</small></label>`;
     document.querySelectorAll(".prow").forEach(b => b.addEventListener("click", () => selectCase(b.dataset.case)));
+    $("#newpt").addEventListener("click", () => { if (!customOn) { customOn = true; rebuild(); } selectCase("custom"); });
     document.querySelectorAll(".cfilter .chip").forEach(b => b.addEventListener("click", () => { cancerFilter = b.dataset.cf; renderList(); }));
-    $("#ct-slots").addEventListener("change", e => { ctSlots = Math.max(0, +e.target.value || 0); assessed = A.rankWorklist(assessed, { ctSlots }); renderList(); if (current) selectCase(current); });
+    $("#ct-slots").addEventListener("change", e => { ctSlots = Math.max(0, +e.target.value || 0); rebuild(); renderList(); if (current) selectCase(current); });
   }
 
   /* ---------- middle: the patient ---------- */
@@ -198,12 +211,76 @@
     (c.codes || []).filter(x => x.daysAgo > 0).forEach(x => rows.push([x.daysAgo, `Visit code ${x.code}`, ""]));
     return rows.sort((a, b) => b[0] - a[0]);
   }
+  function smokingCells(c, r) {
+    const sm = c.patient.smoking, read = (r.signals || []).find(x => x.id === "SMOKING_READ");
+    if (!sm) return [["Smoking", "Not recorded — ask at this visit"]];
+    if (!sm.ever) return [["Smoking", "Never smoked"]];
+    const py = sm.cigsPerDay && sm.years ? Math.round(sm.cigsPerDay / 20 * sm.years) : null;
+    return [["Smoking", (sm.current ? "Current smoker" : `Former smoker · quit ${sm.quitYears ?? "?"} y ago`) + (read ? " (read from notes)" : "")],
+      ["Amount", `${sm.cigsPerDay ?? "?"} cigarettes/day × ${sm.years ?? "?"} years${py != null ? ` = <b>${py} pack-years</b>` : ""}`]];
+  }
+  function detailsPanel(c, r) {
+    const p = c.patient, rec = c.record || {};
+    const cells = [["Age / sex", `${p.age} y · ${p.sex === "M" ? "male" : "female"}`], ["Personal GP", rec.gp || "—"], ...smokingCells(c, r),
+      ["COPD", p.copd ? "Yes" : "No"], ["Diagnoses", (rec.dx || []).join(", ") || "None recorded"], ["Medication", (rec.meds || []).join(", ") || "None"]];
+    return `<div class="panel"><h3><span>Patient details</span><span>personal ID hidden</span></h3><div class="kv">${cells.map(([k, v]) => `<div class="k">${k}</div><div class="v">${v}</div>`).join("")}</div>
+      ${c.patient.smoking && c.patient.smoking.ever ? `<p class="scale-note">Smoking feeds the lung-risk starting point (PLCOm2012) ${cite("plcom2012")}.</p>` : ""}</div>`;
+  }
+  function editorHtml() {
+    const p = custom.patient, sm = p.smoking.ever ? (p.smoking.current ? "current" : "ex") : "never", res = custom.results[0] || {};
+    return `<div class="panel editor"><h3><span>Your test patient</span><span class="synthetic-tag">stays in this browser</span></h3>
+      <div class="egrid">
+        <label>Name<input id="e-name" value="${esc(custom.name)}"></label>
+        <label>Age<input id="e-age" type="number" min="18" max="100" value="${p.age}"></label>
+        <label>Sex<select id="e-sex"><option value="M" ${p.sex === "M" ? "selected" : ""}>Male</option><option value="F" ${p.sex === "F" ? "selected" : ""}>Female</option></select></label>
+        <label>COPD<select id="e-copd"><option value="0">No</option><option value="1" ${p.copd ? "selected" : ""}>Yes</option></select></label>
+        <label>Smoking<select id="e-smk"><option value="never" ${sm === "never" ? "selected" : ""}>Never</option><option value="current" ${sm === "current" ? "selected" : ""}>Current</option><option value="ex" ${sm === "ex" ? "selected" : ""}>Former</option></select></label>
+        <label>Cigarettes / day<input id="e-cig" type="number" min="1" max="80" value="${p.smoking.cigsPerDay || 15}"></label>
+        <label>Years smoked<input id="e-yrs" type="number" min="1" max="70" value="${p.smoking.years || 30}"></label>
+        <label>Quit, years ago<input id="e-quit" type="number" min="0" max="60" value="${p.smoking.quitYears || 5}"></label>
+        <label>Platelets ×10⁹/l<input id="e-plt" type="number" min="50" max="1500" placeholder="–" value="${custom.labs.plt || ""}"></label>
+        <label>Hb g/l<input id="e-hb" type="number" min="50" max="200" placeholder="–" value="${custom.labs.hb || ""}"></label>
+        <label>Ferritin low<select id="e-fer"><option value="0">No</option><option value="1" ${custom.labs.ferritinLow ? "selected" : ""}>Yes</option></select></label>
+        <label>Earlier visits, same complaint (90 d)<input id="e-rep" type="number" min="0" max="6" value="${custom.history.length}"></label>
+        <label>Earlier result, not followed up<select id="e-rt"><option value="">None</option><option value="chest_imaging" ${res.type === "chest_imaging" ? "selected" : ""}>Chest X-ray: suspicious shadow</option><option value="fhb" ${res.type === "fhb" ? "selected" : ""}>Stool test F-hHb (µg/g)</option><option value="psa" ${res.type === "psa" ? "selected" : ""}>PSA (µg/l)</option></select></label>
+        <label>Result value<input id="e-rv" type="number" step="0.1" min="0" placeholder="–" value="${res.value ?? ""}"></label>
+        <label>Result taken, days ago<input id="e-rd" type="number" min="1" max="365" value="${res.daysAgo || 70}"></label>
+      </div>
+      <label class="enote">Visit note (Finnish or English)<textarea id="e-note" rows="7">${esc(custom.note)}</textarea></label>
+      <div id="e-chips"></div>
+      <div class="btnrow" style="margin-top:.5rem"><button class="btn ghost danger" id="e-remove">Remove test patient</button></div>
+      <p class="scale-note">Try: “couching blood violently”, “Yskinyt verta”, “laihtunut 6 kg”, “ei laihtumista”, “neck lump for 4 weeks, night sweats”, “kiistää veriyskän”.</p></div>`;
+  }
+  function bindEditor() {
+    const v = id => $("#" + id).value;
+    const sync = () => {
+      const smk = v("e-smk");
+      custom.name = v("e-name") || "Test patient";
+      custom.patient = { age: +v("e-age") || 50, sex: v("e-sex"), copd: v("e-copd") === "1", smoking: smk === "never" ? { ever: false } : { ever: true, current: smk === "current", cigsPerDay: +v("e-cig") || 10, years: +v("e-yrs") || 20, quitYears: smk === "ex" ? (+v("e-quit") || 0) : 0 } };
+      custom.labs = {}; if (v("e-plt")) custom.labs.plt = +v("e-plt"); if (v("e-hb")) custom.labs.hb = +v("e-hb"); if (v("e-fer") === "1") custom.labs.ferritinLow = true;
+      const n = +v("e-rep") || 0; custom.history = Array.from({ length: n }, (_, i) => ({ daysAgo: 20 + i * 25, related: true, text: "(earlier visit for the same complaint)" }));
+      const rt = v("e-rt"), rv = parseFloat(v("e-rv")), rd = +v("e-rd") || 70;
+      custom.results = !rt ? [] : rt === "chest_imaging" ? [{ type: rt, test: "Chest X-ray", daysAgo: rd, abnormal: true, followedUp: false, finding: "suspicious shadow, CT recommended" }]
+        : [{ type: rt, test: rt === "fhb" ? "Stool test (F-hHb)" : "PSA", daysAgo: rd, value: Number.isFinite(rv) ? rv : (rt === "fhb" ? 40 : 6), followedUp: false }];
+      custom.note = v("e-note");
+      const am = custom.note.match(/(\d{2})\s*-?\s*(v\b|v\.|vuotias|year|y\/o|yo\b)/i);
+      if (am && document.activeElement && document.activeElement.id === "e-note") { $("#e-age").value = am[1]; custom.patient.age = +am[1]; }
+      rebuild();
+      const { r } = find("custom");
+      $("#e-chips").innerHTML = chipsFor(r);
+      renderList(); renderMid(custom, r); renderRight(custom, r); renderBehind(custom, r);
+    };
+    $("#pm-editor").querySelectorAll("input,select,textarea").forEach(x => x.addEventListener("input", sync));
+    $("#e-remove").addEventListener("click", () => { customOn = false; rebuild(); selectCase(assessed[0].c.id); });
+    sync();
+  }
+  const fmtNote = t => esc(t).replace(/^([A-ZÄÖÅa-zäöå][\wäöå ]{2,24}):/gm, "<b>$1:</b>");
   function renderMid(c, r) {
     const col = colour(r), p = c.patient;
     const why = r.hits.length ? `<ul class="reason-list">${r.hits.map(h => `<li>${esc(h.text)} ${cite(h.src)}</li>`).join("")}</ul>`
       : r.signals.filter(s => s.id === "NOT_FLAGGED").map(s => `<p class="reason" style="font-size:.92rem">${esc(s.text)} ${cite(s.src)}</p>`).join("") || `<p class="reason" style="font-size:.92rem">${r.action.key === "safety_net" ? "A symptom worth watching, but no referral rule is met yet." : "Nothing in the note or the record crosses a cancer threshold."}</p>`;
     const rec = recordRows(c);
-    $("#pmid").innerHTML = `
+    $("#pm-body").innerHTML = `
       <div class="pt-head"><span class="sbar ${col}"></span>
         <div class="ptm"><div class="nm">${c.name} <span class="synthetic-tag">synthetic</span></div>
           <div class="meta"><span>${p.age} y, ${p.sex === "M" ? "male" : "female"}</span><span>${smokeText(p)}</span><span>${c.centre}</span></div></div>
@@ -211,7 +288,8 @@
       <div class="panel"><h3><span>Why ${p.sex === "M" ? "he" : "she"} is on your list</span></h3>
         <p class="reason"><b>${esc(c.headline)}.</b>${r.action.key === "none" ? " The agent checked this record and did not flag it." : r.action.key === "result_followup" ? " This follow-up was already due and nobody booked it." : ""}</p>${why}</div>
       <div class="panel"><h3><span>Cancer signals vs referral thresholds</span><span class="model-tag">deterministic</span></h3>${signalTable(c, r)}</div>
-      <div class="panel"><h3><span>Today's visit note</span><span>${c.centre}</span></h3><div class="note">${esc(c.note)}</div><div class="gloss">${esc(c.noteEn)}</div></div>
+      ${detailsPanel(c, r)}
+      ${c.id === "custom" ? "" : `<div class="panel"><h3><span>Today's visit note</span><span>${c.centre}</span></h3><div class="note">${fmtNote(c.note)}</div>${c.noteEn ? `<div class="gloss">${fmtNote(c.noteEn)}</div>` : ""}</div>`}
       ${rec.length ? `<div class="panel"><h3><span>From the record</span></h3><table class="tbl"><thead><tr><th style="width:6.5rem">When</th><th>Entry</th><th>Note</th></tr></thead><tbody>
         ${rec.map(([d, t, f]) => `<tr><td class="num">${d ? d + " days ago" : "Today"}</td><td>${t}</td><td class="flag-cell">${f}</td></tr>`).join("")}</tbody></table></div>` : ""}`;
   }
@@ -293,8 +371,10 @@
   }
 
   function selectCase(id) {
-    current = id;
+    current = id; bhStep = null;
     const { c, r } = find(id);
+    if (id === "custom") { $("#pm-editor").innerHTML = editorHtml(); bindEditor(); return; }
+    $("#pm-editor").innerHTML = "";
     renderList(); renderMid(c, r); renderRight(c, r); renderBehind(c, r);
   }
 
@@ -360,63 +440,60 @@
     const calc = r.lungRelevant && r.risk.steps.length > 1 ? `Lung risk ${pctS(r.risk.prior)} → ${pctS(r.risk.posterior)}` : r.cancer === "lymphoma" ? "Nothing to calculate — explicit rule" : r.cancer && r.cancer !== "lung" ? "Value vs published limit" : "Nothing to weigh";
     const items = [["Read the note", `${fs.length - neg} finding(s), ${neg} negated`], ["Check the record", sig ? `${sig} signal(s) from results, codes, weights` : "Nothing in results, codes or weights"], ["Calculate", calc], ["Match rules", r.hits.length ? `${r.hits.length} rule(s) met` : "No rule met"], ["Propose", r.action.key === "none" ? "Stay silent" : (orderFor(find(c.id) || { r }) || {}).exam || r.action.title]];
     const hitI = r.action.key === "none" ? -1 : r.action.key === "result_followup" ? 1 : r.lungRelevant && r.risk.posterior >= A.THRESHOLDS.urgent ? 2 : 3;
-    return `<div class="pipeline">${items.map(([t, d], i) => `<div data-i="${i}" class="${i === hitI ? "hit" : ""}"><div class="n">Step ${i + 1}</div><div class="t">${t}</div><div class="d">${esc(d)}</div></div>`).join("")}</div>`;
+    return `<div class="pipeline">${items.map(([t, d], i) => `<button data-i="${i}" class="${i === hitI ? "hit" : ""} ${bhStep === i ? "sel" : ""} ${bhStep == null ? "" : "on"}" aria-expanded="${bhStep === i}"><div class="n">Step ${i + 1}</div><div class="t">${t}</div><div class="d">${esc(d)}</div><div class="more">${bhStep === i ? "▲ hide detail" : "▼ what it noticed"}</div></button>`).join("")}</div>`;
+  }
+  let bhStep = null;
+  function stepDetail(c, r, i) {
+    const p = c.patient, fs = r.extraction.findings, mtext = f => { const m = r.extraction.mentions.find(x => x.concept === f.concept && x.start >= 0); return m ? c.note.slice(m.start, m.end) : (f.surface || "—"); };
+    const head = ["Read the note", "Check the record", "Calculate", "Match rules", "Propose"][i];
+    let body = "";
+    if (i === 0) body = fs.length ? `<table class="tbl"><thead><tr><th>Finding</th><th>Words in the note</th><th>ICPC-2</th><th>Duration</th><th>How it was read</th></tr></thead><tbody>${fs.map(f => `<tr><td><b>${f.negated ? "No " + f.label.toLowerCase() : f.label}</b></td><td><i>${esc(mtext(f))}</i></td><td>${f.icpc || "–"}</td><td>${f.weeks ? Math.round(f.weeks * 10) / 10 + " wk" : f.persistent ? "persistent" : "–"}</td><td>${[f.negated && "negated (\"ei\", \"no\")", f.typo && "typo corrected: " + esc(f.typo), f.pattern && "phrase pattern", f.severity && "severe wording", f.via === "ai" ? "AI reading — confirm" : f.via === "both" ? "rules + AI agree" : f.via === "code" ? "from visit code" : f.via === "measured" ? "from weight records" : "word list (FI/EN)"].filter(Boolean).join(" · ")}</td></tr>`).join("")}</tbody></table>` : `<p>No symptom words found in today's note. ${r.signals.length ? "Everything that matters is in the record — see step 2." : ""}</p>`;
+    if (i === 1) { const rows = [...(r.signals || []).map(x => [x.text, x.src])];
+      body = rows.length ? `<ul class="rules">${rows.map(([t, src]) => `<li><span>${esc(t)}</span>${cite(src)}</li>`).join("")}</ul>` : `<p>Nothing in results, visit codes, weights or antibiotic courses.</p>`;
+      body += `<p class="scale-note">Checked every night: abnormal results and whether a follow-up was booked within the trial's window (lung 30, bowel 60, prostate 90 days), weight trend, repeat visit codes, repeat antibiotics, smoking history. Smoking: ${smokingCells(c, r).map(x => x[1]).join(" · ")}.</p>`; }
+    if (i === 2) {
+      if (r.lungRelevant && r.risk.steps.length > 1) { const st = r.risk.steps, odds = v => v / (1 - v);
+        const sm = p.smoking || {}, py = sm.cigsPerDay && sm.years ? Math.round(sm.cigsPerDay / 20 * sm.years) : null;
+        body = `<p>Starting risk = PLCOm2012 lung-cancer model ÷ 6 (6-year → 1-year), from age ${p.age}, ${sm.ever ? (sm.current ? "current smoker" : "former smoker, quit " + (sm.quitYears ?? "?") + " y ago") + (py != null ? ", " + py + " pack-years" : "") : "never-smoker"}${p.copd ? ", COPD" : ""}. ${cite(st[0].src)}</p>
+          <table class="tbl"><thead><tr><th>Step</th><th class="r">Probability</th><th class="r">As odds</th><th class="r">× likelihood ratio</th><th class="r">New odds</th><th class="r">New probability</th></tr></thead><tbody>
+          ${st.map((x, k) => k === 0 ? `<tr><td>Starting risk</td><td class="r num">${pctS(x.value)}</td><td class="r num">${odds(x.value).toFixed(4)}</td><td class="r">–</td><td class="r">–</td><td class="r">–</td></tr>` : `<tr><td>${esc(x.label.replace(/^× /, ""))} ${cite(x.src)}</td><td class="r num">${pctS(st[k - 1].value)}</td><td class="r num">${odds(st[k - 1].value).toFixed(4)}</td><td class="r num">× ${(x.label.match(/LR ([\d.]+)/) || [])[1] || "?"}</td><td class="r num">${odds(x.value).toFixed(4)}</td><td class="r num"><b>${pctS(x.value)}</b></td></tr>`).join("")}</tbody></table>
+          <p class="scale-note">Only the two strongest symptoms are multiplied in, so correlated symptoms are not double-counted. ${r.risk.posterior >= A.THRESHOLDS.urgent ? `${pctS(r.risk.posterior)} is above the 3 % threshold at which NICE NG12 recommends referral.` : `${pctS(r.risk.posterior)} is below the 3 % referral threshold.`} ${cite("nice_ng12")}</p>`; }
+      else body = `<p>${r.cancer && r.cancer !== "lung" ? `No probability is calculated for ${(CANCER[r.cancer] || "").toLowerCase()}: no risk model is validated for Finnish primary care. The agent compares the value with the published limit and the time since the result with the follow-up window instead.` : "No cancer signal, so nothing to calculate."}</p>${cancerRows(c, r).filter(x => x.cls !== "green" && x.cls !== "grey" || /not flagged/.test(x.what)).map(x => `<p><b>${x.cn}:</b> ${x.val} ${x.sub ? "(" + x.sub + ")" : ""} — ${esc(x.what)}</p>`).join("")}`;
+    }
+    if (i === 3) { const nf = (r.signals || []).filter(x => x.id === "NOT_FLAGGED");
+      body = (r.hits.length ? `<ul class="rules">${r.hits.map(h => `<li class="${h.level === "urgent" ? "urgent" : ""}"><span><b>${h.level === "urgent" ? "Urgent rule" : h.level === "test" ? "Test rule" : "Imaging rule"}:</b> ${esc(h.text)}</span>${cite(h.src)}</li>`).join("")}</ul>` : `<p>No referral rule met.</p>`)
+        + (nf.length ? `<p><b>Checked and deliberately not flagged:</b> ${nf.map(x => esc(x.text)).join(" ")}</p>` : "")
+        + `<p class="scale-note">Rules: NICE NG12-style referral criteria (3 % PPV), lymphadenopathy + B-symptoms, iron-deficiency anaemia → stool test, raised platelets, ≥ 3 visits in 90 days for the same complaint, and results nobody followed up. The national cancer roadmap plans to standardise such criteria nationally (2.5.2).</p>`; }
+    if (i === 4) { const x = find(c.id) || { r }, o = orderFor(x);
+      body = `<p><b>${esc(r.action.title)}</b></p><p>${esc(r.action.why)}</p>${o ? `<p>Drafted order: <b>${o.exam}</b> → ${o.to}.</p>` : ""}${r.action.key !== "none" ? `<p>${capLine(x)}</p>` : ""}
+        ${r.action.clock.length ? `<p>Pathway clock: ${r.action.clock.join(" → ")} · first step within ${r.action.target ? r.action.target + " days" : "today"}; if late, back to the top of the list.</p>` : ""}
+        ${r.action.also && r.action.also.length ? `<p>Also on this record: ${r.action.also.map(esc).join("; ")}.</p>` : ""}
+        ${x.tier != null ? `<p class="scale-note">Position on today's list: ${assessed.findIndex(y => y.c.id === c.id) + 1} of ${assessed.length}. Order: emergencies → follow-ups already due (longest overdue first) → urgent rules → risk ≥ 3 % → simple tests → check-ins. A clinician can always override.</p>` : ""}`; }
+    return `<div class="panel stepd"><h3><span>Step ${i + 1} · ${head} — what it noticed</span><button class="btn ghost" id="bh-close" style="padding:.1rem .5rem;font-size:.75rem">Close</button></h3>${body}</div>`;
   }
   function renderBehind(c, r) {
     const custom = c.id === "custom";
-    $("#behindbar").innerHTML = `<div><h2>Behind the flag — ${custom ? "your own note" : c.name}</h2><p>${custom ? "Type a note and watch the same rules run live." : `This is what ran overnight to produce the flag for ${c.name} on the nurse's worklist (step 1).`} The nurse never needs this page; it exists so anyone can check the reasoning. Same record in → same result out.</p></div>
-      <div class="ctl"><select id="bh-pick" aria-label="Patient">${assessed.map(x => `<option value="${x.c.id}" ${x.c.id === c.id ? "selected" : ""}>${x.c.name} — ${STATUS[colour(x.r)]}</option>`).join("")}<option value="custom" ${custom ? "selected" : ""}>Try your own note…</option></select>
+    $("#behindbar").innerHTML = `<div><h2>Behind the flag — ${custom ? "your own note" : c.name}</h2><p>${custom ? "Your test patient, edited on the worklist. The same rules run live." : `This is what ran overnight to produce the flag for ${c.name} on the nurse's worklist (step 1).`} <b>Click any step to see exactly what it noticed.</b> The nurse never needs this page; it exists so anyone can check the reasoning. Same record in → same result out.</p></div>
+      <div class="ctl"><select id="bh-pick" aria-label="Patient">${assessed.map(x => `<option value="${x.c.id}" ${x.c.id === c.id ? "selected" : ""}>${x.c.name} — ${STATUS[colour(x.r)]}</option>`).join("")}${customOn ? "" : `<option value="new">+ Create a test patient…</option>`}</select>
         <button class="btn ghost" data-goto="worklist">← Back to worklist</button></div>`;
-    $("#bh-pick").addEventListener("change", e => { if (e.target.value === "custom") openEditor(); else selectCase(e.target.value); });
+    $("#bh-pick").addEventListener("change", e => { if (e.target.value === "new") { customOn = true; rebuild(); selectCase("custom"); show("worklist"); } else selectCase(e.target.value); });
     $("#pipeline").innerHTML = pipelineHtml(c, r);
-    if (!custom) $("#bh-left").innerHTML = `<div class="panel"><h3><span>1 · What it read · 2 · what the record added</span><span class="synthetic-tag">synthetic</span></h3>
-        <div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div><div class="gloss">${esc(c.noteEn)}</div>${chipsFor(r)}
+    $("#bh-step").innerHTML = bhStep == null ? "" : stepDetail(c, r, bhStep);
+    document.querySelectorAll(".pipeline > button").forEach(b => b.addEventListener("click", () => { const i = +b.dataset.i; bhStep = bhStep === i ? null : i; renderBehind(c, r); }));
+    $("#bh-left").innerHTML = `<div class="panel"><h3><span>1 · What it read · 2 · what the record added</span><span class="synthetic-tag">synthetic</span></h3>
+        <div class="note" id="note-text">${highlight(c.note, r.extraction.mentions)}</div>${c.noteEn ? `<div class="gloss">${esc(c.noteEn)}</div>` : ""}${chipsFor(r)}
         <div class="live-only" style="margin-top:.6rem"><button class="btn ghost" id="ai-read">Second reading by AI (quotes checked)</button></div></div>`;
     $("#bh-right").innerHTML = `<div class="panel"><h3><span>3 · The calculation</span><span class="model-tag">deterministic</span></h3>${calcView(c, r)}</div>`;
     const ef = custom ? null : earliestFlag(c);
     $("#bh-earlier").innerHTML = ef ? `<div class="panel compare"><h3><span>Could this have been caught earlier?</span></h3><p>Re-running the same rules on ${c.name.split(" ")[0]}'s earlier visits, with only what was known then: the agent would have flagged ${c.patient.sex === "M" ? "him" : "her"} <b>${ef.daysAgo} days ago</b>, at the visit noted "${esc(c.history.find(h => h.daysAgo === ef.daysAgo).text)}".</p>${compareSvg(ef.daysAgo)}</div>` : "";
     const ar = $("#ai-read"); if (ar) ar.addEventListener("click", () => aiRead(c, ar));
-    if ($("#view-behind").classList.contains("active")) animatePipeline();
+    const bc = $("#bh-close"); if (bc) bc.addEventListener("click", () => { bhStep = null; renderBehind(c, r); });
+    if ($("#view-behind").classList.contains("active") && bhStep == null) animatePipeline();
   }
   function animatePipeline() {
-    const els = document.querySelectorAll(".pipeline > div");
+    const els = document.querySelectorAll(".pipeline > button");
     els.forEach(d => d.classList.remove("on"));
     els.forEach((d, i) => setTimeout(() => d.classList.add("on"), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 150 + i * 280));
-  }
-
-  const custom = { id: "custom", name: "Your patient", centre: "Your health centre", synthetic: true, history: [], labs: {},
-    patient: { age: 58, sex: "F", smoking: { ever: true, current: false, cigsPerDay: 15, years: 30, quitYears: 5 } },
-    note: "58-v nainen. Yskä 5 viikkoa, hengenahdistusta rasituksessa. Ei veriyskää. Ei kuumetta.", noteEn: "", headline: "" };
-  function openEditor() {
-    const p = custom.patient, sm = p.smoking.ever ? (p.smoking.current ? "current" : "ex") : "never";
-    $("#bh-left").innerHTML = `<div class="panel"><h3><span>Try your own note</span><span class="synthetic-tag">stays in this browser</span></h3>
-      <div class="patient-meta">
-        <label>Age <input id="e-age" type="number" min="18" max="100" value="${p.age}" style="width:4rem"></label>
-        <label>Sex <select id="e-sex"><option value="F" ${p.sex === "F" ? "selected" : ""}>F</option><option value="M" ${p.sex === "M" ? "selected" : ""}>M</option></select></label>
-        <label>Smoking <select id="e-smk"><option value="never" ${sm === "never" ? "selected" : ""}>never</option><option value="current" ${sm === "current" ? "selected" : ""}>current</option><option value="ex" ${sm === "ex" ? "selected" : ""}>former</option></select></label>
-        <label>/day <input id="e-cig" type="number" min="1" max="80" value="${p.smoking.cigsPerDay || 15}" style="width:3.6rem"></label>
-        <label>years <input id="e-yrs" type="number" min="1" max="70" value="${p.smoking.years || 30}" style="width:3.6rem"></label>
-        <label>Platelets <input id="e-plt" type="number" min="50" max="1500" placeholder="–" value="${custom.labs.plt || ""}" style="width:4.6rem"></label>
-        <label>Earlier visits (90 d) <input id="e-rep" type="number" min="0" max="6" value="${custom.history.length}" style="width:3.2rem"></label>
-      </div>
-      <textarea id="e-note" rows="5">${esc(custom.note)}</textarea>
-      <div class="note" id="e-hl" style="margin-top:.6rem"></div><div id="e-chips"></div>
-      <p class="scale-note">Examples: “couching blood violently”, “Yskinyt verta”, “laihtunut 6 kg”, “ei laihtumista”, “neck lump for 4 weeks, night sweats”, “kiistää veriyskän”.</p></div>`;
-    const sync = () => {
-      const smk = $("#e-smk").value;
-      custom.patient = { age: +$("#e-age").value || 50, sex: $("#e-sex").value, smoking: smk === "never" ? { ever: false } : { ever: true, current: smk === "current", cigsPerDay: +$("#e-cig").value || 10, years: +$("#e-yrs").value || 20, quitYears: smk === "ex" ? 5 : 0 } };
-      custom.labs = $("#e-plt").value ? { plt: +$("#e-plt").value } : {};
-      const n = +$("#e-rep").value || 0; custom.history = Array.from({ length: n }, (_, i) => ({ daysAgo: 20 + i * 25, related: true, text: "(earlier visit for the same complaint)" }));
-      custom.note = $("#e-note").value;
-      const am = custom.note.match(/(\d{2})\s*-?\s*(v\b|v\.|vuotias|year|y\/o|yo\b)/i);
-      if (am && document.activeElement && document.activeElement.id === "e-note") { $("#e-age").value = am[1]; custom.patient.age = +am[1]; }
-      const r = A.assess(custom);
-      $("#e-hl").innerHTML = highlight(custom.note, r.extraction.mentions);
-      $("#e-chips").innerHTML = chipsFor(r);
-      renderBehind(custom, r);
-    };
-    $("#bh-left").querySelectorAll("input,select,textarea").forEach(x => x.addEventListener("input", sync));
-    sync();
   }
 
   function compareSvg(daysEarlier) {
@@ -643,7 +720,6 @@
     try {
       const res = await sample(A.aiPrompt(c.note), { modelTier: "default", cache: false });
       const r = A.assess(c, { ai: res.text });
-      if (c.id === "custom") { $("#e-hl").innerHTML = highlight(c.note, r.extraction.mentions); }
       renderBehind(c, r);
       const b2 = $("#ai-read"); if (b2) { b2.disabled = true; b2.textContent = "AI reading added — rules still decide"; }
     } catch (e) { btn.textContent = "AI reading not available here"; }
