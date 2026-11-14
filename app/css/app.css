@@ -243,3 +243,11 @@ body.live-ai .live-only { display: block; }
 .fbadge { font-size: .74rem; padding: .05rem .4rem; border: 1px solid var(--line); border-radius: 3px; color: var(--frost); white-space: nowrap; }
 .fbadge.warn { border-color: var(--amber, #c98a00); color: var(--amber, #c98a00); }
 .fbadge.ok { border-color: var(--ok, #2e8b57); color: var(--ok, #2e8b57); }
+
+/* v3: capacity level on worklist cards */
+.qcard .lvl { grid-column: 1 / -1; font-size: .76rem; color: var(--mute); }
+.qcard .lvl.wait { color: var(--amber); }
+.slots { display: grid; grid-template-columns: 1fr auto; gap: .2rem .6rem; align-items: center; font-size: .85rem; color: var(--frost); margin: .2rem 0 .4rem; }
+.slots input { width: 3.4rem; padding: .2rem .3rem; background: var(--night-2); color: var(--snow); border: 1px solid var(--line); border-radius: 3px; font: inherit; }
+.slots small { grid-column: 1 / -1; color: var(--mute); font-size: .74rem; }
+.scale-note.cap { color: var(--snow); }

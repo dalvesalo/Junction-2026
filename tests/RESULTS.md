@@ -1,6 +1,6 @@
 # Ajoissa reader test results
 
-Engine 2.0, run 2026-11-14. All notes are **synthetic** (tests/notes.js); labels were written before each set was run.
+Engine 3.0, run 2026-11-14. All notes are **synthetic** (tests/notes.js); labels were written before each set was run.
 
 ## Dev set — 200 notes (160 generated variants + 40 hand-written hard cases)
 Used while building v2. First run: 190/200 fully correct (precision 98 %, recall 97 %). After general fixes (Finnish partitive forms, list negation, follow-on duration sentence, long-word typos without context, "bleeding" as a blood word) and one corrected label (B36):
@@ -31,6 +31,9 @@ Used while building v2. First run: 190/200 fully correct (precision 98 %, recall
 | Back pain | L02 | 1 | 0 | 0 | 100 % | 100 % |
 | Rectal bleeding | D16 | 9 | 0 | 0 | 100 % | 100 % |
 | Change in bowel habit | D18 | 4 | 0 | 0 | 100 % | 100 % |
+| Diarrhoea or constipation | D11 | 0 | 0 | 0 | – | – |
+| Abdominal pain | D01 | 0 | 0 | 0 | – | – |
+| Anaemia or iron deficiency (stated) | B82 | 1 | 0 | 0 | 100 % | 100 % |
 
 Remaining failures:
 None.
@@ -42,11 +45,11 @@ First run: 11/20 fully correct (precision 93 %, recall 58 %). It exposed one bug
 | Measure | Result |
 |---|---|
 | Finding precision | 94 % |
-| Finding recall | 63 % |
+| Finding recall | 67 % |
 | Negations recognised | 4/4 |
-| Correct proposed action | 12/20 |
+| Correct proposed action | 13/20 |
 | Severity recognised | 1/1 |
-| Notes fully correct | 12/20 |
+| Notes fully correct | 13/20 |
 
 Failures (left as found):
 - **C02** "Bringing up blood-streaked phlegm for a week." → missed haemoptysis; action none (expected lung_urgent)
@@ -54,8 +57,19 @@ Failures (left as found):
 - **C04** "Kainalossa patti 4 vk, ei muita oireita." → missed lymph; action none (expected lymphoma_urgent)
 - **C05** "Huono ruokahalu ja painoa lähtenyt 7 kg puolessa vuodessa." → missed appetite; action safety_net (expected lung_imaging)
 - **C10** "Hikoilee yöllä niin että lakanat kastuvat, kaulalla imusolmuke." → missed lymph; missed nightsweats; action none (expected lymphoma_urgent)
-- **C13** "Ulosteessa verta, vatsa toimii eri tavalla kuin ennen." → missed rectalbleed; action none (expected colorectal_test)
 - **C15** "Kova yskä, välillä verilimaa." → missed haemoptysis; false cough; action safety_net (expected lung_urgent)
 - **C18** "Feverish, itchy skin, swollen nodes in groin for a month." → missed lymph; action none (expected lymphoma_urgent)
 
 **Limitation:** the notes and labels were written by the team that wrote the lexicon. The dev score shows the known traps are handled; the held-out score is the more honest number, and still not a measure of real-world accuracy. That needs real, de-identified notes labelled by a clinician.
+
+## Structured records, smoking history, relatives (v3)
+
+Expected outcomes written from the published definitions (Murphy 2015 windows and exclusions, Fimlab thresholds, Käypä hoito PSA advice). Synthetic.
+
+| Test | Result |
+|---|---|
+| Results nobody acted on: flag / wait / stay silent (38 records) | 38/38 |
+| Smoking history read from text (18 phrases) | 18/18 |
+| Relative's symptom not taken as the patient's (5 notes) | 5/5 |
+
+No failures.

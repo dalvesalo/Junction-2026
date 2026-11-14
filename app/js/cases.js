@@ -80,11 +80,41 @@
       id: "c8", name: "Aino M.", synthetic: true, centre: "Health centre B (urban)",
       patient: { age: 58, sex: "F", smoking: { ever: false } },
       labs: {},
-      results: [{ test: "Chest X-ray", daysAgo: 29, abnormal: true, followedUp: false, finding: "round shadow in the right upper zone, CT recommended" }],
+      results: [{ type: "chest_imaging", test: "Chest X-ray", daysAgo: 36, abnormal: true, followedUp: false, finding: "round shadow in the right upper zone, CT recommended" }],
       history: [],
       note: "Verenpaineen kontrolli. Ei uusia oireita. Lääkitys jatkuu ennallaan.",
       noteEn: "Blood-pressure check. No new symptoms. Medication unchanged.",
       headline: "A result nobody acted on"
+    },
+    {
+      id: "c9", name: "Eero T.", synthetic: true, centre: "Health centre C (suburban)",
+      patient: { age: 66, sex: "M", smoking: { ever: false } },
+      labs: {},
+      results: [{ type: "fhb", test: "Stool test (F-hHb)", daysAgo: 75, value: 62, followedUp: false }],
+      history: [{ daysAgo: 82, related: false, text: "Vatsan toiminta muuttunut, välillä verta ulosteessa. F-hHb pyydetty." }],
+      note: "Verenpainelääkityksen uusinta. RR 138/84. Ei muuta.",
+      noteEn: "Blood-pressure prescription renewal. BP 138/84. Nothing else.",
+      headline: "A positive stool test, never followed up"
+    },
+    {
+      id: "c10", name: "Kalevi N.", synthetic: true, centre: "Health centre A (rural)",
+      patient: { age: 63, sex: "M", smoking: { ever: false } },
+      labs: {},
+      results: [{ type: "psa", test: "PSA", daysAgo: 128, value: 6.8, followedUp: false }],
+      history: [{ daysAgo: 128, related: false, text: "Virtsaamisvaivoja. PSA otettu." }],
+      note: "Polvikipu portaissa 2 viikkoa. Ei turvotusta.",
+      noteEn: "Knee pain on stairs for 2 weeks. No swelling.",
+      headline: "A raised PSA that was never repeated"
+    },
+    {
+      id: "c11", name: "Tapio J.", synthetic: true, centre: "Health centre B (urban)",
+      patient: { age: 74, sex: "M", smoking: { ever: false } },
+      labs: {},
+      results: [{ type: "psa", test: "PSA", daysAgo: 140, value: 7.1, followedUp: false }],
+      history: [],
+      note: "Vuosikontrolli. Vointi hyvä, ei virtsaamisvaivoja.",
+      noteEn: "Annual check. Feels well, no urinary symptoms.",
+      headline: "Raised PSA at 74 — the agent stays silent"
     }
   ];
 })(typeof window !== "undefined" ? window : globalThis);
