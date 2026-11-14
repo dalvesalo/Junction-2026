@@ -21,7 +21,7 @@ The agent never asks for more scans than the county gives it: follow-ups already
 
 **Technologies used:** JavaScript (vanilla, no framework), HTML/CSS, SVG; deterministic NLP (Finnish/English lexicon mapped to ICPC-2, negation, duration, severity, one-letter typo correction); optional LLM second reading with verbatim-quote validation; Node test runner (220 synthetic notes); Bayesian risk model (PLCOm2012 × likelihood ratios); rule engine; Web Speech API (briefing read-aloud); Python (data processing, Playwright rendering, ffmpeg video); Claude (research, analysis and code assistant).
 
-**Demo link:** https://claude.ai/artifact/WBcU1hw4dpagfNVUQ2Ec3x *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
+**Demo link:** https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 *(owner-only until shared — share it publicly from claude.ai, or deploy `app/` with GitHub Pages: Settings → Pages → branch main, folder /app is not selectable, so either move app to /docs or use the artifact)*
 **Source code:** https://github.com/dalvesalo/Junction-2026 (must be accessible to organisers; MIT licence applies to submissions)
 **Video (≤ 2:00, public):** upload `overnight/deliverables/Ajoissa_pitch_video.mp4` (1:57.8) to YouTube as *Unlisted/Public* and paste the link.
 **Pitch deck (PDF):** export from https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i (Share/Export → PDF), or use `overnight/deliverables/Ajoissa_pitch_deck.pdf`.

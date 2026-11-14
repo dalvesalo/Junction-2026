@@ -1,7 +1,7 @@
 # Ajoissa — project brief (single source of truth for all deliverables)
 
 Team: Brainwave Bandits · Junction 2026 · AstraZeneca challenge (equal and effective cancer care in Finland, National Cancer Strategy Goal 3)
-Demo app: https://claude.ai/artifact/WBcU1hw4dpagfNVUQ2Ec3x · Repo: https://github.com/dalvesalo/Junction-2026 (app/ folder)
+Demo app: https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 · Repo: https://github.com/dalvesalo/Junction-2026 (app/ folder)
 
 ## One line
 **Ajoissa** ("in time") is a safety-net agent for public primary care: overnight it reads the county's own records, finds abnormal results nobody followed up (lung, bowel, prostate) and patients whose symptoms keep coming back, puts them on a named nurse's worklist with the reason, and runs a clock until each one is diagnosed or cleared — and the clocks give the county the step-by-step waiting data nobody measures today.

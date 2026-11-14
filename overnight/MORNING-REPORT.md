@@ -5,7 +5,7 @@ Run: Sat 14.11.2026, 01:21 → 06:25 (paused 02:10–06:10 by the account usage 
 ## Links
 | What | Where |
 |---|---|
-| **Demo app** (live, all views) | https://claude.ai/artifact/WBcU1hw4dpagfNVUQ2Ec3x — owner-only until you share it. Same app offline: `app/index.html` in the repo (works without internet). GitHub Pages ready (root `index.html` redirects to `app/`). |
+| **Demo app** (live, all views) | https://claude.ai/artifact/M2pRECwjfGtABcJY4WAH53 — owner-only until you share it. Same app offline: `app/index.html` in the repo (works without internet). GitHub Pages ready (root `index.html` redirects to `app/`). |
 | **Pitch deck** (19 slides, speaker notes = stage script) | https://claude.ai/artifact/GEu3JWvDxS5fJkWbcpkz1i — local PDF render: `overnight/deliverables/Ajoissa_pitch_deck.pdf` |
 | **Pitch video** (1:57.8, music, no voice) | `overnight/deliverables/Ajoissa_pitch_video.mp4` (also sent in chat) |
 | **Full report** (Docs, 10 sections, 43 refs, 3 charts) | https://claude.ai/artifact/Fn5RYTFToZxPPAaerQwAGH |
